@@ -8,7 +8,18 @@ use versatileab as _;
 
 use semihosting::println;
 
-versatileab::entry_point!();
+/// The entry-point to the Rust application.
+///
+/// It is called by the start-up code in the runtime crate.
+#[no_mangle]
+pub extern "C" fn boot_core(cpu_id: u32) {
+    match cpu_id {
+        0 => {
+            main();
+        }
+        _ => panic!("unexpected CPU ID {}", cpu_id),
+    }
+}
 
 /// The entry-point to the Rust application.
 ///

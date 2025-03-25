@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+## Changed
+
+- Entry point renamed from `kmain` to `boot_core`. `boot_core` expects one argument
+  which will be the CPU ID.
+
 ## Added
 
 - Added ABT und UND mode stack setup.

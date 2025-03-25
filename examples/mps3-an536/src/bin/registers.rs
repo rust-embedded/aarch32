@@ -12,13 +12,18 @@ use semihosting::println;
 ///
 /// It is called by the start-up code in `cortex-m-rt`.
 #[no_mangle]
-pub extern "C" fn kmain() {
-    main();
+pub extern "C" fn boot_core(cpu_id: u32) -> ! {
+    match cpu_id {
+        0 => {
+            main();
+        }
+        _ => panic!("unexpected CPU ID {}", cpu_id),
+    }
 }
 
 /// The entry-point to the Rust application.
 ///
-/// Called by [`kmain`].
+/// Called by [boot_core].
 pub fn main() -> ! {
     chip_info();
     #[cfg(arm_architecture = "v7-r")]

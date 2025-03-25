@@ -436,7 +436,7 @@ core::arch::global_asm!(
         b       done
 not_thumb:
         // Subtract 4 from LR (ARM mode)
-	      subs	lr, lr, #4
+        subs    lr, lr, #4
 done:
         // state save from compiled code
         srsfd   sp!, {und_mode}
@@ -552,25 +552,26 @@ core::arch::global_asm!(
     .global _default_start
     .type _default_start, %function
     _default_start:
-
         // only allow cpu0 through for initialization
         // Read MPIDR
-	      mrc	p15,0,r1,c0,c0,5
+        mrc     p15, 0, r1, c0, c0, 5
         // Extract CPU ID bits. For single-core systems, this should always be 0
-	      and	r1, r1, #0x3
-        cmp	r1, #0
-	      beq initialize
-    wait_loop:
+        mov     r2, #0xFFFF
+        and     r1, r1, r2
+        cmp     r1, #0
+        beq     1f
+    0:
         wfe
         // When Core 0 emits a SEV, the other cores will wake up.
-        // Load CPU ID, we are CPU0
-	      mrc	p15,0,r0,c0,c0,5
+        // Load CPU ID.
+        mrc     p15, 0, r0, c0, c0, 5
         // Extract CPU ID bits.
-	      and	r0, r0, #0x3
+        mov     r2, #0xFFFF
+        and     r0, r0, r2
         bl      boot_core
         // Should never returns, loop permanently here.
-        b .
-    initialize:
+        b       .
+    1:
         // Set up stacks.
         ldr     r0, =_stack_top
         // Set stack pointer (right after) and mask interrupts for for UND mode (Mode 0x1B)

@@ -24,13 +24,18 @@ const GICR_BASE_OFFSET: usize = 0x0010_0000usize;
 ///
 /// It is called by the start-up code in `cortex-m-rt`.
 #[no_mangle]
-pub extern "C" fn kmain() {
-    main();
+pub extern "C" fn boot_core(cpu_id: u32) -> ! {
+    match cpu_id {
+        0 => {
+            main();
+        }
+        _ => panic!("unexpected CPU ID {}", cpu_id),
+    }
 }
 
 /// The main function of our Rust application.
 ///
-/// Called by [`kmain`].
+/// Called by [boot_core].
 fn main() -> ! {
     // Get the GIC address by reading CBAR
     let periphbase = cortex_ar::register::ImpCbar::read().periphbase();

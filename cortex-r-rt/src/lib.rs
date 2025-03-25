@@ -34,13 +34,13 @@
 //!
 //! ### Functions
 //!
-//! * `kmain` - the `extern "C"` entry point to your application.
+//! * `boot_core` - the `extern "C"` entry point to your application.
 //!
 //!   Expected prototype:
 //!
 //!   ```rust
 //!   #[unsafe(no_mangle)]
-//!   extern "C" fn kmain() -> !;
+//!   extern "C" fn boot_core(cpu_id: u32) -> !;
 //!   ```
 //!
 //! * `_svc_handler` - an `extern "C"` function to call when an SVC Exception
@@ -130,7 +130,7 @@
 //!
 //! * `_vector_table` - the start of the interrupt vector table
 //! * `_default_start` - the default Reset handler, that sets up some stacks and
-//!   calls an `extern "C"` function called `kmain`.
+//!   calls an `extern "C"` function called `boot_core`.
 //! * `_asm_default_fiq_handler` - an FIQ handler that just spins
 //! * `_asm_default_handler` - an exception handler that just spins
 //! * `_asm_svc_handler` - assembly language trampoline for SVC Exceptions that
@@ -369,7 +369,7 @@ core::arch::global_asm!(
         tst      r4, {t_bit}
         // If not in Thumb mode, branch to not_thumb
         beq     not_thumb
-        subs	lr, lr, #2
+        subs    lr, lr, #2
         b       done
 not_thumb:
         // Subtract 4 from LR (ARM mode)
@@ -399,7 +399,7 @@ done:
     .type _asm_default_prefetch_handler, %function
     _asm_default_prefetch_handler:
         // Subtract 4 from the stored LR, see p.1212 of the ARMv7-A architecture manual.
-        subs	lr, lr, #4
+        subs    lr, lr, #4
         // state save from compiled code
         srsfd   sp!, {abt_mode}
     "#,
@@ -424,7 +424,7 @@ done:
     .type _asm_default_abort_handler, %function
     _asm_default_abort_handler:
         // Subtract 8 from the stored LR, see p.1214 of the ARMv7-A architecture manual.
-        subs	lr, lr, #8
+        subs    lr, lr, #8
         // state save from compiled code
         srsfd   sp!, {abt_mode}
     "#,
@@ -480,7 +480,7 @@ macro_rules! fpu_enable {
 
 // Start-up code for Armv7-R (and Armv8-R once we've left EL2)
 //
-// We set up our stacks and `kmain` in system mode.
+// We set up our stacks and `boot_core` in system mode.
 core::arch::global_asm!(
     r#"
     .section .text.startup
@@ -549,7 +549,10 @@ core::arch::global_asm!(
         b       0b
     1:
         // Jump to application
-        bl      kmain
+        // Load CPU ID, we are CPU0
+        ldr    r0, =0x0
+        // Jump to application
+        bl      boot_core
         // In case the application returns, loop forever
         b       .
     .size _el1_start, . - _el1_start
@@ -615,6 +618,27 @@ core::arch::global_asm!(
     .global _default_start
     .type _default_start, %function
     _default_start:
+        // only allow cpu0 through for initialization
+        // Read MPIDR
+        mrc     p15, 0, r1, c0, c0, 5
+        // Extract CPU ID bits by reading affinity level 0.
+        // For single-core systems, this should always be 0.
+        mov     r2, #0xFFFF
+        and     r1, r1, r2
+        cmp     r1, #0
+        beq     1f
+    0:
+        wfe
+        // When Core 0 emits a SEV, the other cores will wake up.
+        // Load CPU ID.
+        mrc     p15, 0, r0, c0, c0, 5
+        // Extract CPU ID bits.
+        mov     r2, #0xFFFF
+        and     r0, r0, r2
+        bl      boot_core
+        // Should never returns, loop permanently here.
+        b       .
+    1:
         ldr     pc, =_el1_start
     .size _default_start, . - _default_start
     "#
@@ -625,7 +649,7 @@ core::arch::global_asm!(
 // There's only one Armv8-R CPU (the Cortex-R52) and the FPU is mandatory, so we
 // always enable it.
 //
-// We boot into EL2, set up a stack pointer, and run `kmain` in EL1.
+// We boot into EL2, set up a stack pointer, and run `boot_core` in EL1.
 #[cfg(arm_architecture = "v8-r")]
 core::arch::global_asm!(
     r#"
@@ -635,6 +659,27 @@ core::arch::global_asm!(
     .global _default_start
     .type _default_start, %function
     _default_start:
+        // only allow cpu0 through for initialization
+        // Read MPIDR
+        mrc     p15, 0, r1, c0, c0, 5
+        // Extract CPU ID bits by reading affinity level 0.
+        // For single-core systems, this should always be 0.
+        mov     r2, #0xFFFF
+        and     r1, r1, r2
+        cmp     r1, #0
+        beq     1f
+    0:
+        wfe
+        // When Core 0 emits a SEV, the other cores will wake up.
+        // Load CPU ID
+        mrc     p15, 0, r0, c0, c0, 5
+        // Extract CPU ID bits.
+        mov     r2, #0xFFFF
+        and     r0, r0, r2
+        bl      boot_core
+        // Should never returns, loop permanently here.
+        b       .
+    1:
         // Are we in EL2? If not, skip the EL2 setup portion
         mrs     r0, cpsr
         and     r0, r0, 0x1F
@@ -651,10 +696,10 @@ core::arch::global_asm!(
         orr     r0, r0, r1
         mcr     p15, 4, r0, c1, c0, 1
         // Program the SPSR - enter system mode (0x1F) in Arm mode with IRQ, FIQ masked
-        mov		r0, {sys_mode}
-        msr		spsr_hyp, r0
-        adr		r0, 1f
-        msr		elr_hyp, r0
+        mov     r0, {sys_mode}
+        msr     spsr_hyp, r0
+        adr     r0, 1f
+        msr     elr_hyp, r0
         dsb
         isb
         eret

@@ -12,13 +12,17 @@ use semihosting::println;
 ///
 /// It is called by the start-up code in `cortex-m-rt`.
 #[no_mangle]
-pub extern "C" fn kmain() {
-    main();
-    semihosting::process::exit(0);
+pub extern "C" fn boot_core(cpu_id: u32) -> ! {
+    match cpu_id {
+        0 => {
+            main();
+        }
+        _ => panic!("unexpected CPU ID {}", cpu_id),
+    }
 }
 
 /// Let's test some timers!
-fn main() {
+fn main() -> ! {
     use cortex_ar::generic_timer::{El1PhysicalTimer, El1VirtualTimer, GenericTimer};
     let cntfrq = cortex_ar::register::Cntfrq::read().0;
     println!("cntfrq = {:.03} MHz", cntfrq as f32 / 1_000_000.0);
@@ -64,4 +68,5 @@ fn main() {
             timer.countdown() as i32
         );
     }
+    semihosting::process::exit(0)
 }
