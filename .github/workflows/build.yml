@@ -294,41 +294,24 @@ jobs:
         run: |
           cargo test --manifest-path cortex-ar/Cargo.toml
 
-  # Run some programs in QEMU 8 on Linux (but not MPS3-AN536 examples)
-  qemu-test-linux:
+  qemu-test:
     runs-on: ubuntu-24.04
     needs: [build-all]
     steps:
       - name: Install QEMU
-        run: sudo apt-get -y update && sudo apt-get -y install qemu-system-arm
+        run: |
+          echo "deb http://archive.ubuntu.com/ubuntu/ oracular main" | sudo tee -a /etc/apt/sources.list
+          echo "deb http://archive.ubuntu.com/ubuntu/ oracular-updates main" | sudo tee -a /etc/apt/sources.list
+          echo "deb http://archive.ubuntu.com/ubuntu/ oracular-security main" | sudo tee -a /etc/apt/sources.list
+          sudo apt-get -y update && sudo apt-get -y install qemu-system-arm
       - name: Checkout
         uses: actions/checkout@v4
       - name: Run tests in QEMU
         run: ./tests.sh
 
-  # Run some programs in QEMU 9 on Windows (including MPS3-AN536 examples)
-  qemu-test-windows:
-    runs-on: windows-latest
-    needs: [build-all]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install QEMU
-        run: choco install qemu
-      - name: Run tests in QEMU
-        shell: bash
-        run: PATH=${PATH}:/c/Program\ Files/qemu ./tests.sh
-
-  # Gather all the above qemu jobs together for the purposes of getting an overall pass-fail
-  qemu-test-all:
-    runs-on: ubuntu-24.04
-    needs: [qemu-test-linux, qemu-test-windows]
-    steps:
-      - run: /bin/true
-
   # Gather all the above xxx-all jobs together for the purposes of getting an overall pass-fail
   all:
     runs-on: ubuntu-24.04
-    needs: [docs-all, build-all, fmt-all, unit-test, qemu-test-all] # not gating on clippy-all
+    needs: [docs-all, build-all, fmt-all, unit-test, qemu-test] # not gating on clippy-all
     steps:
       - run: /bin/true
