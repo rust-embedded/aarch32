@@ -3,7 +3,7 @@
 This library implements a simple Arm vector table, suitable for getting into a
 Rust application running in System Mode. It also provides a reference start
 up method. Most Cortex-A based systems will require chip specific start-up
-code, so the start-up method can over overriden.
+code, so the start-up method can over overridden.
 
 See <https://docs.rs/cortex-a-rt> for detailed documentation.
 
