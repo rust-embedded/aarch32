@@ -24,6 +24,6 @@ No changes
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/arm-targets-v0.1.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/arm-targets-v0.2.0...HEAD
 [v0.2.0]: https://github.com/rust-embedded/cortex-ar/compare/arm-targets-v0.1.0...arm-targets-v0.2.0
 [v0.1.0]: https://github.com/rust-embedded/cortex-ar/releases/tag/arm-targets-v0.1.0
