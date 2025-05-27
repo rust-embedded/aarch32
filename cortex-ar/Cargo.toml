@@ -1,7 +1,7 @@
 [package]
 authors = [
     "Jonathan Pallant <jonathan.pallant@ferrous-systems.com>",
-    "The Cortex-R Team <cortex-r@teams.rust-embedded.org>",
+    "The Embedded Devices Working Group Arm Team <arm@teams.rust-embedded.org>",
 ]
 categories = [
     "embedded",
@@ -22,7 +22,7 @@ readme = "README.md"
 repository = "https://github.com/rust-embedded/cortex-ar.git"
 homepage = "https://github.com/rust-embedded/cortex-ar.git"
 rust-version = "1.82"
-version = "0.1.0"
+version = "0.2.0"
 
 [dependencies]
 arbitrary-int = "1.3.0"
@@ -32,7 +32,7 @@ critical-section = {version = "1.2.0", features = ["restore-state-u8"], optional
 defmt = {version = "0.3", optional = true}
 
 [build-dependencies]
-arm-targets = {version = "0.1.0", path = "../arm-targets"}
+arm-targets = {version = "0.2.0", path = "../arm-targets"}
 
 [features]
 # Adds a critical-section implementation that only disables interrupts.

@@ -1,7 +1,7 @@
 [package]
 authors = [
     "Jonathan Pallant <jonathan.pallant@ferrous-systems.com>",
-    "The Cortex-R Team <cortex-r@teams.rust-embedded.org>"
+    "The Embedded Devices Working Group Arm Team <arm@teams.rust-embedded.org>"
 ]
 categories = [
     "embedded",
@@ -21,19 +21,19 @@ name = "cortex-r-rt"
 readme = "README.md"
 repository = "https://github.com/rust-embedded/cortex-r.git"
 rust-version = "1.82"
-version = "0.1.0"
+version = "0.2.0"
 
 [dependencies]
-cortex-ar = {version = "0.1.0", path = "../cortex-ar"}
+cortex-ar = {version = "0.2.0", path = "../cortex-ar"}
 semihosting = {version = "0.1.18", features = ["stdio"]}
-cortex-ar-rt-macros = { path = "../cortex-ar-rt-macros", version = "=0.1.0" }
+cortex-ar-rt-macros = {path = "../cortex-ar-rt-macros", version = "=0.1.0"}
 
 [features]
 # Enable the FPU on start-up, even on a soft-float EABI target
 eabi-fpu = []
 
 [build-dependencies]
-arm-targets = {version = "0.1.0", path = "../arm-targets"}
+arm-targets = {version = "0.2.0", path = "../arm-targets"}
 
 [package.metadata.docs.rs]
 targets = ["armv7r-none-eabihf", "armv7r-none-eabihf"]

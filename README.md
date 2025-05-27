@@ -13,12 +13,13 @@ These libraries were originally written by Ferrous Systems, and are based on the
 [`cortex-m` libraries]: https://github.com/rust-embedded/cortex-m
 [Rust Embedded Devices Working Group]: https://github.com/rust-embedded
 
-There are currently three libraries here:
+There are currently five libraries here:
 
 * [cortex-ar](./cortex-ar/) - support library for Cortex-R and Cortex-A CPUs (like [cortex-m])
 * [cortex-r-rt](./cortex-r-rt/) - run-time library for Cortex-R CPUs (like [cortex-m-rt])
 * [cortex-a-rt](./cortex-a-rt/) - run-time library for Cortex-A CPUs (like [cortex-m-rt])
 * [arm-targets](./arm-targets/) - a helper library for your build.rs that sets various `--cfg` flags according to the current target
+* [cortex-ar-rt-macros](./cortex-ar-rt-macros/) - macros for `cortex-a-rt` and `cortex-r-rt` (this is an implementation detail - do not use this crate directly)
 
 There are also example programs for QEMU in the [examples](./examples/) folder.
 

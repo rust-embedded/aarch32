@@ -1,7 +1,7 @@
 [package]
 authors = [
     "Jonathan Pallant <jonathan.pallant@ferrous-systems.com>",
-    "The Cortex-R Team <cortex-r@teams.rust-embedded.org>"
+    "The Embedded Devices Working Group Arm Team <arm@teams.rust-embedded.org>"
 ]
 categories = ["development-tools::build-utils"]
 description = "Compile-time feature detection for Arm processors"
@@ -12,6 +12,6 @@ readme = "README.md"
 repository = "https://github.com/rust-embedded/cortex-ar.git"
 homepage = "https://github.com/rust-embedded/cortex-ar.git"
 rust-version = "1.59"
-version = "0.1.0"
+version = "0.2.0"
 
 [dependencies]

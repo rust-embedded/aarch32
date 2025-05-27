@@ -2,7 +2,7 @@
 authors = [
   "Robin Mueller <muellerr@irs.uni-stuttgart.de>",
   "Jonathan Pallant <jonathan.pallant@ferrous-systems.com>",
-  "The Cortex-R Team <cortex-r@teams.rust-embedded.org>"
+  "The Embedded Devices Working Group Arm Team <arm@teams.rust-embedded.org>"
 ]
 description = "Run-Time support for Arm Cortex-A"
 edition = "2021"
@@ -15,7 +15,7 @@ rust-version = "1.82"
 version = "0.1.0"
 
 [dependencies]
-cortex-ar = {version = "0.1.0", path = "../cortex-ar"}
+cortex-ar = {version = "0.2.0", path = "../cortex-ar"}
 cortex-ar-rt-macros = { path = "../cortex-ar-rt-macros", version = "=0.1.0" }
 
 [features]
@@ -26,7 +26,7 @@ eabi-fpu = []
 vfp-dp = []
 
 [build-dependencies]
-arm-targets = {version = "0.1.0", path = "../arm-targets"}
+arm-targets = {version = "0.2.0", path = "../arm-targets"}
 
 [package.metadata.docs.rs]
 targets = ["armv7a-none-eabihf"]

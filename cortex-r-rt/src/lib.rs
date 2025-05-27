@@ -3,7 +3,7 @@
 //! This library implements a simple Arm vector table, suitable for getting into
 //! a Rust application running in System Mode. It also provides a reference
 //! start up method. Most Cortex-R based systems will require chip specific
-//! start-up code, so the start-up method can over overriden.
+//! start-up code, so the start-up method can over overridden.
 //!
 //! The default startup routine provided by this crate does not include any
 //! special handling for multi-core support because this is oftentimes

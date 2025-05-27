@@ -1,15 +1,19 @@
 [package]
-authors = ["Jonathan Pallant <jonathan.pallant@ferrous-systems.com>", "The Cortex-R Team <cortex-r@teams.rust-embedded.org>"]
+authors = [
+	"Jonathan Pallant <jonathan.pallant@ferrous-systems.com>",
+	"The Embedded Devices Working Group Arm Team <arm@teams.rust-embedded.org>"
+]
 default-run = "hello"
+description = "Examples for the QEMU Versatile Application baseboard device (Arm Cortex-A8 or Arm Cortex-R5)"
 edition = "2021"
-name = "versatileab"
-description = "Examples for the QEMU Versatile baseboard device (Arm Cortex-A)"
+homepage = "https://github.com/rust-embedded/cortex-ar.git"
 license = "MIT OR Apache-2.0"
+name = "versatileab"
+publish = false
 readme = "README.md"
 repository = "https://github.com/rust-embedded/cortex-ar.git"
-homepage = "https://github.com/rust-embedded/cortex-ar.git"
 rust-version = "1.82"
-version = "0.1.0"
+version = "0.0.0"
 
 [dependencies]
 cortex-ar = { path = "../../cortex-ar", features = ["critical-section-single-core"] }
@@ -18,7 +22,7 @@ cortex-r-rt = { path = "../../cortex-r-rt" }
 semihosting = { version = "0.1.18", features = ["stdio"] }
 
 [build-dependencies]
-arm-targets = { version = "0.1.0", path = "../../arm-targets" }
+arm-targets = { version = "0.2.0", path = "../../arm-targets" }
 
 [features]
 eabi-fpu = ["cortex-a-rt/eabi-fpu", "cortex-r-rt/eabi-fpu"]

@@ -2,7 +2,7 @@
 authors = [
   "Robin Mueller <muellerr@irs.uni-stuttgart.de>",
   "Jonathan Pallant <jonathan.pallant@ferrous-systems.com>",
-  "The Cortex-R Team <cortex-r@teams.rust-embedded.org>"
+  "The Embedded Devices Working Group Arm Team <arm@teams.rust-embedded.org>"
 ]
 description = "Run-Time macros for Arm Cortex-A and Cortex-R"
 edition = "2021"

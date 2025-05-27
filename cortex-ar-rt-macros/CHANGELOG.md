@@ -13,5 +13,5 @@ No changes
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/cortex-a-rt-v0.1.0...HEAD
-[v0.1.0]: https://github.com/rust-embedded/cortex-ar/releases/tag/cortex-a-rt-v0.1.0
+[Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-rt-macros-v0.1.0...HEAD
+[v0.1.0]: https://github.com/rust-embedded/cortex-ar/releases/tag/cortex-ar-rt-macros-v0.1.0
