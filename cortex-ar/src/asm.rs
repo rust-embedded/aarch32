@@ -2,6 +2,20 @@
 
 use core::sync::atomic::{compiler_fence, Ordering};
 
+/// Data Memory Barrier
+///
+/// Ensures that all explicit memory accesses that appear in program order before the `DMB`
+/// instruction are observed before any explicit memory accesses that appear in program order
+/// after the `DMB` instruction.
+#[inline]
+pub fn dmb() {
+    compiler_fence(Ordering::SeqCst);
+    unsafe {
+        core::arch::asm!("dmb", options(nostack, preserves_flags));
+    }
+    compiler_fence(Ordering::SeqCst);
+}
+
 /// Data Synchronization Barrier
 ///
 /// Acts as a special kind of memory barrier. No instruction in program order after this instruction
