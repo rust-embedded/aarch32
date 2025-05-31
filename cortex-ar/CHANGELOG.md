@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `dmb` data memory barrier in ASM module.
+
 ## [v0.2.0]
 
 ### Added
