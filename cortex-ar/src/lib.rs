@@ -7,6 +7,7 @@ mod critical_section;
 #[cfg(target_arch = "arm")]
 pub mod asm;
 
+pub mod cache;
 pub mod interrupt;
 pub mod mmu;
 pub mod register;
