@@ -1,7 +1,13 @@
 use arbitrary_int::{u12, u2, u3, u4};
 
-#[derive(Debug, Copy, Clone)]
-#[repr(u8)]
+#[derive(Debug, thiserror::Error)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[error("invalid L1 entry type {0:?}")]
+pub struct InvalidL1EntryType(pub L1EntryType);
+
+#[bitbybit::bitenum(u3, exhaustive = true)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[derive(Debug)]
 pub enum AccessPermissions {
     PermissionFault = 0b000,
     PrivilegedOnly = 0b001,
@@ -14,18 +20,21 @@ pub enum AccessPermissions {
 }
 
 impl AccessPermissions {
+    #[inline]
     const fn ap(&self) -> u8 {
         (*self as u8) & 0b11
     }
 
+    #[inline]
     const fn apx(&self) -> bool {
         (*self as u8) > (AccessPermissions::FullAccess as u8)
     }
 }
 
-#[derive(Debug)]
-#[repr(u8)]
 #[bitbybit::bitenum(u2, exhaustive = true)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[derive(Debug, PartialEq, Eq)]
+#[repr(u8)]
 pub enum L1EntryType {
     /// Access generates an abort exception. Indicates an unmapped virtual address.
     Fault = 0b00,
@@ -43,15 +52,17 @@ pub enum L1EntryType {
 /// earlier versions of the architecture. These names no longer adequately describe the function
 /// of the B, C, and TEX bits.
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct MemoryRegionAttributesRaw {
     /// TEX bits
-    type_extensions: u8,
+    type_extensions: u3,
     c: bool,
     b: bool,
 }
 
 impl MemoryRegionAttributesRaw {
-    pub const fn new(type_extensions: u8, c: bool, b: bool) -> Self {
+    #[inline]
+    pub const fn new(type_extensions: u3, c: bool, b: bool) -> Self {
         Self {
             type_extensions,
             c,
@@ -60,7 +71,9 @@ impl MemoryRegionAttributesRaw {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[bitbybit::bitenum(u2, exhaustive = true)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[derive(Debug)]
 pub enum CacheableMemoryAttribute {
     NonCacheable = 0b00,
     WriteBackWriteAlloc = 0b01,
@@ -69,6 +82,7 @@ pub enum CacheableMemoryAttribute {
 }
 
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum MemoryRegionAttributes {
     StronglyOrdered,
     ShareableDevice,
@@ -87,29 +101,29 @@ impl MemoryRegionAttributes {
     pub const fn as_raw(&self) -> MemoryRegionAttributesRaw {
         match self {
             MemoryRegionAttributes::StronglyOrdered => {
-                MemoryRegionAttributesRaw::new(0b000, false, false)
+                MemoryRegionAttributesRaw::new(u3::new(0b000), false, false)
             }
             MemoryRegionAttributes::ShareableDevice => {
-                MemoryRegionAttributesRaw::new(0b000, false, true)
+                MemoryRegionAttributesRaw::new(u3::new(0b000), false, true)
             }
             MemoryRegionAttributes::OuterAndInnerWriteThroughNoWriteAlloc => {
-                MemoryRegionAttributesRaw::new(0b000, true, false)
+                MemoryRegionAttributesRaw::new(u3::new(0b000), true, false)
             }
             MemoryRegionAttributes::OuterAndInnerWriteBackNoWriteAlloc => {
-                MemoryRegionAttributesRaw::new(0b000, true, true)
+                MemoryRegionAttributesRaw::new(u3::new(0b000), true, true)
             }
             MemoryRegionAttributes::OuterAndInnerNonCacheable => {
-                MemoryRegionAttributesRaw::new(0b001, false, false)
+                MemoryRegionAttributesRaw::new(u3::new(0b001), false, false)
             }
             MemoryRegionAttributes::OuterAndInnerWriteBackWriteAlloc => {
-                MemoryRegionAttributesRaw::new(0b001, true, true)
+                MemoryRegionAttributesRaw::new(u3::new(0b001), true, true)
             }
             MemoryRegionAttributes::NonShareableDevice => {
-                MemoryRegionAttributesRaw::new(0b010, false, false)
+                MemoryRegionAttributesRaw::new(u3::new(0b010), false, false)
             }
             MemoryRegionAttributes::CacheableMemory { inner, outer } => {
                 MemoryRegionAttributesRaw::new(
-                    (1 << 2) | (*outer as u8),
+                    u3::new((1 << 2) | (outer.raw_value().value())),
                     (*inner as u8 & 0b10) != 0,
                     (*inner as u8 & 0b01) != 0,
                 )
@@ -119,6 +133,7 @@ impl MemoryRegionAttributes {
 }
 
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct SectionAttributes {
     /// NG bit
     pub non_global: bool,
@@ -128,9 +143,57 @@ pub struct SectionAttributes {
     /// AP bits
     pub access: AccessPermissions,
     pub memory_attrs: MemoryRegionAttributesRaw,
-    pub domain: u8,
+    pub domain: u4,
     /// xN bit.
     pub execute_never: bool,
+}
+
+impl SectionAttributes {
+    /// Lower 18 bits of the L1 section entry.
+    #[inline]
+    pub const fn raw(&self) -> u32 {
+        ((self.non_global as u32) << 17)
+            | ((self.shareable as u32) << 16)
+            | ((self.access.apx() as u32) << 15)
+            | ((self.memory_attrs.type_extensions.value() as u32) << 12)
+            | ((self.access.ap() as u32) << 10)
+            | ((self.p_bit as u32) << 9)
+            | ((self.domain.value() as u32) << 5)
+            | ((self.execute_never as u32) << 4)
+            | ((self.memory_attrs.c as u32) << 3)
+            | ((self.memory_attrs.b as u32) << 2)
+            | L1EntryType::Section as u32
+    }
+
+    /// Extract the section attributes from a raw L1 section entry.
+    #[inline]
+    pub fn from_raw(raw: u32) -> Result<Self, InvalidL1EntryType> {
+        let section_type = L1EntryType::new_with_raw_value(u2::new((raw & 0b11) as u8));
+        if section_type != L1EntryType::Section {
+            return Err(InvalidL1EntryType(section_type));
+        }
+        Ok(Self::from_raw_unchecked(raw))
+    }
+
+    /// Extract the section attributes without checking the entry type bits.
+    #[inline]
+    pub const fn from_raw_unchecked(raw: u32) -> Self {
+        Self {
+            non_global: (raw >> 17) & 0x1 != 0,
+            shareable: (raw >> 16) & 0x1 != 0,
+            p_bit: (raw >> 9) & 0x1 != 0,
+            access: AccessPermissions::new_with_raw_value(u3::new(
+                ((((raw >> 15) & 0b1) as u8) << 2) | (((raw >> 10) & 0b11) as u8),
+            )),
+            memory_attrs: MemoryRegionAttributesRaw::new(
+                u3::new(((raw >> 12) & 0b111) as u8),
+                ((raw >> 3) & 0b1) != 0,
+                ((raw >> 2) & 0b1) as u8 != 0,
+            ),
+            domain: u4::new(((raw >> 5) & 0b1111) as u8),
+            execute_never: ((raw >> 4) & 0b1) != 0,
+        }
+    }
 }
 
 /// 1 MB section translation entry, mapping a 1 MB region to a physical address.
@@ -138,6 +201,7 @@ pub struct SectionAttributes {
 /// The ARM Cortex-A architecture programmers manual chapter 9.4 (p.163) specifies these attributes
 /// in more detail.
 #[bitbybit::bitfield(u32)]
+#[derive(PartialEq, Eq)]
 pub struct L1Section {
     /// Section base address.
     #[bits(20..=31, rw)]
@@ -204,18 +268,6 @@ impl L1Section {
             panic!("physical base address for L1 section must be aligned to 1 MB");
         }
         let higher_bits = phys_addr >> 20;
-        let raw = (higher_bits << 20)
-            | ((section_attrs.non_global as u32) << 17)
-            | ((section_attrs.shareable as u32) << 16)
-            | ((section_attrs.access.apx() as u32) << 15)
-            | ((section_attrs.memory_attrs.type_extensions as u32) << 12)
-            | ((section_attrs.access.ap() as u32) << 10)
-            | ((section_attrs.p_bit as u32) << 9)
-            | ((section_attrs.domain as u32) << 5)
-            | ((section_attrs.execute_never as u32) << 4)
-            | ((section_attrs.memory_attrs.c as u32) << 3)
-            | ((section_attrs.memory_attrs.b as u32) << 2)
-            | L1EntryType::Section as u32;
-        Self::new_with_raw_value(raw)
+        Self::new_with_raw_value((higher_bits << 20) | section_attrs.raw())
     }
 }
