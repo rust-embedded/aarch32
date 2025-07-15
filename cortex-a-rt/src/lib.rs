@@ -3,7 +3,7 @@
 //! This library implements a simple Arm vector table, suitable for getting into
 //! a Rust application running in System Mode. It also provides a reference
 //! start up method. Most Cortex-A based systems will require chip specific
-//! start-up code, so the start-up method can over overridden.
+//! start-up code, so the start-up method can be overridden.
 //!
 //! The default startup routine provided by this crate does not include any
 //! special handling for multi-core support because this is oftentimes
@@ -122,7 +122,7 @@
 //!     loop { }
 //! }
 //! ```
-//!   
+//!
 //! or:
 //!
 //! ```rust
@@ -149,7 +149,7 @@
 //!     loop { }
 //! }
 //! ```
-//!   
+//!
 //! or:
 //!
 //! ```rust
@@ -220,7 +220,7 @@
 //!     loop { }
 //! }
 //! ```
-//!   
+//!
 //! Or it can return an address where execution should resume after the
 //! Exception handler is complete (which is unsafe):
 //!
@@ -278,7 +278,7 @@
 //!     loop { }
 //! }
 //! ```
-//!   
+//!
 //! Or it can return an address where execution should resume after the
 //! Exception handler is complete (which is unsafe):
 //!
@@ -645,7 +645,7 @@ macro_rules! restore_context {
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
-       
+
     // Called from the vector table when we have an undefined exception.
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _undefined_handler(addr: usize) -> usize;`
