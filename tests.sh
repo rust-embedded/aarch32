@@ -6,8 +6,7 @@
 rustup target add armv7r-none-eabi
 rustup target add armv7r-none-eabihf
 rustup target add armv7a-none-eabi
-rustup toolchain add nightly
-rustup component add rust-src --toolchain=nightly
+rustup component add rust-src
 
 FAILURE=0
 
@@ -64,10 +63,10 @@ if qemu-system-arm --version | grep "version 9"; then
     for bin_path in $(ls examples/mps3-an536/src/bin/*.rs); do
         filename=${bin_path##*/}
         binary=${filename%.rs}
-        cargo +nightly run ${mps3_an536_cargo} --target=armv8r-none-eabihf --bin $binary --features=gic -Zbuild-std=core | tee ./target/$binary-armv8r-none-eabihf.out
+        RUSTC_BOOTSTRAP=1 cargo run ${mps3_an536_cargo} --target=armv8r-none-eabihf --bin $binary --features=gic -Zbuild-std=core | tee ./target/$binary-armv8r-none-eabihf.out
         my_diff ./examples/mps3-an536/reference/$binary-armv8r-none-eabihf.out ./target/$binary-armv8r-none-eabihf.out || fail $binary "armv8r-none-eabihf"
     done
-    cargo +nightly run ${mps3_an536_cargo} --target=armv8r-none-eabihf --bin smp_test --features=gic -Zbuild-std=core -- -smp 2 | tee ./target/smp_test-armv8r-none-eabihf_smp2.out
+    RUSTC_BOOTSTRAP=1 cargo run ${mps3_an536_cargo} --target=armv8r-none-eabihf --bin smp_test --features=gic -Zbuild-std=core -- -smp 2 | tee ./target/smp_test-armv8r-none-eabihf_smp2.out
     my_diff ./examples/mps3-an536/reference/smp_test-armv8r-none-eabihf_smp2.out ./target/smp_test-armv8r-none-eabihf_smp2.out || fail smp_test "armv8r-none-eabihf"
 fi
 
