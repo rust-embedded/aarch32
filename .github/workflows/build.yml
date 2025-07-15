@@ -301,6 +301,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install rust
+        run: |
+          rustup install 1.88
+          rustup default 1.88
       - name: Install Dependencies
         run: |
           sudo apt-get -y update
