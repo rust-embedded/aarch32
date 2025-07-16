@@ -8,6 +8,7 @@ use core::sync::atomic::{compiler_fence, Ordering};
 /// instruction are observed before any explicit memory accesses that appear in program order
 /// after the `DMB` instruction.
 #[inline]
+#[cfg(any(arm_profile = "r", arm_profile = "a"))]
 pub fn dmb() {
     compiler_fence(Ordering::SeqCst);
     unsafe {
@@ -24,6 +25,7 @@ pub fn dmb() {
 ///  * any explicit memory access made before this instruction is complete
 ///  * all cache and branch predictor maintenance operations before this instruction complete
 #[inline]
+#[cfg(any(arm_profile = "r", arm_profile = "a"))]
 pub fn dsb() {
     compiler_fence(Ordering::SeqCst);
     unsafe {
@@ -37,6 +39,7 @@ pub fn dsb() {
 /// Flushes the pipeline in the processor, so that all instructions following the `ISB` are fetched
 /// from cache or memory, after the instruction has been completed.
 #[inline]
+#[cfg(any(arm_profile = "r", arm_profile = "a"))]
 pub fn isb() {
     compiler_fence(Ordering::SeqCst);
     unsafe {
@@ -48,23 +51,29 @@ pub fn isb() {
 /// Emit an NOP instruction
 #[inline]
 pub fn nop() {
-    unsafe { core::arch::asm!("nop", options(nomem, nostack, preserves_flags)) }
+    #[cfg(any(arm_profile = "r", arm_profile = "a"))]
+    unsafe {
+        core::arch::asm!("nop", options(nomem, nostack, preserves_flags))
+    }
 }
 
 /// Emit an WFI instruction
 #[inline]
+#[cfg(any(arm_profile = "r", arm_profile = "a"))]
 pub fn wfi() {
     unsafe { core::arch::asm!("wfi", options(nomem, nostack, preserves_flags)) }
 }
 
 /// Emit an WFE instruction
 #[inline]
+#[cfg(any(arm_profile = "r", arm_profile = "a"))]
 pub fn wfe() {
     unsafe { core::arch::asm!("wfe", options(nomem, nostack, preserves_flags)) }
 }
 
 /// Emit an SEV instruction
 #[inline]
+#[cfg(any(arm_profile = "r", arm_profile = "a"))]
 pub fn sev() {
     unsafe {
         core::arch::asm!("sev");
@@ -75,6 +84,7 @@ pub fn sev() {
 ///
 /// Return the bottom 24-bits of the MPIDR
 #[inline]
+#[cfg(any(arm_profile = "r", arm_profile = "a"))]
 pub fn core_id() -> u32 {
     let r: u32;
     unsafe {
