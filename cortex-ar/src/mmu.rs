@@ -143,7 +143,7 @@ pub struct L1Section {
     #[bits(20..=31, rw)]
     base_addr: u12,
     /// Non-global bit.
-    #[bit(16, rw)]
+    #[bit(17, rw)]
     ng: bool,
     /// Shareable bit.
     #[bit(16, rw)]
