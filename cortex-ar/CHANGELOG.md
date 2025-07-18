@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - `dmb` data memory barrier in ASM module.
+- API for inner cache maintenance as part of the new `cache` module. This includes functions to
+  completely clean, invalidate or clean & invalidate the L1 data cache or perform data cache
+  maintenance by MVA (specific address).
 
 ## [v0.2.0]
 
