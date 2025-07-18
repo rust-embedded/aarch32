@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - API for inner cache maintenance as part of the new `cache` module. This includes functions to
   completely clean, invalidate or clean & invalidate the L1 data cache or perform data cache
   maintenance by MVA (specific address).
+- Added new  `L1Section::set_section_attrs` and `L1Section::section_attrs` method. Also added
+  low-level `L1Section::new_with_addr_upper_bits_and_attrs` constructor.
+
+### Changed
+
+- MMU code: Use more `arbitrary-int` types for MMU configuration bits.
+- Renamed `L1Section::new` to `L1Section::new_with_addr_and_attrs`.
 
 ## [v0.2.0]
 
