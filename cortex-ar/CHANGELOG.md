@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - MMU code: Use more `arbitrary-int` types for MMU configuration bits.
 - Renamed `L1Section::new` to `L1Section::new_with_addr_and_attrs`.
+- Bumped `defmt` to v1
 
 ## [v0.2.0]
 
