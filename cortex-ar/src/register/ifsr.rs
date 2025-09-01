@@ -1,6 +1,6 @@
 //! Code for managing IFSR (*Instruction Fault Status Register*)
 
-use arbitrary_int::{u4, u5, Number};
+use arbitrary_int::{u4, u5, prelude::*};
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
