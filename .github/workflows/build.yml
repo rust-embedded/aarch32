@@ -302,8 +302,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Install rust
         run: |
-          rustup install 1.88
-          rustup default 1.88
+          rustup install 1.89
+          rustup default 1.89
       - name: Install Dependencies
         run: |
           sudo apt-get -y update
