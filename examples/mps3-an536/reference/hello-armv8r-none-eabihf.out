@@ -4,7 +4,7 @@ PANIC: PanicInfo {
     location: Location {
         file: "src/bin/hello.rs",
         line: 22,
-        col: 5,
+        column: 5,
     },
     can_unwind: true,
     force_no_backtrace: false,
