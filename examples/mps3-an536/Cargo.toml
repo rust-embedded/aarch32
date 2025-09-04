@@ -19,7 +19,7 @@ version = "0.0.0"
 cortex-ar = { path = "../../cortex-ar", features = ["critical-section-multi-core"] }
 cortex-r-rt = { path = "../../cortex-r-rt" }
 semihosting = { version = "0.1.18", features = ["stdio"] }
-arm-gic = { git = "https://github.com/google/arm-gic.git", rev = "46a8fc1720f5c28fccf4dfb5953b88dab7012e9c", optional = true }
+arm-gic = { version = "0.6.1", optional = true }
 critical-section = "1.2.0"
 
 [build-dependencies]
