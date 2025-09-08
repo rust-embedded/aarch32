@@ -29,4 +29,4 @@ vfp-dp = []
 arm-targets = {version = "0.2.0", path = "../arm-targets"}
 
 [package.metadata.docs.rs]
-targets = ["armv7a-none-eabihf"]
+targets = ["armv7a-none-eabi"]
