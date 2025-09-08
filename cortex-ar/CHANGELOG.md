@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+- Bumped MSRV for `cortex-ar` to v1.83 to allow compatibility with `arbitrary-int` v2.
+
 ### Added
 
 - `dmb` data memory barrier in ASM module.
