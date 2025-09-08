@@ -1,3 +1,6 @@
+[![crates.io](https://img.shields.io/crates/v/cortex-r-rt)](https://crates.io/crates/cortex-r-rt)
+[![docs.rs](https://img.shields.io/docsrs/cortex-r-rt)](https://docs.rs/cortex-r-rt)
+
 # Run-time support for Arm Cortex-R (AArch32)
 
 This library implements a simple Arm vector table, suitable for getting into a
