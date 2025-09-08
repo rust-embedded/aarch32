@@ -1,3 +1,6 @@
+[![crates.io](https://img.shields.io/crates/v/cortex-ar)](https://crates.io/crates/cortex-ar)
+[![docs.rs](https://img.shields.io/docsrs/cortex-ar)](https://docs.rs/cortex-ar)
+
 # Support for Arm Cortex-R (AArch32) and Arm Cortex-A (AArch32)
 
 This crate provides access to CPU registers and common peripherals for:
