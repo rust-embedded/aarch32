@@ -1,6 +1,6 @@
 //! Code for managing DRSR (*Data Region Size and Enable Register*)
 
-use arbitrary_int::Number;
+use arbitrary_int::prelude::*;
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
