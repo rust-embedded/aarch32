@@ -10,12 +10,10 @@ use cortex_r_rt::{entry, irq};
 use mps3_an536 as _;
 
 use arm_gic::{
-    gicv3::{Group, SgiTarget},
+    gicv3::{GicV3, Group, InterruptGroup, SgiTarget, SgiTargetGroup},
     IntId,
 };
 use semihosting::println;
-
-type SingleCoreGic = arm_gic::gicv3::GicV3<1>;
 
 /// Offset from PERIPHBASE for GIC Distributor
 const GICD_BASE_OFFSET: usize = 0x0000_0000usize;
@@ -42,11 +40,10 @@ fn main() -> ! {
         "Creating GIC driver @ {:010p} / {:010p}",
         gicd_base, gicr_base
     );
-    let mut gic: SingleCoreGic =
-        unsafe { SingleCoreGic::new(gicd_base.cast(), [gicr_base.cast()]) };
+    let mut gic: GicV3 = unsafe { GicV3::new(gicd_base.cast(), gicr_base.cast(), 1, false) };
     println!("Calling git.setup(0)");
     gic.setup(0);
-    SingleCoreGic::set_priority_mask(0x80);
+    GicV3::set_priority_mask(0x80);
 
     // Configure a Software Generated Interrupt for Core 0
     println!("Configure low-prio SGI...");
@@ -70,7 +67,7 @@ fn main() -> ! {
 
     // Send it
     println!("Send lo-prio SGI");
-    SingleCoreGic::send_sgi(
+    GicV3::send_sgi(
         SGI_INTID_LO,
         SgiTarget::List {
             affinity3: 0,
@@ -78,6 +75,7 @@ fn main() -> ! {
             affinity1: 0,
             target_list: 0b1,
         },
+        SgiTargetGroup::CurrentGroup1,
     );
 
     for _ in 0..1_000_000 {
@@ -97,7 +95,7 @@ fn dump_cpsr() {
 #[irq]
 fn irq_handler() {
     println!("> IRQ");
-    while let Some(int_id) = SingleCoreGic::get_and_acknowledge_interrupt() {
+    while let Some(int_id) = GicV3::get_and_acknowledge_interrupt(InterruptGroup::Group1) {
         // let's go re-entrant
         unsafe {
             cortex_ar::interrupt::enable();
@@ -108,7 +106,7 @@ fn irq_handler() {
                 "- IRQ got {:?}, sending hi-prio {:?}",
                 SGI_INTID_LO, SGI_INTID_HI
             );
-            SingleCoreGic::send_sgi(
+            GicV3::send_sgi(
                 SGI_INTID_HI,
                 SgiTarget::List {
                     affinity3: 0,
@@ -116,12 +114,13 @@ fn irq_handler() {
                     affinity1: 0,
                     target_list: 0b1,
                 },
+                SgiTargetGroup::CurrentGroup1,
             );
             println!("- IRQ finished sending hi-prio!");
         }
         // turn interrupts off again
         cortex_ar::interrupt::disable();
-        SingleCoreGic::end_interrupt(int_id);
+        GicV3::end_interrupt(int_id, InterruptGroup::Group1);
     }
     println!("< IRQ");
 }
