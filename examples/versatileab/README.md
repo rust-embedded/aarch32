@@ -14,7 +14,7 @@ Versatile Application Board, not the real thing.
 
 ## Minimum Supported Rust Version (MSRV)
 
-This crate is guaranteed to compile on stable Rust 1.82.0 and up, as recorded
+This crate is guaranteed to compile on stable Rust 1.83.0 and up, as recorded
 by the `package.rust-version` property in `Cargo.toml`. These examples are
 not version controlled and we may change the MSRV at any time.
 

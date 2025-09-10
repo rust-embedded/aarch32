@@ -5,7 +5,7 @@ on:
 name: Build
 
 jobs:
-  # Define Rust versions dynamically
+  # Define Rust versions dynamically. Test stable and MSRV.
   setup:
     runs-on: ubuntu-latest
     outputs:
@@ -13,7 +13,7 @@ jobs:
     steps:
       - id: set-matrix
         run: |
-          echo 'rust_versions={"rust": ["stable", "1.82"]}' >> "$GITHUB_OUTPUT"
+          echo 'rust_versions={"rust": ["stable", "1.83"]}' >> "$GITHUB_OUTPUT"
 
   # Build the workspace for a target architecture
   build:
