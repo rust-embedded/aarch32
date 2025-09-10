@@ -21,6 +21,7 @@ cortex-r-rt = { path = "../../cortex-r-rt" }
 semihosting = { version = "0.1.18", features = ["stdio"] }
 arm-gic = { version = "0.6.1", optional = true }
 critical-section = "1.2.0"
+heapless = "0.9.1"
 
 [build-dependencies]
 arm-targets = {version = "0.2.0", path = "../../arm-targets"}
@@ -30,5 +31,13 @@ eabi-fpu = ["cortex-r-rt/eabi-fpu"]
 gic = ["arm-gic"]
 
 [[bin]]
-name = "gic"
+name = "gic-map"
+required-features = ["gic"]
+
+[[bin]]
+name = "gic-static-section-irq"
+required-features = ["gic"]
+
+[[bin]]
+name = "gic-unified-irq"
 required-features = ["gic"]
