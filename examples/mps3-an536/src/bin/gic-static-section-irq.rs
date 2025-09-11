@@ -1,4 +1,6 @@
-//! GIC example for Arm Cortex-R52 on an MPS2-AN336
+//! # GIC example for Arm Cortex-R52 on an MPS2-AN336
+//!
+//! Uses a linker section to store InterruptHandler objects.
 
 #![no_std]
 #![no_main]
@@ -7,7 +9,7 @@
 use cortex_r_rt::{entry, irq};
 
 // pull in our library
-use mps3_an536 as _;
+use mps3_an536::InterruptHandler;
 
 use arm_gic::{
     gicv3::{GicV3, Group, InterruptGroup, SgiTarget, SgiTargetGroup},
@@ -92,35 +94,68 @@ fn dump_cpsr() {
     println!("CPSR: {:?}", cpsr);
 }
 
+#[unsafe(link_section = ".irq_entries")]
+#[used]
+pub static HANDLE_SGI_LO: InterruptHandler = InterruptHandler::new(SGI_INTID_LO, handle_sgi_lo);
+
+/// Handles the low-prio SGI
+fn handle_sgi_lo(int_id: IntId) {
+    println!("- got {:?}, sending hi-prio {:?}", int_id, SGI_INTID_HI);
+    GicV3::send_sgi(
+        SGI_INTID_HI,
+        SgiTarget::List {
+            affinity3: 0,
+            affinity2: 0,
+            affinity1: 0,
+            target_list: 0b1,
+        },
+        SgiTargetGroup::CurrentGroup1,
+    );
+    println!("- finished sending hi-prio!");
+}
+
+#[unsafe(link_section = ".irq_entries")]
+#[used]
+pub static HANDLE_SGI_HI: InterruptHandler = InterruptHandler::new(SGI_INTID_HI, handle_sgi_hi);
+
+/// Handles the high-prio SGI
+fn handle_sgi_hi(int_id: IntId) {
+    println!("- got hi-prio {:?}!", int_id);
+}
+
+/// Called when the Arm CPU gets an IRQ
+///
+/// Talks to the GICv3 to find out which interrupts are pending and calls
+/// [`handle_interrupt_with_id`] for each of them, with interrupts re-enabled.
+#[cfg(feature = "gic")]
 #[irq]
 fn irq_handler() {
     println!("> IRQ");
-    while let Some(int_id) = GicV3::get_and_acknowledge_interrupt(InterruptGroup::Group1) {
+    while let Some(next_int_id) = GicV3::get_and_acknowledge_interrupt(InterruptGroup::Group1) {
         // let's go re-entrant
         unsafe {
             cortex_ar::interrupt::enable();
         }
-        println!("- IRQ Handling {:?}", int_id);
-        if int_id == SGI_INTID_LO {
-            println!(
-                "- IRQ got {:?}, sending hi-prio {:?}",
-                SGI_INTID_LO, SGI_INTID_HI
-            );
-            GicV3::send_sgi(
-                SGI_INTID_HI,
-                SgiTarget::List {
-                    affinity3: 0,
-                    affinity2: 0,
-                    affinity1: 0,
-                    target_list: 0b1,
-                },
-                SgiTargetGroup::CurrentGroup1,
-            );
-            println!("- IRQ finished sending hi-prio!");
+        // handle the interrupt
+        println!("- handle_interrupt_with_id({:?})", next_int_id);
+        extern "Rust" {
+            static __irq_entries_start: InterruptHandler;
+            static __irq_entries_end: InterruptHandler;
+        }
+        let irq_entries_start: *const InterruptHandler = core::ptr::addr_of!(__irq_entries_start);
+        let irq_entries_end: *const InterruptHandler = core::ptr::addr_of!(__irq_entries_end);
+        let mut p = irq_entries_start;
+        while p != irq_entries_end {
+            let irq_entry = unsafe { p.read() };
+            if irq_entry.matches(next_int_id) {
+                irq_entry.execute();
+                break;
+            }
+            p = unsafe { p.offset(1) };
         }
         // turn interrupts off again
         cortex_ar::interrupt::disable();
-        GicV3::end_interrupt(int_id, InterruptGroup::Group1);
+        GicV3::end_interrupt(next_int_id, InterruptGroup::Group1);
     }
     println!("< IRQ");
 }

@@ -1,9 +1,0 @@
-Hello, this is an data abort exception example
-data abort occurred
-DFSR (Fault Status Register): DFSR { ext=false wnr=false Domain=0b0010 Status=0b00001 }
-DFSR Status: Ok(AlignmentFault)
-DFAR (Faulting Address Register): Dfar(4097)
-data abort occurred
-DFSR (Fault Status Register): DFSR { ext=false wnr=false Domain=0b0010 Status=0b00001 }
-DFSR Status: Ok(AlignmentFault)
-DFAR (Faulting Address Register): Dfar(4097)
