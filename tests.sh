@@ -56,6 +56,14 @@ for bin_path in $(ls examples/versatileab/src/bin/*.rs); do
     my_diff ./examples/versatileab/reference/$binary-armv7a-none-eabi.out ./target/$binary-armv7a-none-eabi.out || fail $binary "armv7a-none-eabi"
 done
 
+# armv7a-none-eabihf tests
+for bin_path in $(ls examples/versatileab/src/bin/*.rs); do
+    filename=${bin_path##*/}
+    binary=${filename%.rs}
+    RUSTC_BOOTSTRAP=1 cargo run ${versatile_ab_cargo} --target=armv7a-none-eabihf --bin $binary | tee ./target/$binary-armv7a-none-eabihf.out
+    my_diff ./examples/versatileab/reference/$binary-armv7a-none-eabihf.out ./target/$binary-armv7a-none-eabihf.out || fail $binary "armv7a-none-eabihf"
+done
+
 # These tests only run on QEMU 9 or higher.
 # Ubuntu 24.04 supplies QEMU 8, which doesn't support the machine we have configured for this target
 if qemu-system-arm --version | grep "version 9"; then

@@ -101,20 +101,20 @@ jobs:
           cargo build
 
   # Build the workspace for the target architecture but using nightly to compile libcore
-  # Technically it doens't need 'setup' but it makes the graph look nicer
+  # Technically it doesn't need 'setup' but it makes the graph look nicer
   build-tier3:
     runs-on: ubuntu-24.04
     needs: setup
     strategy:
       matrix:
         target:
-          - armebv7r-none-eabi
-          - armebv7r-none-eabihf
-          - armv7r-none-eabi
           - armv7a-none-eabi
           - armv7a-none-eabihf
+          - armv7r-none-eabi
           - armv7r-none-eabihf
           - armv8r-none-eabihf
+          - armebv7r-none-eabi
+          - armebv7r-none-eabihf
     steps:
       - name: Checkout
         uses: actions/checkout@v4
