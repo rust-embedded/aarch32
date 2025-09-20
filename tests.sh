@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Runs a series of sample programs in QEMU and checks that the standard output
 # is as expected.
@@ -66,7 +66,7 @@ done
 
 # These tests only run on QEMU 9 or higher.
 # Ubuntu 24.04 supplies QEMU 8, which doesn't support the machine we have configured for this target
-if qemu-system-arm --version | grep "version 9"; then
+if qemu-system-arm --version | grep "version \(9\|10\)"; then
     # armv8r-none-eabihf tests
     for bin_path in $(ls examples/mps3-an536/src/bin/*.rs); do
         filename=${bin_path##*/}
