@@ -5,6 +5,8 @@
 #![no_std]
 #![no_main]
 
+use core::ptr::NonNull;
+
 // pull in our start-up code
 use cortex_r_rt::{entry, irq};
 
@@ -12,8 +14,8 @@ use cortex_r_rt::{entry, irq};
 use mps3_an536::InterruptHandler;
 
 use arm_gic::{
-    gicv3::{GicV3, Group, InterruptGroup, SgiTarget, SgiTargetGroup},
-    IntId,
+    gicv3::{GicCpuInterface, GicV3, Group, InterruptGroup, SgiTarget, SgiTargetGroup},
+    IntId, UniqueMmioPointer,
 };
 use semihosting::println;
 
@@ -42,23 +44,30 @@ fn main() -> ! {
         "Creating GIC driver @ {:010p} / {:010p}",
         gicd_base, gicr_base
     );
-    let mut gic: GicV3 = unsafe { GicV3::new(gicd_base.cast(), gicr_base.cast(), 1, false) };
+    let gicd = unsafe { UniqueMmioPointer::new(NonNull::new(gicd_base.cast()).unwrap()) };
+    let gicr = NonNull::new(gicr_base.cast()).unwrap();
+    let mut gic = unsafe { GicV3::new(gicd, gicr, 1, false) };
+
     println!("Calling git.setup(0)");
     gic.setup(0);
-    GicV3::set_priority_mask(0x80);
+    GicCpuInterface::set_priority_mask(0x80);
 
     // Configure a Software Generated Interrupt for Core 0
     println!("Configure low-prio SGI...");
-    gic.set_interrupt_priority(SGI_INTID_LO, Some(0), 0x31);
-    gic.set_group(SGI_INTID_LO, Some(0), Group::Group1NS);
+    gic.set_interrupt_priority(SGI_INTID_LO, Some(0), 0x31)
+        .unwrap();
+    gic.set_group(SGI_INTID_LO, Some(0), Group::Group1NS)
+        .unwrap();
 
     println!("Configure high-prio SGI...");
-    gic.set_interrupt_priority(SGI_INTID_HI, Some(0), 0x10);
-    gic.set_group(SGI_INTID_HI, Some(0), Group::Group1NS);
+    gic.set_interrupt_priority(SGI_INTID_HI, Some(0), 0x10)
+        .unwrap();
+    gic.set_group(SGI_INTID_HI, Some(0), Group::Group1NS)
+        .unwrap();
 
     println!("gic.enable_interrupt()");
-    gic.enable_interrupt(SGI_INTID_LO, Some(0), true);
-    gic.enable_interrupt(SGI_INTID_HI, Some(0), true);
+    gic.enable_interrupt(SGI_INTID_LO, Some(0), true).unwrap();
+    gic.enable_interrupt(SGI_INTID_HI, Some(0), true).unwrap();
 
     println!("Enabling interrupts...");
     dump_cpsr();
@@ -69,7 +78,7 @@ fn main() -> ! {
 
     // Send it
     println!("Send lo-prio SGI");
-    GicV3::send_sgi(
+    GicCpuInterface::send_sgi(
         SGI_INTID_LO,
         SgiTarget::List {
             affinity3: 0,
@@ -78,7 +87,8 @@ fn main() -> ! {
             target_list: 0b1,
         },
         SgiTargetGroup::CurrentGroup1,
-    );
+    )
+    .unwrap();
 
     for _ in 0..1_000_000 {
         cortex_ar::asm::nop();
@@ -101,7 +111,7 @@ pub static HANDLE_SGI_LO: InterruptHandler = InterruptHandler::new(SGI_INTID_LO,
 /// Handles the low-prio SGI
 fn handle_sgi_lo(int_id: IntId) {
     println!("- got {:?}, sending hi-prio {:?}", int_id, SGI_INTID_HI);
-    GicV3::send_sgi(
+    GicCpuInterface::send_sgi(
         SGI_INTID_HI,
         SgiTarget::List {
             affinity3: 0,
@@ -110,7 +120,8 @@ fn handle_sgi_lo(int_id: IntId) {
             target_list: 0b1,
         },
         SgiTargetGroup::CurrentGroup1,
-    );
+    )
+    .unwrap();
     println!("- finished sending hi-prio!");
 }
 
@@ -131,7 +142,9 @@ fn handle_sgi_hi(int_id: IntId) {
 #[irq]
 fn irq_handler() {
     println!("> IRQ");
-    while let Some(next_int_id) = GicV3::get_and_acknowledge_interrupt(InterruptGroup::Group1) {
+    while let Some(next_int_id) =
+        GicCpuInterface::get_and_acknowledge_interrupt(InterruptGroup::Group1)
+    {
         // let's go re-entrant
         unsafe {
             cortex_ar::interrupt::enable();
@@ -155,7 +168,7 @@ fn irq_handler() {
         }
         // turn interrupts off again
         cortex_ar::interrupt::disable();
-        GicV3::end_interrupt(next_int_id, InterruptGroup::Group1);
+        GicCpuInterface::end_interrupt(next_int_id, InterruptGroup::Group1);
     }
     println!("< IRQ");
 }
