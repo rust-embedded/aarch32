@@ -4,7 +4,7 @@
 
 mod critical_section;
 
-#[cfg(target_arch = "arm")]
+#[cfg(any(doc, target_arch = "arm"))]
 pub mod asm;
 
 pub mod cache;
@@ -12,13 +12,13 @@ pub mod interrupt;
 pub mod mmu;
 pub mod register;
 
-#[cfg(any(test, arm_architecture = "v7-r"))]
+#[cfg(any(test, doc, arm_architecture = "v7-r"))]
 pub mod pmsav7;
 
-#[cfg(any(test, arm_architecture = "v8-r"))]
+#[cfg(any(test, doc, arm_architecture = "v8-r"))]
 pub mod generic_timer;
 
-#[cfg(any(test, arm_architecture = "v8-r"))]
+#[cfg(any(test, doc, arm_architecture = "v8-r"))]
 pub mod pmsav8;
 
 /// Generate an SVC call with the given argument.

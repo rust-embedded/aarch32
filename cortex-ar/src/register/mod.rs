@@ -194,9 +194,9 @@ pub use vmpidr::Vmpidr;
 pub use vpidr::Vpidr;
 pub use vsctlr::Vsctlr;
 
-#[cfg(any(test, arm_architecture = "v8-r"))]
+#[cfg(any(test, doc, arm_architecture = "v8-r"))]
 pub mod armv8r;
-#[cfg(any(test, arm_architecture = "v8-r"))]
+#[cfg(any(test, doc, arm_architecture = "v8-r"))]
 pub use armv8r::*;
 
 pub use imp::*;
