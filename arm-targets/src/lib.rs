@@ -77,7 +77,7 @@ impl Isa {
     pub fn get(target: &str) -> Option<Isa> {
         let arch = Arch::get(target)?;
         Some(match arch {
-            Arch::Armv4 | Arch::Armv4T => Isa::A32,
+            Arch::Armv4T | Arch::Armv5TE => Isa::A32,
             Arch::Armv6M => Isa::T32,
             Arch::Armv7M => Isa::T32,
             Arch::Armv7EM => Isa::T32,
@@ -119,10 +119,10 @@ impl core::fmt::Display for Isa {
 /// As defined by a particular revision of the Arm Architecture Reference Manual (ARM).
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Arch {
-    /// Armv4 (legacy, also known as ARMv4)
-    Armv4,
     /// Armv4T (legacy, also known as ARMv4T)
     Armv4T,
+    /// Armv5TE (also known as ARMv5TE)
+    Armv5TE,
     /// Armv6-M (also known as ARMv6-M)
     Armv6M,
     /// Armv7-M (also known as ARMv7-M)
@@ -146,10 +146,10 @@ pub enum Arch {
 impl Arch {
     /// Decode a target string
     pub fn get(target: &str) -> Option<Arch> {
-        if target.starts_with("armv4-") {
-            Some(Arch::Armv4)
-        } else if target.starts_with("armv4t-") {
+        if target.starts_with("armv4t-") {
             Some(Arch::Armv4T)
+        } else if target.starts_with("armv5te-") {
+            Some(Arch::Armv5TE)
         } else if target.starts_with("thumbv6m-") {
             Some(Arch::Armv6M)
         } else if target.starts_with("thumbv7m-") {
@@ -179,7 +179,7 @@ impl Arch {
             Arch::Armv6M | Arch::Armv7M | Arch::Armv7EM | Arch::Armv8MBase | Arch::Armv8MMain => {
                 Profile::M
             }
-            Arch::Armv4 | Arch::Armv4T | Arch::Armv7R | Arch::Armv8R => Profile::R,
+            Arch::Armv4T | Arch::Armv5TE | Arch::Armv7R | Arch::Armv8R => Profile::R,
             Arch::Armv7A | Arch::Armv8A => Profile::A,
         }
     }
@@ -187,8 +187,8 @@ impl Arch {
     /// Get a comma-separated list of values, suitable for cfg-check
     pub fn values() -> String {
         let string_versions: Vec<String> = [
-            Arch::Armv4,
             Arch::Armv4T,
+            Arch::Armv5TE,
             Arch::Armv6M,
             Arch::Armv7M,
             Arch::Armv7EM,
@@ -212,8 +212,8 @@ impl core::fmt::Display for Arch {
             f,
             "{}",
             match self {
-                Arch::Armv4 => "v4",
                 Arch::Armv4T => "v4t",
+                Arch::Armv5TE => "v5te",
                 Arch::Armv6M => "v6-m",
                 Arch::Armv7M => "v7-m",
                 Arch::Armv7EM => "v7e-m",
