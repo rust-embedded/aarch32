@@ -1,4 +1,4 @@
-mi//! Useful helpers when building Arm code
+//! Useful helpers when building Arm code
 //!
 //! Hopefully Rust will stabilise these kinds of target features, and this won't
 //! be required.
