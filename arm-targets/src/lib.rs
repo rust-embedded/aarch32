@@ -179,7 +179,8 @@ impl Arch {
             Arch::Armv6M | Arch::Armv7M | Arch::Armv7EM | Arch::Armv8MBase | Arch::Armv8MMain => {
                 Profile::M
             }
-            Arch::Armv4T | Arch::Armv5TE | Arch::Armv7R | Arch::Armv8R => Profile::R,
+            Arch::Armv4T | Arch::Armv5TE => Profile::Legacy,
+            Arch::Armv7R | Arch::Armv8R => Profile::R,
             Arch::Armv7A | Arch::Armv8A => Profile::A,
         }
     }
@@ -237,6 +238,8 @@ pub enum Profile {
     R,
     /// Applications
     A,
+    /// Legacy
+    Legacy,
 }
 
 impl Profile {
@@ -248,7 +251,7 @@ impl Profile {
 
     /// Get a comma-separated list of values, suitable for cfg-check
     pub fn values() -> String {
-        let string_versions: Vec<String> = [Profile::A, Profile::R, Profile::M]
+        let string_versions: Vec<String> = [Profile::A, Profile::R, Profile::M, Profile::Legacy]
             .iter()
             .map(|i| format!(r#""{i}""#))
             .collect();
@@ -265,6 +268,7 @@ impl core::fmt::Display for Profile {
                 Profile::M => "m",
                 Profile::R => "r",
                 Profile::A => "a",
+                Profile::Legacy => "legacy", // <-- Added
             }
         )
     }
