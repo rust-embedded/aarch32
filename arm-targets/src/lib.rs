@@ -1,4 +1,4 @@
-//! Useful helpers when building Arm code
+mi//! Useful helpers when building Arm code
 //!
 //! Hopefully Rust will stabilise these kinds of target features, and this won't
 //! be required.
@@ -268,7 +268,7 @@ impl core::fmt::Display for Profile {
                 Profile::M => "m",
                 Profile::R => "r",
                 Profile::A => "a",
-                Profile::Legacy => "legacy", // <-- Added
+                Profile::Legacy => "legacy",
             }
         )
     }
