@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-No changes
+### Added
+
+- Added support for legacy Arm targets: Armv4 and Armv4T, including proper arch, isa, and profile handling.
 
 ## [v0.2.0]
 
