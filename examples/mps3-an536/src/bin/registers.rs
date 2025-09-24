@@ -94,7 +94,8 @@ fn mpu_pmsa_v7() {
 fn mpu_pmsa_v8() {
     use cortex_ar::{
         pmsav8::{
-            AccessPerms, Cacheable, Config, El1Mpu, MemAttr, Region, RwAllocPolicy, Shareability,
+            Cacheable, El1AccessPerms, El1Config, El1Mpu, El1Region, El1Shareability, MemAttr,
+            RwAllocPolicy,
         },
         register::Mpuir,
     };
@@ -114,12 +115,12 @@ fn mpu_pmsa_v8() {
     }
 
     // Load a config (but don't enable it)
-    mpu.configure(&Config {
+    mpu.configure(&El1Config {
         background_config: true,
-        regions: &[Region {
+        regions: &[El1Region {
             range: 0x0000_0000 as *mut u8..=0x3FFF_FFFF as *mut u8,
-            shareability: Shareability::OuterShareable,
-            access: AccessPerms::ReadWrite,
+            shareability: El1Shareability::OuterShareable,
+            access: El1AccessPerms::ReadWrite,
             no_exec: true,
             mair: 0,
             enable: true,

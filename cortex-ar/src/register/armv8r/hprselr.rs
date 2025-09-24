@@ -24,10 +24,8 @@ impl Hprselr {
     #[inline]
     /// Writes HPRSELR (*Hyp Protection Region Selection Register*)
     ///
-    /// # Safety
-    ///
-    /// Ensure that this value is appropriate for this register
-    pub unsafe fn write(value: Self) {
+    /// Controls what appears in HPRLAR and HPRBAR
+    pub fn write(value: Self) {
         unsafe {
             <Self as SysRegWrite>::write_raw(value.0);
         }
