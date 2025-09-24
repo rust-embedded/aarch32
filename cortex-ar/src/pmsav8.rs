@@ -69,7 +69,7 @@ impl El1Mpu {
     ///
     /// ## Arguments
     ///
-    /// - `region`: The [Region] object containing the configuration for the MPU region.
+    /// - `region`: The [El1Region] object containing the configuration for the MPU region.
     /// - `idx`: The index of the region to be configured.
     ///
     /// ## Errors
@@ -116,7 +116,7 @@ impl El1Mpu {
     /// ## Arguments
     ///
     /// - `regions_starting_idx`: The starting index for the regions to be reconfigured.
-    /// - `regions`: A slice of [Region] objects that will overwrite the previous regions starting from `regions_starting_idx`.
+    /// - `regions`: A slice of [El1Region] objects that will overwrite the previous regions starting from `regions_starting_idx`.
     pub fn set_regions(
         &mut self,
         regions_starting_idx: u8,
@@ -163,7 +163,8 @@ impl El1Mpu {
 
     /// Configure the EL1 MPU
     ///
-    /// Write regions, attributes and enable/disable the background region with a single [Config] struct.
+    /// Write regions, attributes and enable/disable the background region
+    /// with a single [El1Config] struct.
     pub fn configure(&mut self, config: &El1Config) -> Result<(), Error> {
         self.set_regions(0, config.regions)?;
 
