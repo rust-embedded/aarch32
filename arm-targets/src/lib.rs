@@ -4,24 +4,25 @@
 //! be required.
 #[derive(Default)]
 pub struct TargetInfo {
-    profile: Option<Profile>,
-    arch: Option<Arch>,
     isa: Option<Isa>,
+    arch: Option<Arch>,
+    profile: Option<Profile>,
 }
 
 impl TargetInfo {
-    pub fn profile(&self) -> Option<Profile> {
-        self.profile
+    pub fn isa(&self) -> Option<Isa> {
+        self.isa
     }
 
     pub fn arch(&self) -> Option<Arch> {
         self.arch
     }
 
-    pub fn isa(&self) -> Option<Isa> {
-        self.isa
+    pub fn profile(&self) -> Option<Profile> {
+        self.profile
     }
 }
+
 /// Process the ${TARGET} environment variable, and emit cargo configuration to
 /// standard out.
 pub fn process() -> TargetInfo {
