@@ -1,27 +1,75 @@
-//! Useful helpers when building Arm code
+//! Useful cfg helpers for when you are building Arm code
 //!
-//! Hopefully Rust will stabilise these kinds of target features, and this won't
-//! be required.
+//! Hopefully Rust will stabilise these kinds of target features in the
+//! future, and this won't be required. But until this, arm-targets is here to
+//! help you conditionally compile your code based on the specific Arm
+//! platform you are compiling for.
+//!
+//! In your application, do something like this:
+//!
+//! ```console
+//! $ cargo add --build arm-targets
+//! $ cat > build.rs << EOF
+//! fn main() {
+//!     arm_targets::process();
+//! }
+//! EOF
+//! ```
+//!
+//! This will then let you write application code like:
+//!
+//! ```rust
+//! #[cfg(arm_architecture = "armv7m")]
+//! fn only_for_cortex_m3() { }
+//!
+//! #[cfg(arm_isa = "a32")]
+//! fn can_use_arm_32bit_asm_here() { }
+//! ```
+//!
+//! Without this crate, you are limited to `cfg(target_arch = "arm")`, which
+//! isn't all that useful given how many 'Arm' targets there are.
+//!
+//! To see a full list of the features created by this crate, run the CLI tool:
+//!
+//! ```console
+//! $ cargo install arm-targets
+//! $ arm-targets
+//! cargo:rustc-check-cfg=cfg(arm_isa, values("a64", "a32", "t32"))
+//! cargo:rustc-check-cfg=cfg(arm_architecture, values("v4t", "v5te", "v6-m", "v7-m", "v7e-m", "v8-m.base", "v8-m.main", "v7-r", "v8-r", "v7-a", "v8-a"))
+//! cargo:rustc-check-cfg=cfg(arm_profile, values("a", "r", "m", "legacy"))
+//! cargo:rustc-check-cfg=cfg(arm_abi, values("eabi", "eabihf"))
+//! ```
+
 #[derive(Default)]
 pub struct TargetInfo {
-    profile: Option<Profile>,
-    arch: Option<Arch>,
     isa: Option<Isa>,
+    arch: Option<Arch>,
+    profile: Option<Profile>,
+    abi: Option<Abi>,
 }
 
 impl TargetInfo {
-    pub fn profile(&self) -> Option<Profile> {
-        self.profile
+    /// Get the Arm Instruction Set Architecture of the target
+    pub fn isa(&self) -> Option<Isa> {
+        self.isa
     }
 
+    /// Get the Arm Architecture version of the target
     pub fn arch(&self) -> Option<Arch> {
         self.arch
     }
 
-    pub fn isa(&self) -> Option<Isa> {
-        self.isa
+    /// Get the Arm Architecture Profile of the target
+    pub fn profile(&self) -> Option<Profile> {
+        self.profile
+    }
+
+    /// Get the ABI of the target
+    pub fn abi(&self) -> Option<Abi> {
+        self.abi
     }
 }
+
 /// Process the ${TARGET} environment variable, and emit cargo configuration to
 /// standard out.
 pub fn process() -> TargetInfo {
@@ -58,6 +106,16 @@ pub fn process_target(target: &str) -> TargetInfo {
         r#"cargo:rustc-check-cfg=cfg(arm_profile, values({}))"#,
         Profile::values()
     );
+
+    if let Some(abi) = Abi::get(target) {
+        println!(r#"cargo:rustc-cfg=arm_abi="{}""#, abi);
+        target_info.abi = Some(abi);
+    }
+    println!(
+        r#"cargo:rustc-check-cfg=cfg(arm_abi, values({}))"#,
+        Abi::values()
+    );
+
     target_info
 }
 
@@ -271,5 +329,170 @@ impl core::fmt::Display for Profile {
                 Profile::Legacy => "legacy",
             }
         )
+    }
+}
+
+/// The ABI
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum Abi {
+    /// Arm Embedded ABI
+    Eabi,
+    /// Arm Embedded ABI with Hard Float
+    EabiHf,
+}
+
+impl Abi {
+    /// Decode a target string
+    pub fn get(target: &str) -> Option<Abi> {
+        if Arch::get(target).is_none() {
+            // Don't give an ABI for non-Arm targets
+            //
+            // e.g. PowerPC also has an ABI called EABI, but it's not the same
+            return None;
+        }
+        if target.ends_with("-eabi") {
+            Some(Abi::Eabi)
+        } else if target.ends_with("-eabihf") {
+            Some(Abi::EabiHf)
+        } else {
+            None
+        }
+    }
+
+    /// Get a comma-separated list of values, suitable for cfg-check
+    pub fn values() -> String {
+        let string_versions: Vec<String> = [Abi::Eabi, Abi::EabiHf]
+            .iter()
+            .map(|i| format!(r#""{i}""#))
+            .collect();
+        string_versions.join(", ")
+    }
+}
+
+impl core::fmt::Display for Abi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Abi::Eabi => "eabi",
+                Abi::EabiHf => "eabihf",
+            }
+        )
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn armv4t_none_eabi() {
+        let target = "armv4t-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv4T));
+        assert_eq!(target_info.profile(), Some(Profile::Legacy));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn armv5te_none_eabi() {
+        let target = "armv5te-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv5TE));
+        assert_eq!(target_info.profile(), Some(Profile::Legacy));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn thumbv6m_none_eabi() {
+        let target = "thumbv6m-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::T32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv6M));
+        assert_eq!(target_info.profile(), Some(Profile::M));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn thumbv7m_none_eabi() {
+        let target = "thumbv7m-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::T32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv7M));
+        assert_eq!(target_info.profile(), Some(Profile::M));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn thumbv7em_nuttx_eabihf() {
+        let target = "thumbv7em-nuttx-eabihf";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::T32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv7EM));
+        assert_eq!(target_info.profile(), Some(Profile::M));
+        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+    }
+
+    #[test]
+    fn thumbv8m_base_none_eabi() {
+        let target = "thumbv8m.base-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::T32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv8MBase));
+        assert_eq!(target_info.profile(), Some(Profile::M));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn thumbv8m_main_none_eabihf() {
+        let target = "thumbv8m.main-none-eabihf";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::T32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv8MMain));
+        assert_eq!(target_info.profile(), Some(Profile::M));
+        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+    }
+
+    #[test]
+    fn armv7r_none_eabi() {
+        let target = "armv7r-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv7R));
+        assert_eq!(target_info.profile(), Some(Profile::R));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn armv8r_none_eabihf() {
+        let target = "armv8r-none-eabihf";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv8R));
+        assert_eq!(target_info.profile(), Some(Profile::R));
+        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+    }
+
+    #[test]
+    fn armv7a_none_eabi() {
+        let target = "armv7a-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv7A));
+        assert_eq!(target_info.profile(), Some(Profile::A));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn aarch64_none_eabihf() {
+        let target = "aarch64-unknown-none";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A64));
+        assert_eq!(target_info.arch(), Some(Arch::Armv8A));
+        assert_eq!(target_info.profile(), Some(Profile::A));
+        assert_eq!(target_info.abi(), None);
     }
 }
