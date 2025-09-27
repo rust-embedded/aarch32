@@ -1,7 +1,44 @@
-//! Useful helpers when building Arm code
+//! Useful cfg helpers for when you are building Arm code
 //!
-//! Hopefully Rust will stabilise these kinds of target features, and this won't
-//! be required.
+//! Hopefully Rust will stabilise these kinds of target features in the
+//! future, and this won't be required. But until this, arm-targets is here to
+//! help you conditionally compile your code based on the specific Arm
+//! platform you are compiling for.
+//!
+//! In your application, do something like this:
+//!
+//! ```console
+//! $ cargo add --build arm-targets
+//! $ cat > build.rs << EOF
+//! fn main() {
+//!     arm_targets::process();
+//! }
+//! EOF
+//! ```
+//!
+//! This will then let you write application code like:
+//!
+//! ```rust
+//! #[cfg(arm_architecture = "armv7m")]
+//! fn only_for_cortex_m3() { }
+//!
+//! #[cfg(arm_isa = "a32")]
+//! fn can_use_arm_32bit_asm_here() { }
+//! ```
+//!
+//! Without this crate, you are limited to `cfg(target_arch = "arm")`, which
+//! isn't all that useful given how many 'Arm' targets there are.
+//!
+//! To see a full list of the features created by this crate, run the CLI tool:
+//!
+//! ```console
+//! $ cargo install arm-targets
+//! $ arm-targets
+//! cargo:rustc-check-cfg=cfg(arm_isa, values("a64", "a32", "t32"))
+//! cargo:rustc-check-cfg=cfg(arm_architecture, values("v4t", "v5te", "v6-m", "v7-m", "v7e-m", "v8-m.base", "v8-m.main", "v7-r", "v8-r", "v7-a", "v8-a"))
+//! cargo:rustc-check-cfg=cfg(arm_profile, values("a", "r", "m", "legacy"))
+//! ```
+
 #[derive(Default)]
 pub struct TargetInfo {
     isa: Option<Isa>,
@@ -10,14 +47,17 @@ pub struct TargetInfo {
 }
 
 impl TargetInfo {
+    /// Get the Arm Instruction Set Architecture of the target
     pub fn isa(&self) -> Option<Isa> {
         self.isa
     }
 
+    /// Get the Arm Architecture version of the target
     pub fn arch(&self) -> Option<Arch> {
         self.arch
     }
 
+    /// Get the Arm Architecture Profile of the target
     pub fn profile(&self) -> Option<Profile> {
         self.profile
     }
