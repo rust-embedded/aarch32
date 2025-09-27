@@ -99,6 +99,7 @@ jobs:
         run: |
           cd arm-targets
           cargo build
+          cargo test
 
   # Build the workspace for the target architecture but using nightly to compile libcore
   # Technically it doesn't need 'setup' but it makes the graph look nicer

@@ -381,3 +381,118 @@ impl core::fmt::Display for Abi {
         )
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn armv4t_none_eabi() {
+        let target = "armv4t-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv4T));
+        assert_eq!(target_info.profile(), Some(Profile::Legacy));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn armv5te_none_eabi() {
+        let target = "armv5te-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv5TE));
+        assert_eq!(target_info.profile(), Some(Profile::Legacy));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn thumbv6m_none_eabi() {
+        let target = "thumbv6m-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::T32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv6M));
+        assert_eq!(target_info.profile(), Some(Profile::M));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn thumbv7m_none_eabi() {
+        let target = "thumbv7m-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::T32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv7M));
+        assert_eq!(target_info.profile(), Some(Profile::M));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn thumbv7em_nuttx_eabihf() {
+        let target = "thumbv7em-nuttx-eabihf";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::T32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv7EM));
+        assert_eq!(target_info.profile(), Some(Profile::M));
+        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+    }
+
+    #[test]
+    fn thumbv8m_base_none_eabi() {
+        let target = "thumbv8m.base-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::T32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv8MBase));
+        assert_eq!(target_info.profile(), Some(Profile::M));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn thumbv8m_main_none_eabihf() {
+        let target = "thumbv8m.main-none-eabihf";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::T32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv8MMain));
+        assert_eq!(target_info.profile(), Some(Profile::M));
+        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+    }
+
+    #[test]
+    fn armv7r_none_eabi() {
+        let target = "armv7r-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv7R));
+        assert_eq!(target_info.profile(), Some(Profile::R));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn armv8r_none_eabihf() {
+        let target = "armv8r-none-eabihf";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv8R));
+        assert_eq!(target_info.profile(), Some(Profile::R));
+        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+    }
+
+    #[test]
+    fn armv7a_none_eabi() {
+        let target = "armv7a-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv7A));
+        assert_eq!(target_info.profile(), Some(Profile::A));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn aarch64_none_eabihf() {
+        let target = "aarch64-unknown-none";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A64));
+        assert_eq!(target_info.arch(), Some(Arch::Armv8A));
+        assert_eq!(target_info.profile(), Some(Profile::A));
+        assert_eq!(target_info.abi(), None);
+    }
+}
