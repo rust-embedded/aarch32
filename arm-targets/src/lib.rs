@@ -37,6 +37,7 @@
 //! cargo:rustc-check-cfg=cfg(arm_isa, values("a64", "a32", "t32"))
 //! cargo:rustc-check-cfg=cfg(arm_architecture, values("v4t", "v5te", "v6-m", "v7-m", "v7e-m", "v8-m.base", "v8-m.main", "v7-r", "v8-r", "v7-a", "v8-a"))
 //! cargo:rustc-check-cfg=cfg(arm_profile, values("a", "r", "m", "legacy"))
+//! cargo:rustc-check-cfg=cfg(arm_abi, values("eabi", "eabihf"))
 //! ```
 
 #[derive(Default)]
@@ -44,6 +45,7 @@ pub struct TargetInfo {
     isa: Option<Isa>,
     arch: Option<Arch>,
     profile: Option<Profile>,
+    abi: Option<Abi>,
 }
 
 impl TargetInfo {
@@ -60,6 +62,11 @@ impl TargetInfo {
     /// Get the Arm Architecture Profile of the target
     pub fn profile(&self) -> Option<Profile> {
         self.profile
+    }
+
+    /// Get the ABI of the target
+    pub fn abi(&self) -> Option<Abi> {
+        self.abi
     }
 }
 
@@ -99,6 +106,16 @@ pub fn process_target(target: &str) -> TargetInfo {
         r#"cargo:rustc-check-cfg=cfg(arm_profile, values({}))"#,
         Profile::values()
     );
+
+    if let Some(abi) = Abi::get(target) {
+        println!(r#"cargo:rustc-cfg=arm_abi="{}""#, abi);
+        target_info.abi = Some(abi);
+    }
+    println!(
+        r#"cargo:rustc-check-cfg=cfg(arm_abi, values({}))"#,
+        Abi::values()
+    );
+
     target_info
 }
 
@@ -310,6 +327,56 @@ impl core::fmt::Display for Profile {
                 Profile::R => "r",
                 Profile::A => "a",
                 Profile::Legacy => "legacy",
+            }
+        )
+    }
+}
+
+/// The ABI
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum Abi {
+    /// Arm Embedded ABI
+    Eabi,
+    /// Arm Embedded ABI with Hard Float
+    EabiHf,
+}
+
+impl Abi {
+    /// Decode a target string
+    pub fn get(target: &str) -> Option<Abi> {
+        if Arch::get(target).is_none() {
+            // Don't give an ABI for non-Arm targets
+            //
+            // e.g. PowerPC also has an ABI called EABI, but it's not the same
+            return None;
+        }
+        if target.ends_with("-eabi") {
+            Some(Abi::Eabi)
+        } else if target.ends_with("-eabihf") {
+            Some(Abi::EabiHf)
+        } else {
+            None
+        }
+    }
+
+    /// Get a comma-separated list of values, suitable for cfg-check
+    pub fn values() -> String {
+        let string_versions: Vec<String> = [Abi::Eabi, Abi::EabiHf]
+            .iter()
+            .map(|i| format!(r#""{i}""#))
+            .collect();
+        string_versions.join(", ")
+    }
+}
+
+impl core::fmt::Display for Abi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Abi::Eabi => "eabi",
+                Abi::EabiHf => "eabihf",
             }
         )
     }
