@@ -199,6 +199,7 @@ jobs:
         run: |
           rustup install stable
           rustup default stable
+          rustup component add rustfmt
       - name: Format
         run: |
           cargo fmt --check
@@ -213,6 +214,7 @@ jobs:
         run: |
           rustup install stable
           rustup default stable
+          rustup component add rustfmt
       - name: Format
         run: |
           cd arm-targets
