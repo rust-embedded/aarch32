@@ -99,6 +99,7 @@ jobs:
         run: |
           cd arm-targets
           cargo build
+          cargo test
 
   # Build the workspace for the target architecture but using nightly to compile libcore
   # Technically it doesn't need 'setup' but it makes the graph look nicer
@@ -198,6 +199,7 @@ jobs:
         run: |
           rustup install stable
           rustup default stable
+          rustup component add rustfmt
       - name: Format
         run: |
           cargo fmt --check
@@ -212,6 +214,7 @@ jobs:
         run: |
           rustup install stable
           rustup default stable
+          rustup component add rustfmt
       - name: Format
         run: |
           cd arm-targets
