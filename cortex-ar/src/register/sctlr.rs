@@ -4,6 +4,7 @@ use super::{SysReg, SysRegRead, SysRegWrite};
 
 /// SCTLR (*System Control Register*)
 #[bitbybit::bitfield(u32)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Sctlr {
     /// The bitmask for the Instruction Endianness bit
     #[bits(31..=31, rw)]

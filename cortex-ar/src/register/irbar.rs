@@ -3,6 +3,8 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// IRBAR (*Instruction Region Base Address Register*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Irbar(pub *mut u8);
 impl SysReg for Irbar {
     const CP: u32 = 15;

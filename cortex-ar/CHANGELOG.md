@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   maintenance by MVA (specific address).
 - Added new  `L1Section::set_section_attrs` and `L1Section::section_attrs` method. Also added
   low-level `L1Section::new_with_addr_upper_bits_and_attrs` constructor.
+- optional `serde` derives behind a `serde` feature gate
+- lots of missing `Debug`, `Copy`, `Clone`, `defmt::Format` derives.
 
 ### Changed
 

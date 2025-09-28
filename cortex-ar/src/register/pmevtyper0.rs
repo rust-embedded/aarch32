@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// PMEVTYPER0 (*Performance Monitors Event Type Register 0*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pmevtyper0(pub u32);
 impl SysReg for Pmevtyper0 {
     const CP: u32 = 15;

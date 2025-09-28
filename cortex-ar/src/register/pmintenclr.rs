@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// PMINTENCLR (*Performance Monitors Interrupt Enable Clear Register*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pmintenclr(pub u32);
 impl SysReg for Pmintenclr {
     const CP: u32 = 15;

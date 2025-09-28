@@ -3,7 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// DFAR (*Data Fault Address Register*)
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Dfar(pub u32);
 impl SysReg for Dfar {
     const CP: u32 = 15;

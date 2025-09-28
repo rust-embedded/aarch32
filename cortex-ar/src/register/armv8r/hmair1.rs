@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// HMAIR1 (*Hyp Memory Attribute Indirection Register 1*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Hmair1(pub u32);
 impl SysReg for Hmair1 {
     const CP: u32 = 15;

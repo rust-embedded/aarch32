@@ -3,6 +3,9 @@
 use crate::register::{SysReg64, SysRegRead64};
 
 /// CNTPCT (*Physical Counter-timer Count Register*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CntPct(pub u64);
 
 impl SysReg64 for CntPct {

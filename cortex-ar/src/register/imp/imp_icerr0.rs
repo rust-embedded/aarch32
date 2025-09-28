@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// IMP_ICERR0 (*Instruction Cache Error Record Register 0*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpIcerr0(pub u32);
 impl SysReg for ImpIcerr0 {
     const CP: u32 = 15;

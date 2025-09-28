@@ -3,6 +3,9 @@
 use crate::register::{SysReg64, SysRegRead64, SysRegWrite64};
 
 /// CNTVOFF (*Virtual Counter-timer Offset Register*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CntVoff(pub u64);
 
 impl SysReg64 for CntVoff {

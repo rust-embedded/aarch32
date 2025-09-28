@@ -5,6 +5,9 @@ use crate::register::{SysReg, SysRegRead};
 use super::SysRegWrite;
 
 /// RGNR (*MPU Region Number Register*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Rgnr(pub u32);
 impl SysReg for Rgnr {
     const CP: u32 = 15;

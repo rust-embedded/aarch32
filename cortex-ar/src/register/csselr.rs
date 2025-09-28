@@ -5,14 +5,17 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 #[bitbybit::bitenum(u1, exhaustive = true)]
 #[derive(Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CacheType {
     DataOrUnified = 0,
     Instruction = 1,
 }
 
 /// CSSELR (*Cache Size Selection Register*)
-#[bitbybit::bitfield(u32)]
-#[derive(Debug, PartialEq, Eq)]
+#[bitbybit::bitfield(u32, debug, defmt_fields(feature = "defmt"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(PartialEq, Eq)]
 pub struct Csselr {
     /// 0 for L1 cache, 1 for L2, etc.
     #[bits(1..=3, rw)]

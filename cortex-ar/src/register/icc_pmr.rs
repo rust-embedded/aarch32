@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// ICC_PMR (*Interrupt Controller Interrupt Priority Mask Register*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct IccPmr(pub u32);
 impl SysReg for IccPmr {
     const CP: u32 = 15;

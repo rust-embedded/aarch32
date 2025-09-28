@@ -3,6 +3,8 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// DRBAR (*Data Region Base Address Register*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Drbar(pub *mut u8);
 
 impl SysReg for Drbar {

@@ -1,7 +1,9 @@
 //! Code for managing CPSR (*Current Program Status Register*)
 
 /// The current Processor Mode
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[bitbybit::bitenum(u5, exhaustive = false)]
 pub enum ProcessorMode {
     /// User Mode
@@ -26,6 +28,7 @@ pub enum ProcessorMode {
 
 /// CPSR (*Current Program Status Register*)
 #[bitbybit::bitfield(u32)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Cpsr {
     /// Negative Result from ALU
     #[bits(31..=31, r)]

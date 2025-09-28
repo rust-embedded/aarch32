@@ -38,7 +38,7 @@ jobs:
           rustup target add ${{ matrix.target }}
       - name: Build
         run: |
-          cargo build --target ${{ matrix.target }}
+          cargo build --target ${{ matrix.target }} --features "serde, defmt"
           cargo build --target ${{ matrix.target }} --no-default-features
 
   build-versatileab:

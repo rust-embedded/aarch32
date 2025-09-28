@@ -4,6 +4,7 @@ use crate::register::{SysReg, SysRegRead};
 
 /// MPUIR (*MPU Type Register*)
 #[bitbybit::bitfield(u32)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Mpuir {
     /// Specifies the number of Instruction regions implemented by the MPU.
     ///

@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 /// There is no `modify` method because this register holds a single 32-bit address.
 #[derive(Clone, Copy, PartialEq, Eq)]
 #[repr(transparent)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Vbar(pub *mut u32);
 
 impl SysReg for Vbar {

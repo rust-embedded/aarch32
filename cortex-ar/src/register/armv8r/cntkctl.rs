@@ -5,7 +5,8 @@ use arbitrary_int::u4;
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// CNTKCTL (*Counter-timer Kernel Control Register*)
-#[bitbybit::bitfield(u32)]
+#[bitbybit::bitfield(u32, defmt_bitfields(feature = "defmt"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Cntkctl {
     /// Controls whether the physical timer registers are accessible from EL0
     /// modes.

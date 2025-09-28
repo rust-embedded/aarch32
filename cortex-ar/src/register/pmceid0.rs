@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead};
 
 /// PMCEID0 (*Performance Monitors Common Event Identification Register 0*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pmceid0(pub u32);
 impl SysReg for Pmceid0 {
     const CP: u32 = 15;

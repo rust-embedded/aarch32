@@ -6,6 +6,8 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// The size of a region
 #[derive(Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[bitbybit::bitenum(u5, exhaustive = true)]
 pub enum RegionSize {
     /// A value of 0 is not permitted, this value is reserved and unpredictable.
@@ -89,7 +91,7 @@ impl RegionSize {
 }
 
 /// DRSR (*Data Region Size and Enable Register*)
-#[bitbybit::bitfield(u32)]
+#[bitbybit::bitfield(u32, debug, defmt_fields(feature = "defmt"))]
 pub struct Drsr {
     /// Sub-region bitmask
     ///
