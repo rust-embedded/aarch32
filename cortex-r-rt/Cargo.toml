@@ -21,7 +21,7 @@ name = "cortex-r-rt"
 readme = "README.md"
 repository = "https://github.com/rust-embedded/cortex-r.git"
 rust-version = "1.83"
-version = "0.2.0"
+version = "0.2.1"
 
 [dependencies]
 cortex-ar = { version = "0.3.0", path = "../cortex-ar" }
