@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// IMP_CTCMREGIONR (*TCM Region Registers A B and C*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpCtcmregionr(pub u32);
 impl SysReg for ImpCtcmregionr {
     const CP: u32 = 15;

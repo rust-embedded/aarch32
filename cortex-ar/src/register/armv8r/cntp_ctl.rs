@@ -3,7 +3,8 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// CNTP_CTL (*Physical Counter-timer Control Register*)
-#[bitbybit::bitfield(u32)]
+#[bitbybit::bitfield(u32, defmt_bitfields(feature = "defmt"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CntpCtl {
     /// The status of the timer interrupt.
     #[bits(2..=2, r)]

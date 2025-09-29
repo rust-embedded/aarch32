@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// HSR (*Hyp Syndrome Register*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Hsr(pub u32);
 impl SysReg for Hsr {
     const CP: u32 = 15;

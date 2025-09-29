@@ -6,7 +6,9 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 use super::ifsr::FsrStatus;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum DfsrStatus {
     AlignmentFault = 0b00001,
@@ -32,7 +34,7 @@ impl TryFrom<u8> for DfsrStatus {
 }
 
 /// DFSR (*Data Fault Status Register*)
-#[bitbybit::bitfield(u32)]
+#[bitbybit::bitfield(u32, defmt_bitfields(feature = "defmt"))]
 pub struct Dfsr {
     /// External abort qualifier
     #[bit(12, rw)]

@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// IMP_SLAVEPCTLR (*Slave Port Control Register*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpSlavepctlr(pub u32);
 impl SysReg for ImpSlavepctlr {
     const CP: u32 = 15;

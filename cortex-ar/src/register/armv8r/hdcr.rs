@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// HDCR (*Hyp Debug Control Register*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Hdcr(pub u32);
 impl SysReg for Hdcr {
     const CP: u32 = 15;

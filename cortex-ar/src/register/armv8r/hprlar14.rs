@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// HPRLAR14 (*Hyp Protection Region Limit Address Register 14*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Hprlar14(pub u32);
 impl SysReg for Hprlar14 {
     const CP: u32 = 15;

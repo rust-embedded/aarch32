@@ -6,6 +6,8 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// Shareability for an MPU Region
 #[derive(Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[bitbybit::bitenum(u2, exhaustive = true)]
 pub enum Shareability {
     /// Non-shareable
@@ -20,6 +22,8 @@ pub enum Shareability {
 
 /// Access Permissions for an MPU Region
 #[derive(Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[bitbybit::bitenum(u2, exhaustive = true)]
 pub enum AccessPerms {
     /// Read-Write at EL1, No access at EL0
@@ -33,7 +37,7 @@ pub enum AccessPerms {
 }
 
 /// PRBAR (*Protection Region Base Address Register*)
-#[bitbybit::bitfield(u32)]
+#[bitbybit::bitfield(u32, debug, defmt_fields(feature = "defmt"))]
 pub struct Prbar {
     /// Address
     #[bits(6..=31, rw)]

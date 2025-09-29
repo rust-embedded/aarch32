@@ -3,8 +3,9 @@
 use crate::register::{SysReg, SysRegRead};
 
 /// IMP_CBAR (*Configuration Base Address Register*)
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub struct ImpCbar(u32);
+#[derive(Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ImpCbar(pub u32);
 
 impl SysReg for ImpCbar {
     const CP: u32 = 15;

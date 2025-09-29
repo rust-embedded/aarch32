@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead};
 
 /// IMP_TCMSYNDR1 (*TCM Syndrome Register 1*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpTcmsyndr1(pub u32);
 impl SysReg for ImpTcmsyndr1 {
     const CP: u32 = 15;

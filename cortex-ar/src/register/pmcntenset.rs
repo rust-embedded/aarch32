@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// PMCNTENSET (*Performance Monitors Count Enable Set Register*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pmcntenset(pub u32);
 impl SysReg for Pmcntenset {
     const CP: u32 = 15;

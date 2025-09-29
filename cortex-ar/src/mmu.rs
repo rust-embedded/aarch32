@@ -2,11 +2,13 @@ use arbitrary_int::{u12, u2, u3, u4};
 
 #[derive(Debug, thiserror::Error)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[error("invalid L1 entry type {0:?}")]
 pub struct InvalidL1EntryType(pub L1EntryType);
 
 #[bitbybit::bitenum(u3, exhaustive = true)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialEq, Eq)]
 pub enum AccessPermissions {
     PermissionFault = 0b000,
@@ -40,6 +42,7 @@ impl AccessPermissions {
 
 #[bitbybit::bitenum(u2, exhaustive = true)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialEq, Eq)]
 #[repr(u8)]
 pub enum L1EntryType {
@@ -60,6 +63,7 @@ pub enum L1EntryType {
 /// of the B, C, and TEX bits.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MemoryRegionAttributesRaw {
     /// TEX bits
     type_extensions: u3,
@@ -80,6 +84,7 @@ impl MemoryRegionAttributesRaw {
 
 #[bitbybit::bitenum(u2, exhaustive = true)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug)]
 pub enum CacheableMemoryAttribute {
     NonCacheable = 0b00,
@@ -90,6 +95,7 @@ pub enum CacheableMemoryAttribute {
 
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum MemoryRegionAttributes {
     StronglyOrdered,
     ShareableDevice,
@@ -142,6 +148,7 @@ impl MemoryRegionAttributes {
 /// Individual section attributes for a L1 section.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SectionAttributes {
     /// NG bit
     pub non_global: bool,
@@ -205,7 +212,8 @@ impl SectionAttributes {
 ///
 /// The ARM Cortex-A architecture programmers manual chapter 9.4 (p.163) or the ARMv7-A and ArmV7-R
 /// architecture reference manual p.1323 specify these attributes in more detail.
-#[bitbybit::bitfield(u32, default = 0x00)]
+#[bitbybit::bitfield(u32, default = 0, defmt_fields(feature = "defmt"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(PartialEq, Eq)]
 pub struct L1Section {
     /// Section base address upper bits.

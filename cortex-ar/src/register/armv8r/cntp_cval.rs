@@ -3,6 +3,9 @@
 use crate::register::{SysReg64, SysRegRead64, SysRegWrite64};
 
 /// CNTP_CVAL (*Physical Counter-timer CompareValue Register*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CntpCval(pub u64);
 
 impl SysReg64 for CntpCval {

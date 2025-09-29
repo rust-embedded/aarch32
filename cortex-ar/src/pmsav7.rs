@@ -13,6 +13,7 @@ pub use register::drsr::RegionSize;
 
 /// Ways this API can fail
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Error {
     /// Found too many regions
     TooManyRegions,

@@ -3,19 +3,20 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// CNTHP_CTL (*Hyp Physical Counter-timer Control Register (EL2)*)
-#[bitbybit::bitfield(u32)]
+#[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CnthpCtl {
     /// The status of the timer interrupt.
-    #[bits(2..=2, r)]
+    #[bit(2, r)]
     istatus: bool,
     /// Timer interrupt mask bit.
     ///
     /// * true: masked
     /// * false: not masked
-    #[bits(1..=1, rw)]
+    #[bit(1, rw)]
     imask: bool,
     /// Enables the timer.
-    #[bits(0..=0, rw)]
+    #[bit(0, rw)]
     enable: bool,
 }
 

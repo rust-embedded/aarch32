@@ -3,7 +3,7 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// HSCTLR (*Hyp System Control Register*)
-#[bitbybit::bitfield(u32)]
+#[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
 pub struct Hsctlr {
     /// T32 Exception Enable. Controls whether exceptions to EL2 are taken to A32 or T32 state
     #[bits(30..=30, rw)]

@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead};
 
 /// ID_DFR0 (*Debug Feature Register 0*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct IdDfr0(pub u32);
 impl SysReg for IdDfr0 {
     const CP: u32 = 15;

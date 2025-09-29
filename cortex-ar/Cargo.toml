@@ -26,11 +26,12 @@ version = "0.2.0"
 
 [dependencies]
 arbitrary-int = "2"
-bitbybit = "1.3.3"
+bitbybit = "1.4"
 num_enum = { version = "0.7", default-features = false }
 critical-section = {version = "1.2.0", features = ["restore-state-u8"], optional = true}
 thiserror = { version = "2", default-features = false }
-defmt = {version = "1", optional = true}
+defmt = { version = "1", optional = true }
+serde = { version = "1", features = ["derive"], default-features = false, optional = true }
 
 [build-dependencies]
 arm-targets = {version = "0.2.0", path = "../arm-targets"}
@@ -44,6 +45,7 @@ critical-section-single-core = ["critical-section"]
 critical-section-multi-core = ["critical-section"]
 # Adds defmt::Format implementation for the register types
 defmt = ["dep:defmt", "arbitrary-int/defmt"]
+serde = ["dep:serde", "arbitrary-int/serde"]
 
 [package.metadata.docs.rs]
 targets = ["armv7r-none-eabihf", "armv7r-none-eabi", "armv7a-none-eabihf"]

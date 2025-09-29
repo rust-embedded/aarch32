@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// PMCCFILTR (*Performance Monitors Cycle Count Filter Register*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pmccfiltr(pub u32);
 impl SysReg for Pmccfiltr {
     const CP: u32 = 15;

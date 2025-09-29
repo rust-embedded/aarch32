@@ -4,8 +4,8 @@ use crate::register::{SysReg, SysRegRead};
 use arbitrary_int::{u10, u15, u3};
 
 /// CCSIDR (*Current Cache Size ID Register*)
-#[bitbybit::bitfield(u32)]
-#[derive(Debug)]
+#[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Ccsidr {
     #[bit(31, rw)]
     write_through: bool,

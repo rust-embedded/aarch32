@@ -3,7 +3,9 @@
 use crate::register::{SysReg, SysRegRead};
 
 /// MPIDR (*Multiprocessor Affinity Register*)
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Mpidr(pub u32);
 impl SysReg for Mpidr {
     const CP: u32 = 15;

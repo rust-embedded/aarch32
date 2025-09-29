@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// IMP_FLASHERR0 (*Flash Error Record Register 0*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpFlasherr0(pub u32);
 impl SysReg for ImpFlasherr0 {
     const CP: u32 = 15;

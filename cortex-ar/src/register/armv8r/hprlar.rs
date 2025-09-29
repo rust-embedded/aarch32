@@ -5,7 +5,7 @@ use arbitrary_int::{u26, u3};
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// HPRLAR (*Hyp Protection Region Limit Address Register*)
-#[bitbybit::bitfield(u32)]
+#[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
 pub struct Hprlar {
     /// Length of region
     #[bits(6..=31, rw)]

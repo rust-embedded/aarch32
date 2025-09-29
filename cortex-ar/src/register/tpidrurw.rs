@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// TPIDRURW (*EL0 Read/Write Software Thread ID Register*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Tpidrurw(pub u32);
 impl SysReg for Tpidrurw {
     const CP: u32 = 15;

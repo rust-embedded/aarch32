@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead};
 
 /// IMP_BUILDOPTR (*Build Options Register*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpBuildoptr(pub u32);
 impl SysReg for ImpBuildoptr {
     const CP: u32 = 15;

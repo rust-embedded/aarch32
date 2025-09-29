@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegWrite};
 
 /// IMP_CDBGDCI (*Invalidate All Register*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpCdbgdci(pub u32);
 impl SysReg for ImpCdbgdci {
     const CP: u32 = 15;

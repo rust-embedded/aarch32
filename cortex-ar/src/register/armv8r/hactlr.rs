@@ -4,6 +4,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// HACTRL (*Hyp Auxiliary Control Register*)
 #[bitbybit::bitfield(u32)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Hactlr {
     /// Controls access to IMP_TESTR1 at EL0 and EL1
     #[bits(15..=15, rw)]

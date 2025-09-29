@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead};
 
 /// CLIDR (*Cache Level ID Register*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Clidr(pub u32);
 impl SysReg for Clidr {
     const CP: u32 = 15;

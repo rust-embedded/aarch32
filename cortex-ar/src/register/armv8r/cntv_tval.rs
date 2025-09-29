@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// CNTV_TVAL (*Virtual Counter-timer TimerValue Register*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CntvTval(pub u32);
 impl SysReg for CntvTval {
     const CP: u32 = 15;

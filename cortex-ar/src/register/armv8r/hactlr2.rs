@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// HACTLR2 (*Hyp Auxiliary Control Register 2*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Hactlr2(pub u32);
 impl SysReg for Hactlr2 {
     const CP: u32 = 15;

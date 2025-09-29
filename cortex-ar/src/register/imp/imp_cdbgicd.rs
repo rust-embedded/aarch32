@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegWrite};
 
 /// IMP_CDBGICD (*Instruction Cache Data Read Operation.*)
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpCdbgicd(pub u32);
 impl SysReg for ImpCdbgicd {
     const CP: u32 = 15;

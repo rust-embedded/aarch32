@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead};
 
 /// ID_MMFR4 (*Memory Model Feature Register 4*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct IdMmfr4(pub u32);
 impl SysReg for IdMmfr4 {
     const CP: u32 = 15;

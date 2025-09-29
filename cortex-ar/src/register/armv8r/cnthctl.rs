@@ -5,7 +5,8 @@ use arbitrary_int::u4;
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// CNTHCTL (*Hyp Counter-timer Control Register*)
-#[bitbybit::bitfield(u32)]
+#[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Cnthctl {
     #[bits(19..=19, rw)]
     cntpmask: bool,

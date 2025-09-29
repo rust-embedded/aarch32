@@ -4,6 +4,9 @@ use arbitrary_int::u3;
 
 use crate::register::{SysReg, SysRegWrite};
 
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Dccisw(pub u32);
 
 impl Dccisw {

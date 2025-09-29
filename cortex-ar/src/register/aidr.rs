@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead};
 
 /// AIDR (*Auxiliary ID Register*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Aidr(pub u32);
 impl SysReg for Aidr {
     const CP: u32 = 15;

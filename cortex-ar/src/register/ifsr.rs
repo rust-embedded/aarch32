@@ -5,7 +5,8 @@ use arbitrary_int::{prelude::*, u4, u5};
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// IFSR (*Instruction Fault Status Register*)
-#[bitbybit::bitfield(u32)]
+#[bitbybit::bitfield(u32, defmt_bitfields(feature = "defmt"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Ifsr {
     /// External abort qualifier
     #[bit(12, rw)]
@@ -18,7 +19,9 @@ pub struct Ifsr {
 }
 
 /// Fault status register enumeration for IFSR, which is also part of the DFSR
-#[derive(Debug, num_enum::TryFromPrimitive)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, num_enum::TryFromPrimitive)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum FsrStatus {
     SyncExtAbortOnTranslationTableWalkFirstLevel = 0b01100,

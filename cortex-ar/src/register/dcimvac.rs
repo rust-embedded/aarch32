@@ -1,6 +1,9 @@
 //! DCIMVAC (*Invalidate Data Cache Or Unified Cache Line by MVA to Point of Coherence.*)
 use crate::register::{SysReg, SysRegWrite};
 
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Dcimvac(pub u32);
 
 impl Dcimvac {

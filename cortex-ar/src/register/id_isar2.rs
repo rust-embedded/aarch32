@@ -3,6 +3,9 @@
 use crate::register::{SysReg, SysRegRead};
 
 /// ID_ISAR2 (*Instruction Set Attribute Register 2*)
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct IdIsar2(pub u32);
 impl SysReg for IdIsar2 {
     const CP: u32 = 15;
