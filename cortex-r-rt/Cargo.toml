@@ -32,7 +32,7 @@ cortex-ar-rt-macros = {path = "../cortex-ar-rt-macros", version = "=0.1.0"}
 eabi-fpu = []
 
 [build-dependencies]
-arm-targets = {version = "0.2.0", path = "../arm-targets"}
+arm-targets = { version = "0.3.0", path = "../arm-targets" }
 
 [package.metadata.docs.rs]
 targets = ["armv7r-none-eabihf", "armv7r-none-eabihf"]

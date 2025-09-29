@@ -22,7 +22,7 @@ cortex-r-rt = { path = "../../cortex-r-rt" }
 semihosting = { version = "0.1.18", features = ["stdio"] }
 
 [build-dependencies]
-arm-targets = { version = "0.2.0", path = "../../arm-targets" }
+arm-targets = { version = "0.3.0", path = "../../arm-targets" }
 
 [features]
 eabi-fpu = ["cortex-a-rt/eabi-fpu", "cortex-r-rt/eabi-fpu"]

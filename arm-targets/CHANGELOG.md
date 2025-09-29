@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [v0.3.0]
+
 ### Added
 
-- Added support for legacy Arm targets: Armv5TE and Armv4T, including proper arch, isa, and profile handling.
+- Support for legacy Arm targets: Armv5TE and Armv4T
+- Additional documentation
+- ABI type (either EABI or EABIHF)
+- Simple CLI tool
+- Some unit tests
 
 ## [v0.2.0]
 
@@ -26,6 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/arm-targets-v0.2.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/arm-targets-v0.3.0...HEAD
+[v0.3.0]: https://github.com/rust-embedded/cortex-ar/compare/arm-targets-v0.2.0...arm-targets-v0.3.0
 [v0.2.0]: https://github.com/rust-embedded/cortex-ar/compare/arm-targets-v0.1.0...arm-targets-v0.2.0
 [v0.1.0]: https://github.com/rust-embedded/cortex-ar/releases/tag/arm-targets-v0.1.0
