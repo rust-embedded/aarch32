@@ -24,7 +24,7 @@ rust-version = "1.83"
 version = "0.2.0"
 
 [dependencies]
-cortex-ar = {version = "0.2.0", path = "../cortex-ar"}
+cortex-ar = { version = "0.3.0", path = "../cortex-ar" }
 cortex-ar-rt-macros = {path = "../cortex-ar-rt-macros", version = "=0.1.0"}
 
 [features]

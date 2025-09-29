@@ -7,18 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [v0.3.0]
+
 - Bumped MSRV for `cortex-ar` to v1.83 to allow compatibility with `arbitrary-int` v2.
 
 ### Added
 
 - `dmb` data memory barrier in ASM module.
-- API for inner cache maintenance as part of the new `cache` module. This includes functions to
-  completely clean, invalidate or clean & invalidate the L1 data cache or perform data cache
-  maintenance by MVA (specific address).
-- Added new  `L1Section::set_section_attrs` and `L1Section::section_attrs` method. Also added
-  low-level `L1Section::new_with_addr_upper_bits_and_attrs` constructor.
+- API for inner cache maintenance as part of the new `cache` module. This
+  includes functions to completely clean, invalidate or clean & invalidate the
+  L1 data cache or perform data cache maintenance by MVA (specific address).
+- new  `L1Section::set_section_attrs` and `L1Section::section_attrs` method,
+  and low-level `L1Section::new_with_addr_upper_bits_and_attrs` constructor
+- `Debug`, `Copy`, `Clone` derives for all system register types
 - optional `serde` derives behind a `serde` feature gate
-- lots of missing `Debug`, `Copy`, `Clone`, `defmt::Format` derives.
+- optional `defmt::Format` derives behind a `defmt` feature gate
 
 ### Changed
 
@@ -46,6 +49,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-v0.2.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-v0.3.0...HEAD
+[v0.3.0]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-v0.2.0...cortex-ar-v0.3.0
 [v0.2.0]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-v0.1.0...cortex-ar-v0.2.0
 [v0.1.0]: https://github.com/rust-embedded/cortex-ar/releases/tag/cortex-ar-v0.1.0
