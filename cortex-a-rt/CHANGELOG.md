@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-No changes
+## [v0.1.2]
+
+### Changed
+
+- MSRV is now Rust 1.83
+- Uses cortex-ar 0.3
 
 ## [v0.1.1]
 

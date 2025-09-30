@@ -24,7 +24,7 @@ critical-section = "1.2.0"
 heapless = "0.9.1"
 
 [build-dependencies]
-arm-targets = {version = "0.2.0", path = "../../arm-targets"}
+arm-targets = {version = "0.3.0", path = "../../arm-targets"}
 
 [features]
 eabi-fpu = ["cortex-r-rt/eabi-fpu"]

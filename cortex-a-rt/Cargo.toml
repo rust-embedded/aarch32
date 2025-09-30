@@ -12,11 +12,11 @@ readme = "README.md"
 repository = "https://github.com/rust-embedded/cortex-ar.git"
 homepage = "https://github.com/rust-embedded/cortex-ar.git"
 rust-version = "1.83"
-version = "0.1.1"
+version = "0.1.2"
 
 [dependencies]
-cortex-ar = {version = "0.2.0", path = "../cortex-ar"}
-cortex-ar-rt-macros = { path = "../cortex-ar-rt-macros", version = "=0.1.0" }
+cortex-ar = { version = "0.3.0", path = "../cortex-ar" }
+cortex-ar-rt-macros = { path = "../cortex-ar-rt-macros", version = "=0.1.1" }
 
 [features]
 # Enable the FPU on start-up, even on a soft-float EABI target
@@ -26,7 +26,7 @@ eabi-fpu = []
 vfp-dp = []
 
 [build-dependencies]
-arm-targets = {version = "0.2.0", path = "../arm-targets"}
+arm-targets = { version = "0.3.0", path = "../arm-targets" }
 
 [package.metadata.docs.rs]
 targets = ["armv7a-none-eabi"]
