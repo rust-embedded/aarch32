@@ -1,6 +1,7 @@
 # Rust on Arm Cortex-R and Cortex-A
 
 This repository provides support for:
+
 * Legacy Armv4T processors, and Armv5TE
 * Armv7-R Processors, like the Arm Cortex-R5
 * Armv8-R AArch32 Processors, like the Arm Cortex-R52
