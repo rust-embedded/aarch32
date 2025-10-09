@@ -45,3 +45,7 @@ required-features = ["gic"]
 [[bin]]
 name = "generic_timer_irq"
 required-features = ["gic"]
+
+[[bin]]
+name = "gic-priority-ceiling"
+required-features = ["gic"]
