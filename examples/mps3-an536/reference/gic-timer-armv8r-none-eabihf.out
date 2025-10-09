@@ -1,0 +1,80 @@
+Found PERIPHBASE 0xf0000000
+Creating GIC driver @ 0xf0000000 / 0xf0100000
+Calling git.setup(0)
+Configure Physical Timer Interrupt...
+Configure Virtual Timer Interrupt...
+Physical timer frequency 62500000 Hz, interrupt every 3125000
+Virtual timer frequency 62500000 Hz, interrupt every 3125000
+Enabling interrupts...
+CPSR: CPSR { N=0 Z=1 C=1 V=0 Q=0 J=0 E=0 A=0 I=1 F=1 T=0 MODE=Ok(Sys) }
+CPSR: CPSR { N=0 Z=1 C=1 V=0 Q=0 J=0 E=0 A=0 I=0 F=1 T=0 MODE=Ok(Sys) }
+> IRQ
+- IRQ handle PPI 14
+- Physical Timer handled
+- IRQ handle PPI 11
+- Virtual Timer handled
+< IRQ
+Main loop wake up 1
+> IRQ
+- IRQ handle PPI 14
+- Physical Timer handled
+- IRQ handle PPI 11
+- Virtual Timer handled
+< IRQ
+Main loop wake up 2
+> IRQ
+- IRQ handle PPI 14
+- Physical Timer handled
+- IRQ handle PPI 11
+- Virtual Timer handled
+< IRQ
+Main loop wake up 3
+> IRQ
+- IRQ handle PPI 14
+- Physical Timer handled
+- IRQ handle PPI 11
+- Virtual Timer handled
+< IRQ
+Main loop wake up 4
+> IRQ
+- IRQ handle PPI 14
+- Physical Timer handled
+- IRQ handle PPI 11
+- Virtual Timer handled
+< IRQ
+Main loop wake up 5
+> IRQ
+- IRQ handle PPI 14
+- Physical Timer handled
+- IRQ handle PPI 11
+- Virtual Timer handled
+< IRQ
+Main loop wake up 6
+> IRQ
+- IRQ handle PPI 14
+- Physical Timer handled
+- IRQ handle PPI 11
+- Virtual Timer handled
+< IRQ
+Main loop wake up 7
+> IRQ
+- IRQ handle PPI 14
+- Physical Timer handled
+- IRQ handle PPI 11
+- Virtual Timer handled
+< IRQ
+Main loop wake up 8
+> IRQ
+- IRQ handle PPI 14
+- Physical Timer handled
+- IRQ handle PPI 11
+- Virtual Timer handled
+< IRQ
+Main loop wake up 9
+> IRQ
+- IRQ handle PPI 14
+- Physical Timer handled
+- IRQ handle PPI 11
+- Virtual Timer handled
+< IRQ
+Main loop wake up 10
