@@ -5,8 +5,6 @@
 #![no_std]
 #![no_main]
 
-use core::ptr::NonNull;
-
 // pull in our start-up code
 use cortex_r_rt::{entry, irq};
 
@@ -14,16 +12,10 @@ use cortex_r_rt::{entry, irq};
 use mps3_an536::InterruptHandler;
 
 use arm_gic::{
-    gicv3::{GicCpuInterface, GicV3, Group, InterruptGroup, SgiTarget, SgiTargetGroup},
-    IntId, UniqueMmioPointer,
+    gicv3::{GicCpuInterface, Group, InterruptGroup, SgiTarget, SgiTargetGroup},
+    IntId,
 };
 use semihosting::println;
-
-/// Offset from PERIPHBASE for GIC Distributor
-const GICD_BASE_OFFSET: usize = 0x0000_0000usize;
-
-/// Offset from PERIPHBASE for the first GIC Redistributor
-const GICR_BASE_OFFSET: usize = 0x0010_0000usize;
 
 const SGI_INTID_LO: IntId = IntId::sgi(3);
 const SGI_INTID_HI: IntId = IntId::sgi(4);
@@ -33,24 +25,8 @@ const SGI_INTID_HI: IntId = IntId::sgi(4);
 /// It is called by the start-up code in `cortex-r-rt`.
 #[entry]
 fn main() -> ! {
-    // Get the GIC address by reading CBAR
-    let periphbase = cortex_ar::register::ImpCbar::read().periphbase();
-    println!("Found PERIPHBASE {:010p}", periphbase);
-    let gicd_base = periphbase.wrapping_byte_add(GICD_BASE_OFFSET);
-    let gicr_base = periphbase.wrapping_byte_add(GICR_BASE_OFFSET);
-
     // Initialise the GIC.
-    println!(
-        "Creating GIC driver @ {:010p} / {:010p}",
-        gicd_base, gicr_base
-    );
-    let gicd = unsafe { UniqueMmioPointer::new(NonNull::new(gicd_base.cast()).unwrap()) };
-    let gicr = NonNull::new(gicr_base.cast()).unwrap();
-    let mut gic = unsafe { GicV3::new(gicd, gicr, 1, false) };
-
-    println!("Calling git.setup(0)");
-    gic.setup(0);
-    GicCpuInterface::set_priority_mask(0x80);
+    let mut gic = mps3_an536::init_gic();
 
     // Configure a Software Generated Interrupt for Core 0
     println!("Configure low-prio SGI...");

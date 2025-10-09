@@ -4,20 +4,13 @@
 #![no_main]
 
 use arm_gic::{
-    gicv3::{GicCpuInterface, GicV3, Group, InterruptGroup},
-    IntId, UniqueMmioPointer,
+    gicv3::{GicCpuInterface, Group, InterruptGroup},
+    IntId,
 };
-use core::ptr::NonNull;
 use cortex_ar::generic_timer::{El1VirtualTimer, GenericTimer};
 use cortex_r_rt::{entry, irq};
 use mps3_an536 as _;
 use semihosting::println;
-
-/// Offset from PERIPHBASE for GIC Distributor
-const GICD_BASE_OFFSET: usize = 0x0000_0000usize;
-
-/// Offset from PERIPHBASE for the first GIC Redistributor
-const GICR_BASE_OFFSET: usize = 0x0010_0000usize;
 
 /// The PPI for the virutal timer, according to the Cortex-R52 Technical Reference Manual,
 /// Table 10-3: PPI assignments.
@@ -30,24 +23,8 @@ const VIRTUAL_TIMER_PPI: IntId = IntId::ppi(11);
 /// It is called by the start-up code in `cortex-r-rt`.
 #[entry]
 fn main() -> ! {
-    // Get the GIC address by reading CBAR
-    let periphbase = cortex_ar::register::ImpCbar::read().periphbase();
-    println!("Found PERIPHBASE {:010p}", periphbase);
-    let gicd_base = periphbase.wrapping_byte_add(GICD_BASE_OFFSET);
-    let gicr_base = periphbase.wrapping_byte_add(GICR_BASE_OFFSET);
-
     // Initialise the GIC.
-    println!(
-        "Creating GIC driver @ {:010p} / {:010p}",
-        gicd_base, gicr_base
-    );
-    let gicd = unsafe { UniqueMmioPointer::new(NonNull::new(gicd_base.cast()).unwrap()) };
-    let gicr = NonNull::new(gicr_base.cast()).unwrap();
-    let mut gic = unsafe { GicV3::new(gicd, gicr, 1, false) };
-
-    println!("Calling git.setup(0)");
-    gic.setup(0);
-    GicCpuInterface::set_priority_mask(0x80);
+    let mut gic = mps3_an536::init_gic();
 
     println!("Configure Timer Interrupt...");
     gic.set_interrupt_priority(VIRTUAL_TIMER_PPI, Some(0), 0x31)
