@@ -1,3 +1,6 @@
+Found PERIPHBASE 0xf0000000
+Creating GIC driver @ 0xf0000000 / 0xf0100000
+Calling git.setup(0)
 cntfrq = 62.500 MHz
 Using physical timer ************************
 Print five, every 100ms...

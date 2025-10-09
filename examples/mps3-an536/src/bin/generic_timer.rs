@@ -9,6 +9,8 @@ use cortex_r_rt::entry;
 // pull in our library
 use mps3_an536 as _;
 
+use cortex_ar::generic_timer::GenericTimer;
+
 use semihosting::println;
 
 /// The entry-point to the Rust application.
@@ -16,17 +18,15 @@ use semihosting::println;
 /// It is called by the start-up code in `cortex-r-rt`.
 #[entry]
 fn main() -> ! {
-    use cortex_ar::generic_timer::{El1PhysicalTimer, El1VirtualTimer, GenericTimer};
+    let mut board = mps3_an536::Board::new().unwrap();
+
     let cntfrq = cortex_ar::register::Cntfrq::read().0;
     println!("cntfrq = {:.03} MHz", cntfrq as f32 / 1_000_000.0);
 
     let delay_ticks = cntfrq / 2;
 
-    let mut pgt = unsafe { El1PhysicalTimer::new() };
-    let mut vgt = unsafe { El1VirtualTimer::new() };
-
-    let pgt_ref: &mut dyn GenericTimer = &mut pgt;
-    let vgt_ref: &mut dyn GenericTimer = &mut vgt;
+    let pgt_ref: &mut dyn GenericTimer = &mut board.pgt;
+    let vgt_ref: &mut dyn GenericTimer = &mut board.vgt;
 
     for (timer, name) in [(pgt_ref, "physical"), (vgt_ref, "virtual")] {
         println!("Using {} timer ************************", name);

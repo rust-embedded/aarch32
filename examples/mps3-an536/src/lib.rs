@@ -53,6 +53,15 @@
 
 #![no_std]
 
+use core::sync::atomic::{AtomicBool, Ordering};
+
+/// The PPI for the virutal timer, according to the Cortex-R52 Technical Reference Manual,
+/// Table 10-3: PPI assignments.
+///
+/// This corresponds to Interrupt ID 27.
+#[cfg(feature = "gic")]
+pub const VIRTUAL_TIMER_PPI: arm_gic::IntId = arm_gic::IntId::ppi(11);
+
 #[cfg(not(arm_architecture = "v8-r"))]
 compile_error!("This example is only compatible to the ARMv8-R architecture");
 
@@ -96,4 +105,74 @@ impl InterruptHandler {
     pub fn execute(&self) {
         (self.function)(self.int_id);
     }
+}
+
+/// Represents all the hardware we support in our MPS3-AN536 system
+pub struct Board {
+    /// The Arm Generic Interrupt Controller (v3)
+    #[cfg(feature = "gic")]
+    pub gic: arm_gic::gicv3::GicV3<'static>,
+    /// The Arm Virtual Generic Timer
+    pub vgt: cortex_ar::generic_timer::El1VirtualTimer,
+    /// The Arm Physical Generic Timer
+    pub pgt: cortex_ar::generic_timer::El1PhysicalTimer,
+}
+
+impl Board {
+    /// Create a new board structure.
+    ///
+    /// Returns `Some(board)` the first time you call it, and None thereafter,
+    /// so you cannot have two copies of the [`Board`] structure.
+    pub fn new() -> Option<Board> {
+        static TAKEN: AtomicBool = AtomicBool::new(false);
+        if TAKEN
+            .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+            .is_ok()
+        {
+            Some(Board {
+                #[cfg(feature = "gic")]
+                gic: unsafe { make_gic() },
+                vgt: unsafe { cortex_ar::generic_timer::El1VirtualTimer::new() },
+                pgt: unsafe { cortex_ar::generic_timer::El1PhysicalTimer::new() },
+            })
+        } else {
+            None
+        }
+    }
+}
+
+/// Create the ARM GIC driver
+///
+/// # Safety
+///
+/// Only call this function once.
+#[cfg(feature = "gic")]
+unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
+    /// Offset from PERIPHBASE for GIC Distributor
+    const GICD_BASE_OFFSET: usize = 0x0000_0000usize;
+
+    /// Offset from PERIPHBASE for the first GIC Redistributor
+    const GICR_BASE_OFFSET: usize = 0x0010_0000usize;
+
+    // Get the GIC address by reading CBAR
+    let periphbase = cortex_ar::register::ImpCbar::read().periphbase();
+    semihosting::println!("Found PERIPHBASE {:010p}", periphbase);
+    let gicd_base = periphbase.wrapping_byte_add(GICD_BASE_OFFSET);
+    let gicr_base = periphbase.wrapping_byte_add(GICR_BASE_OFFSET);
+
+    // Initialise the GIC.
+    semihosting::println!(
+        "Creating GIC driver @ {:010p} / {:010p}",
+        gicd_base,
+        gicr_base
+    );
+    let gicd = unsafe {
+        arm_gic::UniqueMmioPointer::new(core::ptr::NonNull::new(gicd_base.cast()).unwrap())
+    };
+    let gicr_base = core::ptr::NonNull::new(gicr_base.cast()).unwrap();
+    let mut gic = unsafe { arm_gic::gicv3::GicV3::new(gicd, gicr_base, 1, false) };
+    semihosting::println!("Calling git.setup(0)");
+    gic.setup(0);
+    arm_gic::gicv3::GicCpuInterface::set_priority_mask(0x80);
+    gic
 }
