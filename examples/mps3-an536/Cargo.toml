@@ -41,3 +41,7 @@ required-features = ["gic"]
 [[bin]]
 name = "gic-unified-irq"
 required-features = ["gic"]
+
+[[bin]]
+name = "generic_timer_irq"
+required-features = ["gic"]
