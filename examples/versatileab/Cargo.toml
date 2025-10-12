@@ -20,6 +20,7 @@ cortex-ar = { path = "../../cortex-ar", features = ["critical-section-single-cor
 cortex-a-rt = { path = "../../cortex-a-rt" }
 cortex-r-rt = { path = "../../cortex-r-rt" }
 semihosting = { version = "0.1.18", features = ["stdio"] }
+libm = "0.2.15"
 
 [build-dependencies]
 arm-targets = { version = "0.3.0", path = "../../arm-targets" }
