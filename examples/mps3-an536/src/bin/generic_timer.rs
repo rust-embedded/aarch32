@@ -25,10 +25,13 @@ fn main() -> ! {
 
     let delay_ticks = cntfrq / 2;
 
-    let pgt_ref: &mut dyn GenericTimer = &mut board.pgt;
-    let vgt_ref: &mut dyn GenericTimer = &mut board.vgt;
+    let physical_timer_ref: &mut dyn GenericTimer = &mut board.physical_timer;
+    let virtual_timer_ref: &mut dyn GenericTimer = &mut board.virtual_timer;
 
-    for (timer, name) in [(pgt_ref, "physical"), (vgt_ref, "virtual")] {
+    for (timer, name) in [
+        (physical_timer_ref, "physical"),
+        (virtual_timer_ref, "virtual"),
+    ] {
         println!("Using {} timer ************************", name);
 
         println!("Print five, every 100ms...");

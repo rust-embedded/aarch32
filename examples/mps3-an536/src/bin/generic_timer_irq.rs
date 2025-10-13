@@ -37,13 +37,13 @@ fn main() -> ! {
         .unwrap();
 
     // Setup virtual timer
-    board.vgt.enable(true);
-    board.vgt.interrupt_mask(false);
-    board.vgt.counter_compare_set(
+    board.virtual_timer.enable(true);
+    board.virtual_timer.interrupt_mask(false);
+    board.virtual_timer.counter_compare_set(
         board
-            .vgt
+            .virtual_timer
             .counter()
-            .wrapping_add(board.vgt.frequency_hz() as u64 / 5),
+            .wrapping_add(board.virtual_timer.frequency_hz() as u64 / 5),
     );
 
     println!("Enabling interrupts...");
@@ -88,11 +88,12 @@ fn irq_handler() {
 /// Run when the timer IRQ fires
 fn handle_timer_irq() {
     // SAFETY: We drop en other time handle in main, this is the only active handle.
-    let mut vgt = unsafe { El1VirtualTimer::new() };
+    let mut virtual_timer = unsafe { El1VirtualTimer::new() };
     // trigger a timer in 0.2 seconds
-    vgt.counter_compare_set(
-        vgt.counter_compare()
-            .wrapping_add(vgt.frequency_hz() as u64 / 5),
+    virtual_timer.counter_compare_set(
+        virtual_timer
+            .counter_compare()
+            .wrapping_add(virtual_timer.frequency_hz() as u64 / 5),
     );
 
     println!("    - Timer fired, resetting");

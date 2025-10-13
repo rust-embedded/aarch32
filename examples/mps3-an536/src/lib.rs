@@ -107,15 +107,15 @@ impl InterruptHandler {
     }
 }
 
-/// Represents all the hardware we support in our MPS3-AN536 system
+    /// Represents all the hardware we support in our MPS3-AN536 system
 pub struct Board {
     /// The Arm Generic Interrupt Controller (v3)
     #[cfg(feature = "gic")]
     pub gic: arm_gic::gicv3::GicV3<'static>,
     /// The Arm Virtual Generic Timer
-    pub vgt: cortex_ar::generic_timer::El1VirtualTimer,
+    pub virtual_timer: cortex_ar::generic_timer::El1VirtualTimer,
     /// The Arm Physical Generic Timer
-    pub pgt: cortex_ar::generic_timer::El1PhysicalTimer,
+    pub physical_timer: cortex_ar::generic_timer::El1PhysicalTimer,
 }
 
 impl Board {
@@ -136,10 +136,10 @@ impl Board {
                 gic: unsafe { make_gic() },
                 // SAFETY: This is the first and only time we create the virtual timer instance
                 // as guaranteed by the atomic flag check above, ensuring exclusive access.
-                vgt: unsafe { cortex_ar::generic_timer::El1VirtualTimer::new() },
+                virtual_timer: unsafe { cortex_ar::generic_timer::El1VirtualTimer::new() },
                 // SAFETY: This is the first and only time we create the physical timer instance
                 // as guaranteed by the atomic flag check above, ensuring exclusive access.
-                pgt: unsafe { cortex_ar::generic_timer::El1PhysicalTimer::new() },
+                physical_timer: unsafe { cortex_ar::generic_timer::El1PhysicalTimer::new() },
             })
         } else {
             None
