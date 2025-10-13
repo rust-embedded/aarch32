@@ -131,8 +131,14 @@ impl Board {
         {
             Some(Board {
                 #[cfg(feature = "gic")]
+                // SAFETY: This is the first and only call to `make_gic()` as guaranteed by
+                // the atomic flag check above, ensuring no aliasing of GIC register access.
                 gic: unsafe { make_gic() },
+                // SAFETY: This is the first and only time we create the virtual timer instance
+                // as guaranteed by the atomic flag check above, ensuring exclusive access.
                 vgt: unsafe { cortex_ar::generic_timer::El1VirtualTimer::new() },
+                // SAFETY: This is the first and only time we create the physical timer instance
+                // as guaranteed by the atomic flag check above, ensuring exclusive access.
                 pgt: unsafe { cortex_ar::generic_timer::El1PhysicalTimer::new() },
             })
         } else {
@@ -166,10 +172,15 @@ unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
         gicd_base,
         gicr_base
     );
+    // SAFETY: `gicd_base` points to the valid GICD MMIO region as obtained from the
+    // hardware CBAR register. This pointer is used exclusively by this GIC instance.
     let gicd = unsafe {
         arm_gic::UniqueMmioPointer::new(core::ptr::NonNull::new(gicd_base.cast()).unwrap())
     };
     let gicr_base = core::ptr::NonNull::new(gicr_base.cast()).unwrap();
+    // SAFETY: The GICD and GICR base addresses point to valid GICv3 MMIO regions as
+    // obtained from the hardware CBAR register. This function is only called once
+    // (via Board::new()'s atomic guard), ensuring exclusive ownership of the GIC.
     let mut gic = unsafe { arm_gic::gicv3::GicV3::new(gicd, gicr_base, 1, false) };
     semihosting::println!("Calling git.setup(0)");
     gic.setup(0);
