@@ -6,6 +6,7 @@ This repository provides support for:
 * Armv8-R AArch32 Processors, like the Arm Cortex-R52
 * Armv7-A Processors, like the Arm Cortex-A5
 * Armv8-A AArch32 Processors, like the Arm Cortex-A53 running in 32-bit mode
+* Partial support for Legacy Armv5TE Processors
 
 These libraries were originally written by Ferrous Systems, and are based on the
 [`cortex-m` libraries] from the [Rust Embedded Devices Working Group].

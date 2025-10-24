@@ -935,6 +935,46 @@ core::arch::global_asm!(
     }
 );
 
+// Start-up code for Armv5TE.
+//
+// Go straight to our default routine. No special floating-point handling is supported for now,
+// which is theoretically allowed by supporting a VFP co-processor.
+//
+// If this is required, the user has to define a custom _start method.
+#[cfg(arm_architecture = "v5te")]
+core::arch::global_asm!(
+    r#"
+    .section .text.default_start
+    .global _default_start
+    .type _default_start, %function
+    _default_start:
+        // Set up stacks.
+        ldr     r0, =_stack_top
+        bl      _stack_setup
+        // Init .data and .bss
+        bl      _init_segments
+        // Zero all registers before calling kmain
+        mov     r0, 0
+        mov     r1, 0
+        mov     r2, 0
+        mov     r3, 0
+        mov     r4, 0
+        mov     r5, 0
+        mov     r6, 0
+        mov     r7, 0
+        mov     r8, 0
+        mov     r9, 0
+        mov     r10, 0
+        mov     r11, 0
+        mov     r12, 0
+        // Jump to application
+        bl      kmain
+        // In case the application returns, loop forever
+        b       .
+    .size _default_start, . - _default_start
+    "#
+);
+
 // Start-up code for Armv7-R.
 //
 // Go straight to our default routine
