@@ -12,18 +12,12 @@ use cortex_r_rt::{entry, irq};
 use mps3_an536::InterruptHandler;
 
 use arm_gic::{
-    gicv3::{GicCpuInterface, GicV3, Group, InterruptGroup, SgiTarget, SgiTargetGroup},
-    IntId, UniqueMmioPointer,
+    gicv3::{GicCpuInterface, Group, InterruptGroup, SgiTarget, SgiTargetGroup},
+    IntId,
 };
-use core::{cell::RefCell, ptr::NonNull};
+use core::cell::RefCell;
 use heapless::linear_map::LinearMap;
 use semihosting::println;
-
-/// Offset from PERIPHBASE for GIC Distributor
-const GICD_BASE_OFFSET: usize = 0x0000_0000usize;
-
-/// Offset from PERIPHBASE for the first GIC Redistributor
-const GICR_BASE_OFFSET: usize = 0x0010_0000usize;
 
 const SGI_INTID_LO: IntId = IntId::sgi(3);
 const SGI_INTID_HI: IntId = IntId::sgi(4);
@@ -36,42 +30,41 @@ static INTERRUPT_HANDLERS: critical_section::Mutex<RefCell<LinearMap<IntId, Inte
 /// It is called by the start-up code in `cortex-r-rt`.
 #[entry]
 fn main() -> ! {
-    // Get the GIC address by reading CBAR
-    let periphbase = cortex_ar::register::ImpCbar::read().periphbase();
-    println!("Found PERIPHBASE {:010p}", periphbase);
-    let gicd_base = periphbase.wrapping_byte_add(GICD_BASE_OFFSET);
-    let gicr_base = periphbase.wrapping_byte_add(GICR_BASE_OFFSET);
+    let mut board = mps3_an536::Board::new().unwrap();
 
-    // Initialise the GIC.
-    println!(
-        "Creating GIC driver @ {:010p} / {:010p}",
-        gicd_base, gicr_base
-    );
-
-    let gicd = unsafe { UniqueMmioPointer::new(NonNull::new(gicd_base.cast()).unwrap()) };
-    let gicr = NonNull::new(gicr_base.cast()).unwrap();
-    let mut gic = unsafe { GicV3::new(gicd, gicr, 1, false) };
-
-    println!("Calling git.setup(0)");
-    gic.setup(0);
+    // Only interrupts with a higher priority (numerically lower) will be signalled.
     GicCpuInterface::set_priority_mask(0x80);
 
-    // Configure a Software Generated Interrupt for Core 0
+    // Configure two Software Generated Interrupts for Core 0
     println!("Configure low-prio SGI...");
-    gic.set_interrupt_priority(SGI_INTID_LO, Some(0), 0x31)
+    board
+        .gic
+        .set_interrupt_priority(SGI_INTID_LO, Some(0), 0x31)
         .unwrap();
-    gic.set_group(SGI_INTID_LO, Some(0), Group::Group1NS)
+    board
+        .gic
+        .set_group(SGI_INTID_LO, Some(0), Group::Group1NS)
         .unwrap();
 
     println!("Configure high-prio SGI...");
-    gic.set_interrupt_priority(SGI_INTID_HI, Some(0), 0x10)
+    board
+        .gic
+        .set_interrupt_priority(SGI_INTID_HI, Some(0), 0x10)
         .unwrap();
-    gic.set_group(SGI_INTID_HI, Some(0), Group::Group1NS)
+    board
+        .gic
+        .set_group(SGI_INTID_HI, Some(0), Group::Group1NS)
         .unwrap();
 
     println!("gic.enable_interrupt()");
-    gic.enable_interrupt(SGI_INTID_LO, Some(0), true).unwrap();
-    gic.enable_interrupt(SGI_INTID_HI, Some(0), true).unwrap();
+    board
+        .gic
+        .enable_interrupt(SGI_INTID_LO, Some(0), true)
+        .unwrap();
+    board
+        .gic
+        .enable_interrupt(SGI_INTID_HI, Some(0), true)
+        .unwrap();
 
     critical_section::with(|cs| {
         let mut handlers = INTERRUPT_HANDLERS.borrow_ref_mut(cs);
