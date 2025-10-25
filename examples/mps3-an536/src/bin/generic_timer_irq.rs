@@ -4,66 +4,47 @@
 #![no_main]
 
 use arm_gic::{
-    gicv3::{GicCpuInterface, GicV3, Group, InterruptGroup},
-    IntId, UniqueMmioPointer,
+    gicv3::{GicCpuInterface, Group, InterruptGroup},
+    IntId,
 };
-use core::ptr::NonNull;
 use cortex_ar::generic_timer::{El1VirtualTimer, GenericTimer};
 use cortex_r_rt::{entry, irq};
-use mps3_an536 as _;
+use mps3_an536::VIRTUAL_TIMER_PPI;
 use semihosting::println;
-
-/// Offset from PERIPHBASE for GIC Distributor
-const GICD_BASE_OFFSET: usize = 0x0000_0000usize;
-
-/// Offset from PERIPHBASE for the first GIC Redistributor
-const GICR_BASE_OFFSET: usize = 0x0010_0000usize;
-
-/// The PPI for the virutal timer, according to the Cortex-R52 Technical Reference Manual,
-/// Table 10-3: PPI assignments.
-///
-/// This corresponds to Interrupt ID 27.
-const VIRTUAL_TIMER_PPI: IntId = IntId::ppi(11);
 
 /// The entry-point to the Rust application.
 ///
 /// It is called by the start-up code in `cortex-r-rt`.
 #[entry]
 fn main() -> ! {
-    // Get the GIC address by reading CBAR
-    let periphbase = cortex_ar::register::ImpCbar::read().periphbase();
-    println!("Found PERIPHBASE {:010p}", periphbase);
-    let gicd_base = periphbase.wrapping_byte_add(GICD_BASE_OFFSET);
-    let gicr_base = periphbase.wrapping_byte_add(GICR_BASE_OFFSET);
+    let mut board = mps3_an536::Board::new().unwrap();
 
-    // Initialise the GIC.
-    println!(
-        "Creating GIC driver @ {:010p} / {:010p}",
-        gicd_base, gicr_base
-    );
-    let gicd = unsafe { UniqueMmioPointer::new(NonNull::new(gicd_base.cast()).unwrap()) };
-    let gicr = NonNull::new(gicr_base.cast()).unwrap();
-    let mut gic = unsafe { GicV3::new(gicd, gicr, 1, false) };
-
-    println!("Calling git.setup(0)");
-    gic.setup(0);
+    // Only interrupts with a higher priority (numerically lower) will be signalled.
     GicCpuInterface::set_priority_mask(0x80);
 
     println!("Configure Timer Interrupt...");
-    gic.set_interrupt_priority(VIRTUAL_TIMER_PPI, Some(0), 0x31)
+    board
+        .gic
+        .set_interrupt_priority(VIRTUAL_TIMER_PPI, Some(0), 0x31)
         .unwrap();
-    gic.set_group(VIRTUAL_TIMER_PPI, Some(0), Group::Group1NS)
+    board
+        .gic
+        .set_group(VIRTUAL_TIMER_PPI, Some(0), Group::Group1NS)
         .unwrap();
-    gic.enable_interrupt(VIRTUAL_TIMER_PPI, Some(0), true)
+    board
+        .gic
+        .enable_interrupt(VIRTUAL_TIMER_PPI, Some(0), true)
         .unwrap();
 
-    // Create virtual timer, run as up-counter.
-    let mut vgt = unsafe { El1VirtualTimer::new() };
-    vgt.enable(true);
-    vgt.interrupt_mask(false);
-    vgt.counter_compare_set(vgt.counter().wrapping_add(vgt.frequency_hz() as u64));
-
-    drop(vgt); // Drop to free the timer handle.
+    // Setup virtual timer
+    board.virtual_timer.enable(true);
+    board.virtual_timer.interrupt_mask(false);
+    board.virtual_timer.counter_compare_set(
+        board
+            .virtual_timer
+            .counter()
+            .wrapping_add(board.virtual_timer.frequency_hz() as u64 / 5),
+    );
 
     println!("Enabling interrupts...");
     dump_cpsr();
@@ -107,11 +88,12 @@ fn irq_handler() {
 /// Run when the timer IRQ fires
 fn handle_timer_irq() {
     // SAFETY: We drop en other time handle in main, this is the only active handle.
-    let mut vgt = unsafe { El1VirtualTimer::new() };
+    let mut virtual_timer = unsafe { El1VirtualTimer::new() };
     // trigger a timer in 0.2 seconds
-    vgt.counter_compare_set(
-        vgt.counter_compare()
-            .wrapping_add(vgt.frequency_hz() as u64 / 5),
+    virtual_timer.counter_compare_set(
+        virtual_timer
+            .counter_compare()
+            .wrapping_add(virtual_timer.frequency_hz() as u64 / 5),
     );
 
     println!("    - Timer fired, resetting");
