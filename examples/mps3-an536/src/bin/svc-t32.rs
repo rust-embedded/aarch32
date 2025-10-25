@@ -3,11 +3,9 @@
 #![no_std]
 #![no_main]
 
-// pull in our start-up code
-use cortex_r_rt::{entry, exception};
-
-use semihosting::println;
+use aarch32_rt::{entry, exception};
 use mps3_an536 as _;
+use semihosting::println;
 
 /// The entry-point to the Rust application.
 ///
@@ -18,7 +16,9 @@ fn main() -> ! {
     let y = x + 1;
     let z = (y as f64) * 1.5;
     println!("x = {}, y = {}, z = {:0.3}", x, y, z);
-    unsafe { svc12_from_t32(); }
+    unsafe {
+        svc12_from_t32();
+    }
     println!("x = {}, y = {}, z = {:0.3}", x, y, z);
     panic!("I am an example panic");
 }
@@ -29,7 +29,9 @@ fn svc_handler(arg: u32) {
     println!("In svc_handler, with arg=0x{:06x}", arg);
     if arg == 0x12 {
         // test nested SVC calls
-        unsafe { svc34_from_t32(); }
+        unsafe {
+            svc34_from_t32();
+        }
     }
 }
 

@@ -1,7 +1,8 @@
 /*
-Basic Cortex-A linker script.
+Basic AArch32 linker script.
 
-You must supply a file called `memory.x` which defines the memory regions 'CODE' and 'DATA'.
+You must supply a file called `memory.x` which defines the memory regions
+'VECTORS', 'CODE' and 'DATA'.
 
 The stack pointer(s) will be (near) the top of the DATA region by default.
 
@@ -10,13 +11,18 @@ Based upon the linker script from https://github.com/rust-embedded/cortex-m
 
 INCLUDE memory.x
 
-ENTRY(_vector_table);
+ENTRY(_start);
 EXTERN(_vector_table);
+EXTERN(_start);
+EXTERN(_default_handler);
 
 SECTIONS {
-    .text : {
+    .vector_table ORIGIN(VECTORS) : {
         /* The vector table must come first */
         *(.vector_table)
+    } > VECTORS
+
+    .text : {
         /* Now the rest of the code */
         *(.text .text*)
     } > CODE
@@ -76,6 +82,7 @@ remainder is our system mode stack.
 You must keep _stack_top and the stack sizes aligned to eight byte boundaries.
 */
 PROVIDE(_stack_top = ORIGIN(DATA) + LENGTH(DATA));
+PROVIDE(_hyp_stack_size = 0x400);
 PROVIDE(_und_stack_size = 0x400);
 PROVIDE(_svc_stack_size = 0x400);
 PROVIDE(_abt_stack_size = 0x400);

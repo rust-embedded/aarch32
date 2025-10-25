@@ -16,8 +16,8 @@ rust-version = "1.83"
 version = "0.0.0"
 
 [dependencies]
-cortex-ar = { path = "../../cortex-ar", features = ["critical-section-multi-core"] }
-cortex-r-rt = { path = "../../cortex-r-rt" }
+aarch32-cpu = { path = "../../aarch32-cpu", features = ["critical-section-multi-core"] }
+aarch32-rt = { path = "../../aarch32-rt" }
 semihosting = { version = "0.1.18", features = ["stdio"] }
 arm-gic = { version = "0.7.1", optional = true }
 critical-section = "1.2.0"
@@ -28,7 +28,7 @@ libm = "0.2.15"
 arm-targets = {version = "0.3.0", path = "../../arm-targets"}
 
 [features]
-eabi-fpu = ["cortex-r-rt/eabi-fpu"]
+eabi-fpu = ["aarch32-rt/eabi-fpu"]
 gic = ["arm-gic"]
 
 [[bin]]

@@ -1,7 +1,7 @@
-[![crates.io](https://img.shields.io/crates/v/cortex-ar)](https://crates.io/crates/cortex-ar)
-[![docs.rs](https://img.shields.io/docsrs/cortex-ar)](https://docs.rs/cortex-ar)
+[![crates.io](https://img.shields.io/crates/v/aarch32-cpu)](https://crates.io/crates/aarch32-cpu)
+[![docs.rs](https://img.shields.io/docsrs/aarch32-cpu)](https://docs.rs/aarch32-cpu)
 
-# Support for Arm Cortex-R (AArch32) and Arm Cortex-A (AArch32)
+# Support for AArch32 Arm Processors
 
 This crate provides access to CPU registers and common peripherals for:
 
@@ -10,8 +10,11 @@ This crate provides access to CPU registers and common peripherals for:
 * Armv7-A Processors, like the Arm Cortex-A5
 * Armv8-A AArch32 Processors, like the Arm Cortex-A53 running in 32-bit mode
 
-It does not support processors running in AArch64 mode - A64 machine code uses
-different instructions for reading/writing system registers.
+It does not support any M-Profile Processors (like the Arm Cortex-M3) as they
+have a fundamentally different interrupt vector table.
+
+It also does not support processors running in AArch64 mode - A64 machine code
+uses different instructions for reading/writing system registers.
 
 This crate contains:
 

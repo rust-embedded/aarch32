@@ -5,12 +5,10 @@
 
 use core::sync::atomic::{AtomicU32, Ordering};
 
-use cortex_ar::register::{Dfar, Dfsr, Sctlr};
-
-// pull in our start-up code
-use versatileab::rt::{entry, exception};
-
+use aarch32_cpu::register::{Dfar, Dfsr, Sctlr};
+use aarch32_rt::{entry, exception};
 use semihosting::println;
+use versatileab as _;
 
 #[no_mangle]
 static COUNTER: AtomicU32 = AtomicU32::new(0);

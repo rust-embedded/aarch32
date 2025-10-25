@@ -3,13 +3,9 @@
 #![no_std]
 #![no_main]
 
-// pull in our start-up code
-use cortex_r_rt::entry;
-
-// pull in our library
+use aarch32_cpu::register::Hactlr;
+use aarch32_rt::entry;
 use mps3_an536 as _;
-
-use cortex_ar::register::Hactlr;
 use semihosting::println;
 
 /// The entry-point to the Rust application.
@@ -21,7 +17,7 @@ fn main() -> ! {
     let y = x * 2.0;
     println!("Hello, this is semihosting! x = {:0.3}, y = {:0.3}", x, y);
 
-    let mut mpu = unsafe { cortex_ar::pmsav8::El2Mpu::new() };
+    let mut mpu = unsafe { aarch32_cpu::pmsav8::El2Mpu::new() };
     for idx in 0..mpu.num_regions() {
         if let Some(region) = mpu.get_region(idx) {
             println!("Region {}: {:?}", idx, region);

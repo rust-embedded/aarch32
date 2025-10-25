@@ -1,4 +1,4 @@
-//! Macros for the cortex-a-rt and cortex-r-rt libraries
+//! Macros for the aarch32-rt library
 //!
 //! Provides `#[entry]`, `#[exception(...)]` and `#[irq]` attribute macros.
 //!
@@ -44,9 +44,8 @@ use syn::{
 /// }
 /// ```
 ///
-/// The symbol `kmain` is what the assembly code in both the cortex-r-rt and
-/// cortex-a-rt start-up code will jump to, and the `extern "C"` makes it sound
-/// to call from assembly.
+/// The symbol `kmain` is what the assembly code in aarch32-rt start-up code
+/// will jump to, and the `extern "C"` makes it sound to call from assembly.
 #[proc_macro_attribute]
 pub fn entry(args: TokenStream, input: TokenStream) -> TokenStream {
     let f = parse_macro_input!(input as ItemFn);

@@ -7,13 +7,6 @@ mod pl190;
 #[doc(inline)]
 pub use pl190::Pl190;
 
-// Need this to bring in the start-up function
-#[cfg(arm_profile = "a")]
-pub use cortex_a_rt as rt;
-
-#[cfg(arm_profile = "r")]
-pub use cortex_r_rt as rt;
-
 #[cfg(arm_architecture = "v8-r")]
 compile_error!("This example/board is not compatible with the ARMv8-R architecture");
 

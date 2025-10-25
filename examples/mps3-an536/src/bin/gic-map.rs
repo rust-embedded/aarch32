@@ -5,18 +5,15 @@
 #![no_std]
 #![no_main]
 
-// pull in our start-up code
-use cortex_r_rt::{entry, irq};
+use core::cell::RefCell;
 
-// pull in our library
-use mps3_an536::InterruptHandler;
-
+use aarch32_rt::{entry, irq};
 use arm_gic::{
     gicv3::{GicCpuInterface, Group, InterruptGroup, SgiTarget, SgiTargetGroup},
     IntId,
 };
-use core::cell::RefCell;
 use heapless::linear_map::LinearMap;
+use mps3_an536::InterruptHandler;
 use semihosting::println;
 
 const SGI_INTID_LO: IntId = IntId::sgi(3);
@@ -85,7 +82,7 @@ fn main() -> ! {
     println!("Enabling interrupts...");
     dump_cpsr();
     unsafe {
-        cortex_ar::interrupt::enable();
+        aarch32_cpu::interrupt::enable();
     }
     dump_cpsr();
 
@@ -104,7 +101,7 @@ fn main() -> ! {
     .unwrap();
 
     for _ in 0..1_000_000 {
-        cortex_ar::asm::nop();
+        aarch32_cpu::asm::nop();
     }
 
     println!("IRQ test completed OK");
@@ -113,7 +110,7 @@ fn main() -> ! {
 }
 
 fn dump_cpsr() {
-    let cpsr = cortex_ar::register::Cpsr::read();
+    let cpsr = aarch32_cpu::register::Cpsr::read();
     println!("CPSR: {:?}", cpsr);
 }
 
@@ -159,11 +156,11 @@ fn irq_handler() {
         if let Some(irq_entry) = handler {
             // let's go re-entrant
             unsafe {
-                cortex_ar::interrupt::enable();
+                aarch32_cpu::interrupt::enable();
             }
             irq_entry.execute();
             // turn interrupts off again
-            cortex_ar::interrupt::disable();
+            aarch32_cpu::interrupt::disable();
         }
         GicCpuInterface::end_interrupt(next_int_id, InterruptGroup::Group1);
     }

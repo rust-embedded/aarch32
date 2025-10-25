@@ -1,8 +1,8 @@
-//! # Run-time support for Arm Cortex-R (AArch32)
+//! # Run-time support for AArch32 Processors
 //!
 //! This library implements a simple Arm vector table, suitable for getting into
 //! a Rust application running in System Mode. It also provides a reference
-//! start up method. Most Cortex-R based systems will require chip specific
+//! start up method. Most AArch32 based systems will require chip specific
 //! start-up code, so the start-up method can be overridden.
 //!
 //! The default startup routine provided by this crate does not include any
@@ -94,7 +94,7 @@
 //! a normal Rust function.
 //!
 //! ```rust
-//! use cortex_a_rt::entry;
+//! use aarch32_rt::entry;
 //!
 //! #[entry]
 //! fn my_main() -> ! {
@@ -141,7 +141,7 @@
 //! arguments and return type.
 //!
 //! ```rust
-//! use cortex_a_rt::exception;
+//! use aarch32_rt::exception;
 //!
 //! #[exception(Undefined)]
 //! fn my_handler(addr: usize) -> ! {
@@ -152,7 +152,7 @@
 //! or:
 //!
 //! ```rust
-//! use cortex_a_rt::exception;
+//! use aarch32_rt::exception;
 //!
 //! #[exception(Undefined)]
 //! unsafe fn my_handler(addr: usize) -> usize {
@@ -190,7 +190,7 @@
 //! `#[exception(SupervisorCall)]` attribute on a normal Rust function.
 //!
 //! ```rust
-//! use cortex_a_rt::exception;
+//! use aarch32_rt::exception;
 //!
 //! #[exception(SupervisorCall)]
 //! fn my_svc_handler(arg: u32) {
@@ -236,7 +236,7 @@
 //! arguments and return type.
 //!
 //! ```rust
-//! use cortex_a_rt::exception;
+//! use aarch32_rt::exception;
 //!
 //! #[exception(PrefetchAbort)]
 //! fn my_handler(addr: usize) -> ! {
@@ -247,7 +247,7 @@
 //! or:
 //!
 //! ```rust
-//! use cortex_a_rt::exception;
+//! use aarch32_rt::exception;
 //!
 //! #[exception(PrefetchAbort)]
 //! fn my_handler(addr: usize) -> usize {
@@ -294,7 +294,7 @@
 //! arguments and return type.
 //!
 //! ```rust
-//! use cortex_a_rt::exception;
+//! use aarch32_rt::exception;
 //!
 //! #[exception(DataAbort)]
 //! fn my_handler(addr: usize) -> ! {
@@ -305,7 +305,7 @@
 //! or:
 //!
 //! ```rust
-//! use cortex_a_rt::exception;
+//! use aarch32_rt::exception;
 //!
 //! #[exception(DataAbort)]
 //! unsafe fn my_handler(addr: usize) -> usize {
@@ -349,7 +349,7 @@
 //! attribute on a normal Rust function.
 //!
 //! ```rust
-//! use cortex_a_rt::irq;
+//! use aarch32_rt::irq;
 //!
 //! #[irq]
 //! fn my_irq_handler() {
@@ -430,7 +430,7 @@
 //! * `_stack_setup` - initialises UND, SVC, ABT, IRQ, FIQ and SYS stacks from
 //!   the address given in `r0`
 //!
-//! The assembly language trampolines are required because Armv7-R (and Armv8-R)
+//! The assembly language trampolines are required because AArch32
 //! processors do not save a great deal of state on entry to an exception
 //! handler, unlike Armv7-M (and other M-Profile) processors. We must therefore
 //! save this state to the stack using assembly language, before transferring to
@@ -448,12 +448,12 @@
 #![no_std]
 
 #[cfg(target_arch = "arm")]
-use cortex_ar::register::{cpsr::ProcessorMode, Cpsr};
+use aarch32_cpu::register::{cpsr::ProcessorMode, Cpsr};
 
 #[cfg(arm_architecture = "v8-r")]
-use cortex_ar::register::Hactlr;
+use aarch32_cpu::register::Hactlr;
 
-pub use cortex_ar_rt_macros::{entry, exception, irq};
+pub use aarch32_rt_macros::{entry, exception, irq};
 
 /// Our default exception handler.
 ///
@@ -487,7 +487,7 @@ core::arch::global_asm!(
 );
 
 /// This macro expands to code for saving context on entry to an exception
-/// handler.
+/// handler. It ensures the stack pointer is 8 byte aligned on exit.
 ///
 /// It should match `restore_context!`.
 ///
@@ -579,7 +579,7 @@ macro_rules! restore_context {
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
-    .fpu vfp3-d16
+    .fpu vfp2
 
     // Called from the vector table when we have an undefined exception.
     // Saves state and calls a C-compatible handler like
@@ -771,10 +771,7 @@ core::arch::global_asm!(
 );
 
 /// This macro expands to code to turn on the FPU
-#[cfg(all(
-    any(arm_architecture = "v7-r", arm_architecture = "v8-r"),
-    any(target_abi = "eabihf", feature = "eabi-fpu")
-))]
+#[cfg(all(target_arch = "arm", any(target_abi = "eabihf", feature = "eabi-fpu")))]
 macro_rules! fpu_enable {
     () => {
         r#"
@@ -791,7 +788,7 @@ macro_rules! fpu_enable {
 
 /// This macro expands to code that does nothing because there is no FPU
 #[cfg(all(
-    any(arm_architecture = "v7-r", arm_architecture = "v8-r"),
+    target_arch = "arm",
     not(any(target_abi = "eabihf", feature = "eabi-fpu"))
 ))]
 macro_rules! fpu_enable {
@@ -809,7 +806,7 @@ macro_rules! fpu_enable {
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
-    .fpu vfp3-d16
+    .fpu vfp2
 
     // Configure a stack for every mode. Leaves you in sys mode.
     //
@@ -929,7 +926,7 @@ core::arch::global_asm!(
             .raw_value()
     },
     te_bit = const {
-        cortex_ar::register::Sctlr::new_with_raw_value(0)
+        aarch32_cpu::register::Sctlr::new_with_raw_value(0)
             .with_te(true)
             .raw_value()
     }
@@ -938,11 +935,11 @@ core::arch::global_asm!(
 // Start-up code for Armv7-R.
 //
 // Go straight to our default routine
-#[cfg(arm_architecture = "v7-r")]
+#[cfg(all(target_arch = "arm", not(arm_architecture = "v8-r")))]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
-    .fpu vfp3-d16
+    .fpu vfp2
 
     .section .text.default_start
     .global _default_start
@@ -988,7 +985,7 @@ core::arch::global_asm!(
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
-    .fpu vfp3-d16
+    .fpu vfp2
 
     .section .text.default_start
 

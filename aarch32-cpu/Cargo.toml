@@ -7,7 +7,7 @@ categories = [
     "embedded",
     "no-std",
 ]
-description = "CPU support for AArch32 Arm Cortex-R and Arm Cortex-A"
+description = "CPU support for AArch32 Arm Processors"
 edition = "2021"
 keywords = [
     "arm",
@@ -17,7 +17,7 @@ keywords = [
     "no-std",
 ]
 license = "MIT OR Apache-2.0"
-name = "cortex-ar"
+name = "aarch32-cpu"
 readme = "README.md"
 repository = "https://github.com/rust-embedded/cortex-ar.git"
 homepage = "https://github.com/rust-embedded/cortex-ar.git"
@@ -46,6 +46,9 @@ critical-section-multi-core = ["critical-section"]
 # Adds defmt::Format implementation for the register types
 defmt = ["dep:defmt", "arbitrary-int/defmt"]
 serde = ["dep:serde", "arbitrary-int/serde"]
+# Stops assembly routines being inlined, so they can be checked when this
+# library is compiled (as opposed to when the function is used)
+check-asm = []
 
 [package.metadata.docs.rs]
 targets = ["armv7r-none-eabihf", "armv7r-none-eabi", "armv7a-none-eabihf"]

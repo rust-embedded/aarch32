@@ -6,7 +6,7 @@ PANIC: PanicInfo {
     message: I am an example panic,
     location: Location {
         file: "src/bin/svc-a32.rs",
-        line: 23,
+        line: 21,
         column: 5,
     },
     can_unwind: true,

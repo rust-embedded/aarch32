@@ -13,12 +13,8 @@
 use core::cell::{RefCell, UnsafeCell};
 use core::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 
-// pull in our start-up code
-use cortex_r_rt::entry;
-
-// pull in our library
+use aarch32_rt::entry;
 use mps3_an536 as _;
-
 use semihosting::println;
 
 #[repr(align(16))]
@@ -103,7 +99,7 @@ fn main() -> ! {
 
     // let the other core finish
     for _ in 0..CORE0_WILL_WAIT {
-        cortex_ar::asm::nop();
+        aarch32_cpu::asm::nop();
     }
 
     let total_a = SHARED_VARIABLE.load(Ordering::Relaxed);
@@ -231,7 +227,7 @@ core::arch::global_asm!(
     .size _start, . - _start
     "#,
     hactlr_bits = const {
-        cortex_ar::register::Hactlr::new_with_raw_value(0)
+        aarch32_cpu::register::Hactlr::new_with_raw_value(0)
             .with_cpuactlr(true)
             .with_cdbgdci(true)
             .with_flashifregionr(true)
@@ -244,8 +240,8 @@ core::arch::global_asm!(
             .raw_value()
     },
     sys_mode = const {
-        cortex_ar::register::Cpsr::new_with_raw_value(0)
-            .with_mode(cortex_ar::register::cpsr::ProcessorMode::Sys)
+        aarch32_cpu::register::Cpsr::new_with_raw_value(0)
+            .with_mode(aarch32_cpu::register::cpsr::ProcessorMode::Sys)
             .with_i(true)
             .with_f(true)
             .raw_value()

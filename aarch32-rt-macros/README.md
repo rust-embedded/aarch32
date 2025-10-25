@@ -1,12 +1,8 @@
-# Macros for `cortex-a-rt` and `cortex-r-rt`
+# Macros for `aarch32-rt`
 
-This crate contains proc-macros that are re-exported through the following crates:
+This crate contains proc-macros that are re-exported through the `aarch32-rt` crate
 
-* [`cortex-a-rt`]
-* [`cortex-r-rt`]
-
-[cortex-a-rt]: https://crates.io/crates/cortex-a-rt
-[cortex-r-rt]: https://crates.io/crates/cortex-r-rt
+[aarch32-rt]: https://crates.io/crates/aarch32-rt
 
 ## Minimum Supported Rust Version (MSRV)
 

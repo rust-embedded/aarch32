@@ -4,14 +4,11 @@
 #![no_main]
 
 use core::sync::atomic::{AtomicU32, Ordering};
-use cortex_ar::register::{Ifar, Ifsr};
-use semihosting::println;
 
-// pull in our start-up code
-use cortex_r_rt::{entry, exception};
-
-// pull in our library
+use aarch32_cpu::register::{Ifar, Ifsr};
+use aarch32_rt::{entry, exception};
 use mps3_an536 as _;
+use semihosting::println;
 
 static COUNTER: AtomicU32 = AtomicU32::new(0);
 

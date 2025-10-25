@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [v0.3.0]
 
-- Bumped MSRV for `cortex-ar` to v1.83 to allow compatibility with `arbitrary-int` v2.
+- Bumped MSRV to v1.83 to allow compatibility with `arbitrary-int` v2.
 
 ### Added
 

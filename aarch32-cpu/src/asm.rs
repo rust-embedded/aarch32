@@ -1,14 +1,18 @@
 //! Simple assembly routines
 
-use core::sync::atomic::{compiler_fence, Ordering};
-
 /// Data Memory Barrier
 ///
 /// Ensures that all explicit memory accesses that appear in program order before the `DMB`
 /// instruction are observed before any explicit memory accesses that appear in program order
 /// after the `DMB` instruction.
-#[inline]
+#[cfg_attr(not(feature = "check-asm"), inline)]
+#[cfg(any(
+    arm_architecture = "v7-r",
+    arm_architecture = "v7-a",
+    arm_architecture = "v8-r"
+))]
 pub fn dmb() {
+    use core::sync::atomic::{compiler_fence, Ordering};
     compiler_fence(Ordering::SeqCst);
     unsafe {
         core::arch::asm!("dmb", options(nostack, preserves_flags));
@@ -23,8 +27,14 @@ pub fn dmb() {
 ///
 ///  * any explicit memory access made before this instruction is complete
 ///  * all cache and branch predictor maintenance operations before this instruction complete
-#[inline]
+#[cfg_attr(not(feature = "check-asm"), inline)]
+#[cfg(any(
+    arm_architecture = "v7-r",
+    arm_architecture = "v7-a",
+    arm_architecture = "v8-r"
+))]
 pub fn dsb() {
+    use core::sync::atomic::{compiler_fence, Ordering};
     compiler_fence(Ordering::SeqCst);
     unsafe {
         core::arch::asm!("dsb", options(nostack, preserves_flags));
@@ -36,8 +46,14 @@ pub fn dsb() {
 ///
 /// Flushes the pipeline in the processor, so that all instructions following the `ISB` are fetched
 /// from cache or memory, after the instruction has been completed.
-#[inline]
+#[cfg_attr(not(feature = "check-asm"), inline)]
+#[cfg(any(
+    arm_architecture = "v7-r",
+    arm_architecture = "v7-a",
+    arm_architecture = "v8-r"
+))]
 pub fn isb() {
+    use core::sync::atomic::{compiler_fence, Ordering};
     compiler_fence(Ordering::SeqCst);
     unsafe {
         core::arch::asm!("isb", options(nostack, preserves_flags));
@@ -46,25 +62,40 @@ pub fn isb() {
 }
 
 /// Emit an NOP instruction
-#[inline]
+#[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn nop() {
     unsafe { core::arch::asm!("nop", options(nomem, nostack, preserves_flags)) }
 }
 
 /// Emit an WFI instruction
-#[inline]
+#[cfg_attr(not(feature = "check-asm"), inline)]
+#[cfg(any(
+    arm_architecture = "v7-r",
+    arm_architecture = "v7-a",
+    arm_architecture = "v8-r"
+))]
 pub fn wfi() {
     unsafe { core::arch::asm!("wfi", options(nomem, nostack, preserves_flags)) }
 }
 
 /// Emit an WFE instruction
-#[inline]
+#[cfg_attr(not(feature = "check-asm"), inline)]
+#[cfg(any(
+    arm_architecture = "v7-r",
+    arm_architecture = "v7-a",
+    arm_architecture = "v8-r"
+))]
 pub fn wfe() {
     unsafe { core::arch::asm!("wfe", options(nomem, nostack, preserves_flags)) }
 }
 
 /// Emit an SEV instruction
-#[inline]
+#[cfg_attr(not(feature = "check-asm"), inline)]
+#[cfg(any(
+    arm_architecture = "v7-r",
+    arm_architecture = "v7-a",
+    arm_architecture = "v8-r"
+))]
 pub fn sev() {
     unsafe {
         core::arch::asm!("sev");
@@ -74,7 +105,7 @@ pub fn sev() {
 /// Which core are we?
 ///
 /// Return the bottom 24-bits of the MPIDR
-#[inline]
+#[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn core_id() -> u32 {
     let r: u32;
     unsafe {

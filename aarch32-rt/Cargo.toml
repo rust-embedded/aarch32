@@ -17,15 +17,15 @@ keywords = [
     "run-time",
 ]
 license = "MIT OR Apache-2.0"
-name = "cortex-r-rt"
+name = "aarch32-rt"
 readme = "README.md"
 repository = "https://github.com/rust-embedded/cortex-r.git"
 rust-version = "1.83"
 version = "0.2.1"
 
 [dependencies]
-cortex-ar = { version = "0.3.0", path = "../cortex-ar" }
-cortex-ar-rt-macros = { path = "../cortex-ar-rt-macros", version = "=0.1.1" }
+aarch32-cpu = { version = "0.3.0", path = "../aarch32-cpu" }
+aarch32-rt-macros = { path = "../aarch32-rt-macros", version = "=0.1.1" }
 
 [features]
 # Enable the FPU on start-up, even on a soft-float EABI target
@@ -35,4 +35,4 @@ eabi-fpu = []
 arm-targets = { version = "0.3.0", path = "../arm-targets" }
 
 [package.metadata.docs.rs]
-targets = ["armv7r-none-eabihf", "armv7r-none-eabihf"]
+targets = ["armv7r-none-eabihf", "armv7r-none-eabihf", "armv7a-none-eabi"]

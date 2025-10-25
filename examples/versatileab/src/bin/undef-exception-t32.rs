@@ -4,10 +4,10 @@
 #![no_main]
 
 use core::sync::atomic::{AtomicU32, Ordering};
-use semihosting::println;
 
-// pull in our start-up code
-use versatileab::rt::{entry, exception};
+use aarch32_rt::{entry, exception};
+use semihosting::println;
+use versatileab as _;
 
 static COUNTER: AtomicU32 = AtomicU32::new(0);
 

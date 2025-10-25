@@ -107,15 +107,15 @@ impl InterruptHandler {
     }
 }
 
-    /// Represents all the hardware we support in our MPS3-AN536 system
+/// Represents all the hardware we support in our MPS3-AN536 system
 pub struct Board {
     /// The Arm Generic Interrupt Controller (v3)
     #[cfg(feature = "gic")]
     pub gic: arm_gic::gicv3::GicV3<'static>,
     /// The Arm Virtual Generic Timer
-    pub virtual_timer: cortex_ar::generic_timer::El1VirtualTimer,
+    pub virtual_timer: aarch32_cpu::generic_timer::El1VirtualTimer,
     /// The Arm Physical Generic Timer
-    pub physical_timer: cortex_ar::generic_timer::El1PhysicalTimer,
+    pub physical_timer: aarch32_cpu::generic_timer::El1PhysicalTimer,
 }
 
 impl Board {
@@ -136,10 +136,10 @@ impl Board {
                 gic: unsafe { make_gic() },
                 // SAFETY: This is the first and only time we create the virtual timer instance
                 // as guaranteed by the atomic flag check above, ensuring exclusive access.
-                virtual_timer: unsafe { cortex_ar::generic_timer::El1VirtualTimer::new() },
+                virtual_timer: unsafe { aarch32_cpu::generic_timer::El1VirtualTimer::new() },
                 // SAFETY: This is the first and only time we create the physical timer instance
                 // as guaranteed by the atomic flag check above, ensuring exclusive access.
-                physical_timer: unsafe { cortex_ar::generic_timer::El1PhysicalTimer::new() },
+                physical_timer: unsafe { aarch32_cpu::generic_timer::El1PhysicalTimer::new() },
             })
         } else {
             None
@@ -161,7 +161,7 @@ unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
     const GICR_BASE_OFFSET: usize = 0x0010_0000usize;
 
     // Get the GIC address by reading CBAR
-    let periphbase = cortex_ar::register::ImpCbar::read().periphbase();
+    let periphbase = aarch32_cpu::register::ImpCbar::read().periphbase();
     semihosting::println!("Found PERIPHBASE {:010p}", periphbase);
     let gicd_base = periphbase.wrapping_byte_add(GICD_BASE_OFFSET);
     let gicr_base = periphbase.wrapping_byte_add(GICR_BASE_OFFSET);

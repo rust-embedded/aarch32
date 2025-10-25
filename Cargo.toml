@@ -5,9 +5,8 @@ exclude = [
   "examples/mps3-an536",
 ]
 members = [
-  "cortex-ar",
-  "cortex-r-rt",
-  "cortex-a-rt",
-  "cortex-ar-rt-macros",
+  "aarch32-cpu",
+  "aarch32-rt",
+  "aarch32-rt-macros",
 ]
 resolver = "2"

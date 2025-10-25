@@ -3,10 +3,9 @@
 #![no_std]
 #![no_main]
 
-// pull in our start-up code
-use versatileab::rt::entry;
-
+use aarch32_rt::entry;
 use semihosting::println;
+use versatileab as _;
 
 /// The entry-point to the Rust application.
 ///
