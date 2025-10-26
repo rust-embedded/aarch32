@@ -4,14 +4,14 @@
 #![no_main]
 
 // pull in our start-up code
-use versatileab;
+use versatileab::rt::entry;
 
 use semihosting::println;
 
 /// The entry-point to the Rust application.
 ///
 /// It is called by the start-up.
-#[versatileab::rt::entry]
+#[entry]
 fn my_main() -> ! {
     let x = 1.0f64;
     let y = x * 2.0;

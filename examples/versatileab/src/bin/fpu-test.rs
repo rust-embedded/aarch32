@@ -4,7 +4,7 @@
 #![no_main]
 
 // pull in our start-up code
-use versatileab;
+use versatileab::rt::entry;
 
 use semihosting::println;
 
@@ -14,7 +14,7 @@ const MAX_LEN: f32 = BAR.len() as f32;
 /// The entry-point to the Rust application.
 ///
 /// It is called by the start-up.
-#[versatileab::rt::entry]
+#[entry]
 fn main() -> ! {
     const STEPS: u16 = 100;
     const RADIANS_PER_STEP: f32 = (4.0 * core::f32::consts::PI) / (STEPS as f32);

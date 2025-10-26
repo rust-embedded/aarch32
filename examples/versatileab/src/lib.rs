@@ -2,6 +2,11 @@
 
 #![no_std]
 
+mod pl190;
+
+#[doc(inline)]
+pub use pl190::Pl190;
+
 // Need this to bring in the start-up function
 #[cfg(arm_profile = "a")]
 pub use cortex_a_rt as rt;
