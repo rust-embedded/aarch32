@@ -1,4 +1,4 @@
-//! SVC (software interrupt) example for Arm Cortex-R
+//! SVC (software interrupt) example
 
 #![no_std]
 #![no_main]
@@ -6,14 +6,12 @@
 // pull in our start-up code
 use cortex_r_rt::{entry, exception};
 
-// pull in our library
-use mps3_an536 as _;
-
 use semihosting::println;
+use mps3_an536 as _;
 
 /// The entry-point to the Rust application.
 ///
-/// It is called by the start-up code in `cortex-r-rt`.
+/// It is called by the start-up.
 #[entry]
 fn main() -> ! {
     let x = 1;
@@ -28,7 +26,7 @@ fn main() -> ! {
 /// This is our SVC exception handler
 #[exception(SupervisorCall)]
 fn svc_handler(arg: u32) {
-    println!("In svc_handler, with arg={:#06x}", arg);
+    println!("In svc_handler, with arg=0x{:06x}", arg);
     if arg == 0xABCDEF {
         // test nested SVC calls
         cortex_ar::svc!(0x456789);

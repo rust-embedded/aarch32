@@ -25,7 +25,7 @@ fn main() -> ! {
 /// This is our SVC exception handler
 #[exception(SupervisorCall)]
 fn svc_handler(arg: u32) {
-    println!("In svc_handler, with arg={:#06x}", arg);
+    println!("In svc_handler, with arg=0x{:06x}", arg);
     if arg == 0xABCDEF {
         // test nested SVC calls
         cortex_ar::svc!(0x456789);

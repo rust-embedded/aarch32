@@ -704,7 +704,7 @@ core::arch::global_asm!(
     "#,
     save_context!(),
     r#"
-        mrs      r0, cpsr                 // Load processor status
+        mrs      r0, spsr                 // Load processor status
         tst      r0, {t_bit}              // Occurred in Thumb state?
         ldrhne   r0, [lr,#-2]             // Yes: Load halfword and...
         bicne    r0, r0, #0xFF00          // ...extract comment field
