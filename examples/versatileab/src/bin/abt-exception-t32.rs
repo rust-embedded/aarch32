@@ -6,6 +6,7 @@
 use core::sync::atomic::{AtomicU32, Ordering};
 
 use cortex_ar::register::{Dfar, Dfsr, Sctlr};
+
 // pull in our start-up code
 use versatileab::rt::{entry, exception};
 
