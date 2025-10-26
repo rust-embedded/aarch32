@@ -38,7 +38,7 @@ jobs:
           rustup target add ${{ matrix.target }}
       - name: Build
         run: |
-          cargo build --target ${{ matrix.target }} --features "serde, defmt"
+          cargo build --target ${{ matrix.target }} --features "serde, defmt, check-asm"
           cargo build --target ${{ matrix.target }} --no-default-features
 
   build-versatileab:
@@ -126,7 +126,7 @@ jobs:
           rustup component add rust-src --toolchain nightly
       - name: Build
         run: |
-          cargo build --target ${{ matrix.target }} -Zbuild-std=core
+          cargo build --target ${{ matrix.target }} -Zbuild-std=core --features "serde, defmt, check-asm"
           cargo build --target ${{ matrix.target }} -Zbuild-std=core --no-default-features
 
   # Gather all the above build jobs together for the purposes of getting an overall pass-fail
