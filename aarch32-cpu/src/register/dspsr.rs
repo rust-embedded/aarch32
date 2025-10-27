@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Dspsr(pub u32);
+
 impl SysReg for Dspsr {
     const CP: u32 = 15;
     const CRN: u32 = 4;
@@ -14,7 +15,9 @@ impl SysReg for Dspsr {
     const CRM: u32 = 5;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for Dspsr {}
+
 impl Dspsr {
     #[inline]
     /// Reads DSPSR (*Debug Saved Program Status Register*)
@@ -22,7 +25,9 @@ impl Dspsr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Dspsr {}
+
 impl Dspsr {
     #[inline]
     /// Writes DSPSR (*Debug Saved Program Status Register*)

@@ -35,7 +35,9 @@ impl SysReg for Dracr {
     const CRM: u32 = 1;
     const OP2: u32 = 4;
 }
+
 impl crate::register::SysRegRead for Dracr {}
+
 impl Dracr {
     #[inline]
     /// Reads DRACR (*Data Region Access Control Register*)
@@ -47,6 +49,7 @@ impl Dracr {
 }
 
 impl crate::register::SysRegWrite for Dracr {}
+
 impl Dracr {
     #[inline]
     /// Writes DRACR (*Data Region Access Control Register*)

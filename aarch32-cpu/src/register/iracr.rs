@@ -35,7 +35,9 @@ impl SysReg for Iracr {
     const CRM: u32 = 1;
     const OP2: u32 = 5;
 }
+
 impl crate::register::SysRegRead for Iracr {}
+
 impl Iracr {
     #[inline]
     /// Reads IRACR (*Instruction Region Access Control Register*)
@@ -47,6 +49,7 @@ impl Iracr {
 }
 
 impl crate::register::SysRegWrite for Iracr {}
+
 impl Iracr {
     #[inline]
     /// Writes IRACR (*Instruction Region Access Control Register*)

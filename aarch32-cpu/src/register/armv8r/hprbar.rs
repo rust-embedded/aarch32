@@ -60,7 +60,9 @@ impl SysReg for Hprbar {
     const CRM: u32 = 3;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for Hprbar {}
+
 impl Hprbar {
     #[inline]
     /// Reads HPRBAR (*Hyp Protection Region Base Address Register*)
@@ -68,7 +70,9 @@ impl Hprbar {
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Hprbar {}
+
 impl Hprbar {
     #[inline]
     /// Writes HPRBAR (*Hyp Protection Region Base Address Register*)

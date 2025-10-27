@@ -40,4 +40,3 @@ impl Drbar {
         unsafe { <Self as SysRegWrite>::write_raw(value.0) }
     }
 }
-

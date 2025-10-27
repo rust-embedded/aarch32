@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Cpacr(pub u32);
+
 impl SysReg for Cpacr {
     const CP: u32 = 15;
     const CRN: u32 = 1;
@@ -14,7 +15,9 @@ impl SysReg for Cpacr {
     const CRM: u32 = 0;
     const OP2: u32 = 2;
 }
+
 impl crate::register::SysRegRead for Cpacr {}
+
 impl Cpacr {
     #[inline]
     /// Reads CPACR (*Architectural Feature Access Control Register*)
@@ -22,7 +25,9 @@ impl Cpacr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Cpacr {}
+
 impl Cpacr {
     #[inline]
     /// Writes CPACR (*Architectural Feature Access Control Register*)

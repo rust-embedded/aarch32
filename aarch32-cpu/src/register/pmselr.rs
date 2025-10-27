@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pmselr(pub u32);
+
 impl SysReg for Pmselr {
     const CP: u32 = 15;
     const CRN: u32 = 9;
@@ -14,7 +15,9 @@ impl SysReg for Pmselr {
     const CRM: u32 = 12;
     const OP2: u32 = 5;
 }
+
 impl crate::register::SysRegRead for Pmselr {}
+
 impl Pmselr {
     #[inline]
     /// Reads PMSELR (*Performance Monitors Event Counter Selection Register*)
@@ -22,7 +25,9 @@ impl Pmselr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Pmselr {}
+
 impl Pmselr {
     #[inline]
     /// Writes PMSELR (*Performance Monitors Event Counter Selection Register*)

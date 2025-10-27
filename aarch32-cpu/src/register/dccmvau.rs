@@ -12,6 +12,7 @@ impl Dccmvau {
         Self(addr)
     }
 }
+
 impl SysReg for Dccmvau {
     const CP: u32 = 15;
     const CRN: u32 = 7;

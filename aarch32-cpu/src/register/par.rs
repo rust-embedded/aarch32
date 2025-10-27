@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Par(pub u32);
+
 impl SysReg for Par {
     const CP: u32 = 15;
     const CRN: u32 = 7;
@@ -14,7 +15,9 @@ impl SysReg for Par {
     const CRM: u32 = 4;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for Par {}
+
 impl Par {
     #[inline]
     /// Reads PAR (*Physical Address Register*)
@@ -22,7 +25,9 @@ impl Par {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Par {}
+
 impl Par {
     #[inline]
     /// Writes PAR (*Physical Address Register*)

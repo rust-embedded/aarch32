@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pmintenclr(pub u32);
+
 impl SysReg for Pmintenclr {
     const CP: u32 = 15;
     const CRN: u32 = 9;
@@ -14,7 +15,9 @@ impl SysReg for Pmintenclr {
     const CRM: u32 = 14;
     const OP2: u32 = 2;
 }
+
 impl crate::register::SysRegRead for Pmintenclr {}
+
 impl Pmintenclr {
     #[inline]
     /// Reads PMINTENCLR (*Performance Monitors Interrupt Enable Clear Register*)
@@ -22,7 +25,9 @@ impl Pmintenclr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Pmintenclr {}
+
 impl Pmintenclr {
     #[inline]
     /// Writes PMINTENCLR (*Performance Monitors Interrupt Enable Clear Register*)

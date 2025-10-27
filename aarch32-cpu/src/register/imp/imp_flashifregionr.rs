@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpFlashifregionr(pub u32);
+
 impl SysReg for ImpFlashifregionr {
     const CP: u32 = 15;
     const CRN: u32 = 15;
@@ -14,7 +15,9 @@ impl SysReg for ImpFlashifregionr {
     const CRM: u32 = 0;
     const OP2: u32 = 1;
 }
+
 impl crate::register::SysRegRead for ImpFlashifregionr {}
+
 impl ImpFlashifregionr {
     #[inline]
     /// Reads IMP_FLASHIFREGIONR (*Flash Interface Region Register*)
@@ -22,7 +25,9 @@ impl ImpFlashifregionr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for ImpFlashifregionr {}
+
 impl ImpFlashifregionr {
     #[inline]
     /// Writes IMP_FLASHIFREGIONR (*Flash Interface Region Register*)

@@ -26,7 +26,9 @@ impl SysReg for Mpuir {
     const CRM: u32 = 0;
     const OP2: u32 = 4;
 }
+
 impl crate::register::SysRegRead for Mpuir {}
+
 impl Mpuir {
     #[inline]
     /// Reads MPUIR (*MPU Type Register*)

@@ -25,7 +25,9 @@ impl SysReg for Hprlar {
     const CRM: u32 = 3;
     const OP2: u32 = 1;
 }
+
 impl crate::register::SysRegRead for Hprlar {}
+
 impl Hprlar {
     #[inline]
     /// Reads HPRLAR (*Hyp Protection Region Limit Address Register*)
@@ -33,7 +35,9 @@ impl Hprlar {
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Hprlar {}
+
 impl Hprlar {
     #[inline]
     /// Writes HPRLAR (*Hyp Protection Region Limit Address Register*)

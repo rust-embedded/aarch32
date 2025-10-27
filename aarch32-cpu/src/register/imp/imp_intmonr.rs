@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpIntmonr(pub u32);
+
 impl SysReg for ImpIntmonr {
     const CP: u32 = 15;
     const CRN: u32 = 15;
@@ -14,7 +15,9 @@ impl SysReg for ImpIntmonr {
     const CRM: u32 = 3;
     const OP2: u32 = 4;
 }
+
 impl crate::register::SysRegRead for ImpIntmonr {}
+
 impl ImpIntmonr {
     #[inline]
     /// Reads IMP_INTMONR (*Interrupt Monitoring Register*)
@@ -22,7 +25,9 @@ impl ImpIntmonr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for ImpIntmonr {}
+
 impl ImpIntmonr {
     #[inline]
     /// Writes IMP_INTMONR (*Interrupt Monitoring Register*)

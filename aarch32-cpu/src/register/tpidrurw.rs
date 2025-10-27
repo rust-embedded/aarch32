@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Tpidrurw(pub u32);
+
 impl SysReg for Tpidrurw {
     const CP: u32 = 15;
     const CRN: u32 = 13;
@@ -14,7 +15,9 @@ impl SysReg for Tpidrurw {
     const CRM: u32 = 0;
     const OP2: u32 = 2;
 }
+
 impl crate::register::SysRegRead for Tpidrurw {}
+
 impl Tpidrurw {
     #[inline]
     /// Reads TPIDRURW (*EL0 Read/Write Software Thread ID Register*)
@@ -22,7 +25,9 @@ impl Tpidrurw {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Tpidrurw {}
+
 impl Tpidrurw {
     #[inline]
     /// Writes TPIDRURW (*EL0 Read/Write Software Thread ID Register*)

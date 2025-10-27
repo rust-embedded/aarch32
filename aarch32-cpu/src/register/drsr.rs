@@ -118,7 +118,9 @@ impl SysReg for Drsr {
     const CRM: u32 = 1;
     const OP2: u32 = 2;
 }
+
 impl crate::register::SysRegRead for Drsr {}
+
 impl Drsr {
     #[inline]
     /// Reads DRSR (*Data Region Size and Enable Register*)
@@ -130,6 +132,7 @@ impl Drsr {
 }
 
 impl crate::register::SysRegWrite for Drsr {}
+
 impl Drsr {
     #[inline]
     /// Writes DRSR (*Data Region Size and Enable Register*)

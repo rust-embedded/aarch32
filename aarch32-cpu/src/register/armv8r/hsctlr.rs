@@ -50,7 +50,9 @@ impl SysReg for Hsctlr {
     const CRM: u32 = 0;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for Hsctlr {}
+
 impl Hsctlr {
     #[inline]
     /// Reads HSCTLR (*Hyp System Control Register*)
@@ -58,7 +60,9 @@ impl Hsctlr {
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Hsctlr {}
+
 impl Hsctlr {
     #[inline]
     /// Writes HSCTLR (*Hyp System Control Register*)

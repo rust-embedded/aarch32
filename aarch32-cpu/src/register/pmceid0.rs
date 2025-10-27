@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pmceid0(pub u32);
+
 impl SysReg for Pmceid0 {
     const CP: u32 = 15;
     const CRN: u32 = 9;
@@ -14,7 +15,9 @@ impl SysReg for Pmceid0 {
     const CRM: u32 = 12;
     const OP2: u32 = 6;
 }
+
 impl crate::register::SysRegRead for Pmceid0 {}
+
 impl Pmceid0 {
     #[inline]
     /// Reads PMCEID0 (*Performance Monitors Common Event Identification Register 0*)

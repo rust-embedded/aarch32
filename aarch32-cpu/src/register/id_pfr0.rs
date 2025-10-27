@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct IdPfr0(pub u32);
+
 impl SysReg for IdPfr0 {
     const CP: u32 = 15;
     const CRN: u32 = 0;
@@ -14,7 +15,9 @@ impl SysReg for IdPfr0 {
     const CRM: u32 = 1;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for IdPfr0 {}
+
 impl IdPfr0 {
     #[inline]
     /// Reads ID_PFR0 (*Processor Feature Register 0*)

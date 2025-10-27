@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpPeriphpregionr(pub u32);
+
 impl SysReg for ImpPeriphpregionr {
     const CP: u32 = 15;
     const CRN: u32 = 15;
@@ -14,7 +15,9 @@ impl SysReg for ImpPeriphpregionr {
     const CRM: u32 = 0;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for ImpPeriphpregionr {}
+
 impl ImpPeriphpregionr {
     #[inline]
     /// Reads IMP_PERIPHPREGIONR (*Peripheral Port Region Register*)
@@ -22,7 +25,9 @@ impl ImpPeriphpregionr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for ImpPeriphpregionr {}
+
 impl ImpPeriphpregionr {
     #[inline]
     /// Writes IMP_PERIPHPREGIONR (*Peripheral Port Region Register*)

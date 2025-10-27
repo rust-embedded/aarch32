@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpIcerr0(pub u32);
+
 impl SysReg for ImpIcerr0 {
     const CP: u32 = 15;
     const CRN: u32 = 15;
@@ -14,7 +15,9 @@ impl SysReg for ImpIcerr0 {
     const CRM: u32 = 0;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for ImpIcerr0 {}
+
 impl ImpIcerr0 {
     #[inline]
     /// Reads IMP_ICERR0 (*Instruction Cache Error Record Register 0*)
@@ -22,7 +25,9 @@ impl ImpIcerr0 {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for ImpIcerr0 {}
+
 impl ImpIcerr0 {
     #[inline]
     /// Writes IMP_ICERR0 (*Instruction Cache Error Record Register 0*)

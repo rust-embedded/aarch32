@@ -9,6 +9,7 @@ use super::SysRegWrite;
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Rgnr(pub u32);
+
 impl SysReg for Rgnr {
     const CP: u32 = 15;
     const CRN: u32 = 6;
@@ -16,7 +17,9 @@ impl SysReg for Rgnr {
     const CRM: u32 = 2;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for Rgnr {}
+
 impl Rgnr {
     #[inline]
     /// Reads RGNR (*MPU Region Number Register*)
@@ -26,6 +29,7 @@ impl Rgnr {
 }
 
 impl crate::register::SysRegWrite for Rgnr {}
+
 impl Rgnr {
     #[inline]
     /// Writes RGNR (*MPU Region Number Register*)

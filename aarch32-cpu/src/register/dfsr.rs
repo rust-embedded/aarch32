@@ -56,7 +56,9 @@ impl SysReg for Dfsr {
     const CRM: u32 = 0;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for Dfsr {}
+
 impl Dfsr {
     pub fn status(&self) -> Result<DfsrStatus, u8> {
         let status = self.status_raw().as_u8();
@@ -69,7 +71,9 @@ impl Dfsr {
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Dfsr {}
+
 impl Dfsr {
     #[inline]
     /// Writes DFSR (*Data Fault Status Register*)

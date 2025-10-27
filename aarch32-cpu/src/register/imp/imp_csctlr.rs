@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpCsctlr(pub u32);
+
 impl SysReg for ImpCsctlr {
     const CP: u32 = 15;
     const CRN: u32 = 9;
@@ -14,7 +15,9 @@ impl SysReg for ImpCsctlr {
     const CRM: u32 = 1;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for ImpCsctlr {}
+
 impl ImpCsctlr {
     #[inline]
     /// Reads IMP_CSCTLR (*Cache Segregation Control Register*)
@@ -22,7 +25,9 @@ impl ImpCsctlr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for ImpCsctlr {}
+
 impl ImpCsctlr {
     #[inline]
     /// Writes IMP_CSCTLR (*Cache Segregation Control Register*)

@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpCdbgict(pub u32);
+
 impl SysReg for ImpCdbgict {
     const CP: u32 = 15;
     const CRN: u32 = 15;
@@ -14,7 +15,9 @@ impl SysReg for ImpCdbgict {
     const CRM: u32 = 2;
     const OP2: u32 = 1;
 }
+
 impl crate::register::SysRegWrite for ImpCdbgict {}
+
 impl ImpCdbgict {
     #[inline]
     /// Writes IMP_CDBGICT (*Instruction Cache Tag Read Operation.*)

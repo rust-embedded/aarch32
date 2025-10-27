@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpCdbgdr1(pub u32);
+
 impl SysReg for ImpCdbgdr1 {
     const CP: u32 = 15;
     const CRN: u32 = 15;
@@ -14,7 +15,9 @@ impl SysReg for ImpCdbgdr1 {
     const CRM: u32 = 0;
     const OP2: u32 = 1;
 }
+
 impl crate::register::SysRegRead for ImpCdbgdr1 {}
+
 impl ImpCdbgdr1 {
     #[inline]
     /// Reads IMP_CDBGDR1 (*Cache Debug Data Register 1.*)

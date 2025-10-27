@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pmuserenr(pub u32);
+
 impl SysReg for Pmuserenr {
     const CP: u32 = 15;
     const CRN: u32 = 9;
@@ -14,7 +15,9 @@ impl SysReg for Pmuserenr {
     const CRM: u32 = 14;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for Pmuserenr {}
+
 impl Pmuserenr {
     #[inline]
     /// Reads PMUSERENR (*Performance Monitors User Enable Register*)
@@ -22,7 +25,9 @@ impl Pmuserenr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Pmuserenr {}
+
 impl Pmuserenr {
     #[inline]
     /// Writes PMUSERENR (*Performance Monitors User Enable Register*)
