@@ -5,10 +5,7 @@
 
 use aarch32_cpu::generic_timer::{El1VirtualTimer, GenericTimer};
 use aarch32_rt::{entry, irq};
-use arm_gic::{
-    gicv3::{GicCpuInterface, Group, InterruptGroup},
-    IntId,
-};
+use arm_gic::gicv3::{GicCpuInterface, Group, InterruptGroup};
 use mps3_an536::VIRTUAL_TIMER_PPI;
 use semihosting::println;
 

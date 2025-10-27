@@ -59,7 +59,6 @@ use core::sync::atomic::{AtomicBool, Ordering};
 /// Table 10-3: PPI assignments.
 ///
 /// This corresponds to Interrupt ID 27.
-#[cfg(feature = "gic")]
 pub const VIRTUAL_TIMER_PPI: arm_gic::IntId = arm_gic::IntId::ppi(11);
 
 #[cfg(not(arm_architecture = "v8-r"))]
@@ -76,7 +75,6 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
     semihosting::process::abort();
 }
 
-#[cfg(feature = "gic")]
 #[derive(Clone, Debug)]
 /// Represents a handler for an interrupt
 pub struct InterruptHandler {
@@ -84,7 +82,6 @@ pub struct InterruptHandler {
     function: fn(arm_gic::IntId),
 }
 
-#[cfg(feature = "gic")]
 impl InterruptHandler {
     /// Create a new `InterruptHandler`, associating an `IntId` with a function to call
     pub const fn new(int_id: arm_gic::IntId, function: fn(arm_gic::IntId)) -> InterruptHandler {
@@ -110,7 +107,6 @@ impl InterruptHandler {
 /// Represents all the hardware we support in our MPS3-AN536 system
 pub struct Board {
     /// The Arm Generic Interrupt Controller (v3)
-    #[cfg(feature = "gic")]
     pub gic: arm_gic::gicv3::GicV3<'static>,
     /// The Arm Virtual Generic Timer
     pub virtual_timer: aarch32_cpu::generic_timer::El1VirtualTimer,
@@ -130,7 +126,6 @@ impl Board {
             .is_ok()
         {
             Some(Board {
-                #[cfg(feature = "gic")]
                 // SAFETY: This is the first and only call to `make_gic()` as guaranteed by
                 // the atomic flag check above, ensuring no aliasing of GIC register access.
                 gic: unsafe { make_gic() },
@@ -152,7 +147,6 @@ impl Board {
 /// # Safety
 ///
 /// Only call this function once.
-#[cfg(feature = "gic")]
 unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
     /// Offset from PERIPHBASE for GIC Distributor
     const GICD_BASE_OFFSET: usize = 0x0000_0000usize;

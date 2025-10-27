@@ -140,7 +140,6 @@ fn handle_sgi_hi(int_id: IntId) {
 ///
 /// Talks to the GICv3 to find out which interrupts are pending and calls
 /// [`handle_interrupt_with_id`] for each of them, with interrupts re-enabled.
-#[cfg(feature = "gic")]
 #[irq]
 fn irq_handler() {
     println!("> IRQ");
