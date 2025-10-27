@@ -14,11 +14,39 @@ use core::sync::atomic::{compiler_fence, Ordering};
 pub unsafe fn enable() {
     // Ensure no preceeding memory accesses are reordered to after interrupts are enabled.
     compiler_fence(Ordering::SeqCst);
-    // Safety: We're atomically setting a bit in a special register, and we're
-    // in an unsafe function that places restrictions on when you can call it
-    #[cfg(target_arch = "arm")]
+    // Safety: A Data Store Barrier is OK to call anywhere, and we're
+    // atomically setting a bit in a special register, and we're in an unsafe
+    // function that places restrictions on when you can call it
+    #[cfg(any(
+        arm_architecture = "v7-r",
+        arm_architecture = "v7-a",
+        arm_architecture = "v8-r"
+    ))]
     unsafe {
-        core::arch::asm!("dsb", "cpsie i", options(nomem, nostack, preserves_flags));
+        core::arch::asm!(
+            r#"
+            dsb
+            cpsie i
+        "#,
+            options(nomem, nostack, preserves_flags)
+        );
+    };
+    #[cfg(all(
+        target_arch = "arm",
+        not(any(
+            arm_architecture = "v7-r",
+            arm_architecture = "v7-a",
+            arm_architecture = "v8-r"
+        ))
+    ))]
+    unsafe {
+        core::arch::asm!(r#"
+            mrs {0}, cpsr 
+            orr {0}, #0xC0
+            msr cpsr, {0}
+        "#,
+        in(reg) 0,
+        options(nomem, nostack, preserves_flags));
     };
 }
 
@@ -28,10 +56,39 @@ pub unsafe fn enable() {
 /// * Doesn't disable FIQ.
 #[inline]
 pub fn disable() {
-    // Safety: We're atomically clearing a bit in a special register
-    #[cfg(target_arch = "arm")]
+    // Safety: A Data Store Barrier is OK to call anywhere, and we're
+    // atomically setting a bit in a special register, and we're in an unsafe
+    // function that places restrictions on when you can call it
+    #[cfg(any(
+        arm_architecture = "v7-r",
+        arm_architecture = "v7-a",
+        arm_architecture = "v8-r"
+    ))]
     unsafe {
-        core::arch::asm!("cpsid i", "dsb", options(nomem, nostack, preserves_flags));
+        core::arch::asm!(
+            r#"
+            cpsid i
+            dsb
+        "#,
+            options(nomem, nostack, preserves_flags)
+        );
+    };
+    #[cfg(all(
+        target_arch = "arm",
+        not(any(
+            arm_architecture = "v7-r",
+            arm_architecture = "v7-a",
+            arm_architecture = "v8-r"
+        ))
+    ))]
+    unsafe {
+        core::arch::asm!(r#"
+            mrs {0}, cpsr 
+            bic {0}, #0xC0
+            msr cpsr, {0}
+        "#,
+        in(reg) 0,
+        options(nomem, nostack, preserves_flags));
     };
     // Ensure no subsequent memory accesses are reordered to before interrupts are disabled.
     compiler_fence(Ordering::SeqCst);

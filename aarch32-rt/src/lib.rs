@@ -455,6 +455,26 @@ use aarch32_cpu::register::Hactlr;
 
 pub use aarch32_rt_macros::{entry, exception, irq};
 
+#[cfg(all(
+    target_arch = "arm",
+    any(
+        arm_architecture = "v7-a",
+        arm_architecture = "v7-r",
+        arm_architecture = "v8-r"
+    )
+))]
+mod arch_v7;
+
+#[cfg(all(
+    target_arch = "arm",
+    not(any(
+        arm_architecture = "v7-a",
+        arm_architecture = "v7-r",
+        arm_architecture = "v8-r"
+    ))
+))]
+mod arch_v4;
+
 /// Our default exception handler.
 ///
 /// We end up here if an exception fires and the weak 'PROVIDE' in the link.x
@@ -493,17 +513,18 @@ core::arch::global_asm!(
 ///
 /// On entry to this block, we assume that we are in exception context.
 #[cfg(not(any(target_abi = "eabihf", feature = "eabi-fpu")))]
+#[macro_export]
 macro_rules! save_context {
     () => {
         r#"
         // save preserved registers (and gives us some working area)
-        push    {{r0-r3}}
+        push    {{ r0-r3 }}
         // align SP down to eight byte boundary
         mov     r0, sp
         and     r0, r0, 7
         sub     sp, r0
         // push alignment amount, and final preserved register
-        push    {{r0, r12}}
+        push    {{ r0, r12 }}
         "#
     };
 }
@@ -513,15 +534,16 @@ macro_rules! save_context {
 ///
 /// It should match `save_context!`.
 #[cfg(not(any(target_abi = "eabihf", feature = "eabi-fpu")))]
+#[macro_export]
 macro_rules! restore_context {
     () => {
         r#"
         // restore alignment amount, and preserved register
-        pop     {{r0, r12}}
+        pop     {{ r0, r12 }}
         // restore pre-alignment SP
         add     sp, r0
         // restore more preserved registers
-        pop     {{r0-r3}}
+        pop     {{ r0-r3 }}
         "#
     };
 }
@@ -531,22 +553,23 @@ macro_rules! restore_context {
 ///
 /// It should match `restore_context!`.
 #[cfg(any(target_abi = "eabihf", feature = "eabi-fpu"))]
+#[macro_export]
 macro_rules! save_context {
     () => {
         r#"
         // save preserved registers (and gives us some working area)
-        push    {{r0-r3}}
+        push    {{ r0-r3 }}
         // save FPU context
-        vpush   {{d0-d7}}
+        vpush   {{ d0-d7 }}
         vmrs    r0, FPSCR
         vmrs    r1, FPEXC
-        push    {{r0-r1}}
+        push    {{ r0-r1 }}
         // align SP down to eight byte boundary
         mov     r0, sp
         and     r0, r0, 7
         sub     sp, r0
         // push alignment amount, and final preserved register
-        push    {{r0, r12}}
+        push    {{ r0, r12 }}
         "#
     };
 }
@@ -556,200 +579,29 @@ macro_rules! save_context {
 ///
 /// It should match `save_context!`.
 #[cfg(any(target_abi = "eabihf", feature = "eabi-fpu"))]
+#[macro_export]
 macro_rules! restore_context {
     () => {
         r#"
         // restore alignment amount, and preserved register
-        pop     {{r0, r12}}
+        pop     {{ r0, r12 }}
         // restore pre-alignment SP
         add     sp, r0
         // pop FPU state
-        pop     {{r0-r1}}
+        pop     {{ r0-r1 }}
         vmsr    FPEXC, r1
         vmsr    FPSCR, r0
-        vpop    {{d0-d7}}
+        vpop    {{ d0-d7 }}
         // restore more preserved registers
-        pop     {{r0-r3}}
+        pop     {{ r0-r3 }}
         "#
     };
 }
 
-// Our assembly language exception handlers
+// Generic FIQ placeholder that's just a spin-loop
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
-    // Work around https://github.com/rust-lang/rust/issues/127269
-    .fpu vfp2
-
-    // Called from the vector table when we have an undefined exception.
-    // Saves state and calls a C-compatible handler like
-    // `extern "C" fn _undefined_handler(addr: usize) -> usize;`
-    // or
-    // `extern "C" fn _undefined_handler(addr: usize) -> !;`
-    .section .text._asm_default_undefined_handler
-    .global _asm_default_undefined_handler
-    .type _asm_default_undefined_handler, %function
-    _asm_default_undefined_handler:
-        // state save from compiled code
-        srsfd   sp!, #{und_mode}
-        // to work out what mode we're in, we need R0
-        push    {{r0}}
-        // First adjust LR for two purposes: Passing the faulting instruction to the C handler,
-        // and to return to the failing instruction after the C handler returns.
-        // Load processor status for the calling code
-        mrs     r0, spsr
-        // Was the code that triggered the exception in Thumb state?
-        tst     r0, {t_bit}
-        // Subtract 2 in Thumb Mode, 4 in Arm Mode - see p.1206 of the ARMv7-A architecture manual.
-        ite     eq
-        subeq   lr, lr, #4
-        subne   lr, lr, #2
-        // now do our standard exception save (which saves the 'wrong' R0)
-    "#,
-    save_context!(),
-    r#"
-        // Pass the faulting instruction address to the handler.
-        mov     r0, lr
-        // call C handler
-        bl      _undefined_handler
-        // if we get back here, assume they returned a new LR in r0
-        mov     lr, r0
-        // do our standard restore (with the 'wrong' R0)
-    "#,
-    restore_context!(),
-    r#"
-        // get the R0 we saved early
-        pop     {{r0}}
-        // overwrite the saved LR with the one from the C handler
-        str     lr, [sp]
-        // Return from the asm handler
-        rfefd   sp!
-    .size _asm_default_undefined_handler, . - _asm_default_undefined_handler
-
-
-    .section .text._asm_default_svc_handler
-
-    // Called from the vector table when we have an software interrupt.
-    // Saves state and calls a C-compatible handler like
-    // `extern "C" fn _svc_handler(svc: u32);`
-    .global _asm_default_svc_handler
-    .type _asm_default_svc_handler, %function
-    _asm_default_svc_handler:
-        srsfd   sp!, #{svc_mode}
-    "#,
-    save_context!(),
-    r#"
-        mrs      r0, spsr                 // Load processor status
-        tst      r0, {t_bit}              // Occurred in Thumb state?
-        ldrhne   r0, [lr,#-2]             // Yes: Load halfword and...
-        bicne    r0, r0, #0xFF00          // ...extract comment field
-        ldreq    r0, [lr,#-4]             // No: Load word and...
-        biceq    r0, r0, #0xFF000000      // ...extract comment field
-        // r0 now contains SVC number
-        bl       _svc_handler
-    "#,
-    restore_context!(),
-    r#"
-        rfefd   sp!
-    .size _asm_default_svc_handler, . - _asm_default_svc_handler
-
-
-    .section .text._asm_default_data_abort_handler
-
-    // Called from the vector table when we have an undefined exception.
-    // Saves state and calls a C-compatible handler like
-    // `extern "C" fn _data_abort_handler(addr: usize);`
-    .global _asm_default_data_abort_handler
-    .type _asm_default_data_abort_handler, %function
-    _asm_default_data_abort_handler:
-        // Subtract 8 from the stored LR, see p.1214 of the ARMv7-A architecture manual.
-        subs    lr, lr, #8
-        // state save from compiled code
-        srsfd   sp!, #{abt_mode}
-    "#,
-    save_context!(),
-    r#"
-        // Pass the faulting instruction address to the handler.
-        mov     r0, lr
-        // call C handler
-        bl      _data_abort_handler
-        // if we get back here, assume they returned a new LR in r0
-        mov     lr, r0
-    "#,
-    restore_context!(),
-    r#"
-        // overwrite the saved LR with the one from the C handler
-        str     lr, [sp]
-        // Return from the asm handler
-        rfefd   sp!
-    .size _asm_default_data_abort_handler, . - _asm_default_data_abort_handler
-
-
-    .section .text._asm_default_prefetch_abort_handler
-
-    // Called from the vector table when we have a prefetch abort.
-    // Saves state and calls a C-compatible handler like
-    // `extern "C" fn _prefetch_abort_handler(addr: usize);`
-    .global _asm_default_prefetch_abort_handler
-    .type _asm_default_prefetch_abort_handler, %function
-    _asm_default_prefetch_abort_handler:
-        // Subtract 4 from the stored LR, see p.1212 of the ARMv7-A architecture manual.
-        subs    lr, lr, #4
-        // state save from compiled code
-        srsfd   sp!, #{abt_mode}
-    "#,
-    save_context!(),
-    r#"
-        // Pass the faulting instruction address to the handler.
-        mov     r0, lr
-        // call C handler
-        bl      _prefetch_abort_handler
-        // if we get back here, assume they returned a new LR in r0
-        mov     lr, r0
-    "#,
-    restore_context!(),
-    r#"
-        // overwrite the saved LR with the one from the C handler
-        str     lr, [sp]
-        // Return from the asm handler
-        rfefd   sp!
-    .size _asm_default_prefetch_abort_handler, . - _asm_default_prefetch_abort_handler
-
-
-    .section .text._asm_default_irq_handler
-
-    // Called from the vector table when we have an interrupt.
-    // Saves state and calls a C-compatible handler like
-    // `extern "C" fn _irq_handler();`
-    .global _asm_default_irq_handler
-    .type _asm_default_irq_handler, %function
-    _asm_default_irq_handler:
-        // make sure we jump back to the right place
-        sub     lr, lr, 4
-        // The hardware has copied CPSR to SPSR_irq and LR to LR_irq for us.
-        // Now push SPSR_irq and LR_irq to the SYS stack.
-        srsfd   sp!, #{sys_mode}
-        // switch to system mode
-        cps     #{sys_mode}
-        // we also need to save LR, so we can be re-entrant
-        push    {{lr}}
-        // save state to the system stack (adjusting SP for alignment)
-    "#,
-        save_context!(),
-    r#"
-        // call C handler
-        bl      _irq_handler
-        // restore from the system stack
-    "#,
-        restore_context!(),
-    r#"
-        // restore LR
-        pop     {{lr}}
-        // pop CPSR and LR from the stack (which also restores the mode)
-        rfefd   sp!
-    .size _asm_default_irq_handler, . - _asm_default_irq_handler
-
-
     .section .text._asm_default_fiq_handler
 
     // Our default FIQ handler
@@ -759,15 +611,6 @@ core::arch::global_asm!(
         b       _asm_default_fiq_handler
     .size    _asm_default_fiq_handler, . - _asm_default_fiq_handler
     "#,
-    svc_mode = const ProcessorMode::Svc as u8,
-    und_mode = const ProcessorMode::Und as u8,
-    abt_mode = const ProcessorMode::Abt as u8,
-    sys_mode = const ProcessorMode::Sys as u8,
-    t_bit = const {
-        Cpsr::new_with_raw_value(0)
-            .with_t(true)
-            .raw_value()
-    },
 );
 
 /// This macro expands to code to turn on the FPU
@@ -819,38 +662,39 @@ core::arch::global_asm!(
         mov     r2, lr
         // (we might not be in the same mode when we return).
         // Set stack pointer (right after) and mask interrupts for for UND mode (Mode 0x1B)
-        msr     cpsr, {und_mode}
+        msr     cpsr_c, {und_mode}
         mov     sp, r0
         ldr     r1, =_und_stack_size
         sub     r0, r0, r1
         // Set stack pointer (right after) and mask interrupts for for SVC mode (Mode 0x13)
-        msr     cpsr, {svc_mode}
+        msr     cpsr_c, {svc_mode}
         mov     sp, r0
         ldr     r1, =_svc_stack_size
         sub     r0, r0, r1
         // Set stack pointer (right after) and mask interrupts for for ABT mode (Mode 0x17)
-        msr     cpsr, {abt_mode}
+        msr     cpsr_c, {abt_mode}
         mov     sp, r0
         ldr     r1, =_abt_stack_size
         sub     r0, r0, r1
         // Set stack pointer (right after) and mask interrupts for for IRQ mode (Mode 0x12)
-        msr     cpsr, {irq_mode}
+        msr     cpsr_c, {irq_mode}
         mov     sp, r0
         ldr     r1, =_irq_stack_size
         sub     r0, r0, r1
         // Set stack pointer (right after) and mask interrupts for for FIQ mode (Mode 0x11)
-        msr     cpsr, {fiq_mode}
+        msr     cpsr_c, {fiq_mode}
         mov     sp, r0
         ldr     r1, =_fiq_stack_size
         sub     r0, r0, r1
         // Set stack pointer (right after) and mask interrupts for for System mode (Mode 0x1F)
-        msr     cpsr, {sys_mode}
+        msr     cpsr_c, {sys_mode}
         mov     sp, r0
         // Clear the Thumb Exception bit because all our targets are currently
         // for Arm (A32) mode
         mrc     p15, 0, r1, c1, c0, 0
         bic     r1, #{te_bit}
         mcr     p15, 0, r1, c1, c0, 0
+        // return to caller
         bx      r2
     .size _stack_setup, . - _stack_setup
 
@@ -880,6 +724,7 @@ core::arch::global_asm!(
         stm     r0!, {{r3}}
         b       0b
     1:
+    	// return to caller
         bx      lr
     .size _init_segments, . - _init_segments
     "#,
@@ -932,7 +777,7 @@ core::arch::global_asm!(
     }
 );
 
-// Start-up code for Armv7-R.
+// Start-up code for CPUs that boot into EL1
 //
 // Go straight to our default routine
 #[cfg(all(target_arch = "arm", not(arm_architecture = "v8-r")))]

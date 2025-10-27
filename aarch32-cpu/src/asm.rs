@@ -113,3 +113,12 @@ pub fn core_id() -> u32 {
     }
     r & 0x00FF_FFFF
 }
+
+#[cfg(any(arm_architecture = "v4t", arm_architecture = "v5te"))]
+#[no_mangle]
+pub extern "C" fn __sync_synchronize() {
+    // we don't have a barrier instruction - the linux kernel just uses an empty inline asm block
+    unsafe {
+        core::arch::asm!("");
+    }
+}
