@@ -3,7 +3,7 @@
 #![no_std]
 #![no_main]
 
-use core::sync::atomic::{AtomicU32, Ordering};
+use portable_atomic::{AtomicU32, Ordering};
 
 use aarch32_cpu::register::{Dfar, Dfsr, Sctlr};
 use aarch32_rt::{entry, exception};
@@ -46,7 +46,7 @@ core::arch::global_asm!(
     .type unaligned_from_a32, %function
     unaligned_from_a32:
         ldr     r0, =COUNTER
-        add     r0, r0, 1
+        adds    r0, r0, 1
         ldr     r0, [r0]
         bx      lr
     .size unaligned_from_a32, . - unaligned_from_a32
@@ -110,7 +110,9 @@ unsafe fn data_abort_handler(addr: usize) -> usize {
         );
     }
 
-    match COUNTER.fetch_add(1, Ordering::Relaxed) {
+    let counter = COUNTER.load(Ordering::Relaxed);
+    COUNTER.store(counter + 1, Ordering::Relaxed);
+    match counter {
         0 => {
             // first time, huh?
             // go back and do it again

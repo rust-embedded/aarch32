@@ -3,7 +3,7 @@
 #![no_std]
 #![no_main]
 
-use core::sync::atomic::{AtomicU32, Ordering};
+use portable_atomic::{AtomicU32, Ordering};
 
 use aarch32_cpu::register::{Ifar, Ifsr};
 use aarch32_rt::{entry, exception};
@@ -60,22 +60,30 @@ unsafe fn prefetch_abort_handler(addr: usize) -> usize {
     let ifsr = Ifsr::read();
     println!("IFSR (Fault Status Register): {:?}", ifsr);
     println!("IFSR Status: {:?}", ifsr.status());
-    let ifar = Ifar::read();
-    println!("IFAR (Faulting Address Register): {:?}", ifar);
 
-    if (addr + 1) == bkpt_from_t32 as usize {
-        // note that thumb functions have their LSB set, despite always being a
-        // multiple of two - that's how the CPU knows they are written in T32
-        // machine code.
-        println!("caught bkpt_from_t32");
-    } else {
-        println!(
-            "Bad fault address {:08x} is not {:08x}",
-            addr, bkpt_from_t32 as usize
-        );
+    if cfg!(not(any(
+        arm_architecture = "v4t",
+        arm_architecture = "v5te"
+    ))) {
+        let ifar = Ifar::read();
+        println!("IFAR (Faulting Address Register): {:?}", ifar);
+
+        if (addr + 1) == bkpt_from_t32 as usize {
+            // note that thumb functions have their LSB set, despite always being a
+            // multiple of two - that's how the CPU knows they are written in T32
+            // machine code.
+            println!("caught bkpt_from_t32");
+        } else {
+            println!(
+                "Bad fault address {:08x} is not {:08x}",
+                addr, bkpt_from_t32 as usize
+            );
+        }
     }
 
-    match COUNTER.fetch_add(1, Ordering::Relaxed) {
+    let counter = COUNTER.load(Ordering::Relaxed);
+    COUNTER.store(counter + 1, Ordering::Relaxed);
+    match counter {
         0 => {
             // first time, huh?
             // go back and do it again

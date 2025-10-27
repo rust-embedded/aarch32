@@ -82,6 +82,24 @@ for bin_path in $(ls examples/versatileab/src/bin/*.rs); do
     my_diff ./examples/versatileab/reference/$binary-armv7a-none-eabihf.out ./target/$binary-armv7a-none-eabihf.out || fail $binary "armv7a-none-eabihf"
 done
 
+# armv5te-none-eabi tests
+RUSTC_BOOTSTRAP=1 cargo build ${versatile_ab_cargo} --target=armv5te-none-eabi
+for bin_path in $(ls examples/versatileab/src/bin/*.rs); do
+    filename=${bin_path##*/}
+    binary=${filename%.rs}
+    RUSTC_BOOTSTRAP=1 cargo run ${versatile_ab_cargo} --target=armv5te-none-eabi --bin $binary > ./target/$binary-armv5te-none-eabi.out
+    my_diff ./examples/versatileab/reference/$binary-armv5te-none-eabi.out ./target/$binary-armv5te-none-eabi.out || fail $binary "armv5te-none-eabi"
+done
+
+# armv4t-none-eabi tests
+RUSTC_BOOTSTRAP=1 cargo build ${versatile_ab_cargo} --target=armv4t-none-eabi
+for bin_path in $(ls examples/versatileab/src/bin/*.rs); do
+    filename=${bin_path##*/}
+    binary=${filename%.rs}
+    RUSTC_BOOTSTRAP=1 cargo run ${versatile_ab_cargo} --target=armv4t-none-eabi --bin $binary > ./target/$binary-armv4t-none-eabi.out
+    my_diff ./examples/versatileab/reference/$binary-armv4t-none-eabi.out ./target/$binary-armv4t-none-eabi.out || fail $binary "armv4t-none-eabi"
+done
+
 # These tests only run on QEMU 9 or higher.
 # Ubuntu 24.04 supplies QEMU 8, which doesn't support the machine we have configured for this target
 RUSTC_BOOTSTRAP=1 cargo build ${mps3_an536_cargo} --target=armv8r-none-eabihf || exit 1

@@ -3,7 +3,7 @@
 #![no_std]
 #![no_main]
 
-use core::sync::atomic::{AtomicU32, Ordering::SeqCst};
+use portable_atomic::{AtomicU32, Ordering::SeqCst};
 
 use aarch32_rt::{entry, exception};
 use semihosting::println;
