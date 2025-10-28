@@ -7,16 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-- No changes
+### Changed
 
-## [v0.2.1]
+- Renamed from `cortex-r-rt` to `aarch32-rt`
+- Added ARMv4T and ARMv5TE support
+- Added `fpu-d32` feature
+- Fixed SVC handling from T32 mode
+
+## [cortex-r-rt v0.2.1]
 
 ### Changed
 
 - MSRV is now Rust 1.83
-- Uses cortex-ar 0.3
+- Uses `cortex-ar` 0.3
 
-## [v0.2.0]
+## [cortex-r-rt v0.2.0]
 
 ### Added
 
@@ -33,11 +38,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - The SVC asm trampoline can now be over-ridden
 - The Undefined, Prefetch and Abort handlers can either return never, or can return a new address to continue executing from when the handler is over
 
-## [v0.1.0]
+## [cortex-r-rt v0.1.0]
 
 Initial release
 
 [Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/cortex-r-rt-v0.2.1...HEAD
-[v0.2.1]: https://github.com/rust-embedded/cortex-ar/compare/cortex-r-rt-v0.2.0...cortex-r-rt-v0.2.1
-[v0.2.0]: https://github.com/rust-embedded/cortex-ar/compare/cortex-r-rt-v0.1.0...cortex-r-rt-v0.2.0
-[v0.1.0]: https://github.com/rust-embedded/cortex-ar/releases/tag/cortex-r-rt-v0.1.0
+[cortex-r-rt v0.2.1]: https://github.com/rust-embedded/cortex-ar/compare/cortex-r-rt-v0.2.0...cortex-r-rt-v0.2.1
+[cortex-r-rt v0.2.0]: https://github.com/rust-embedded/cortex-ar/compare/cortex-r-rt-v0.1.0...cortex-r-rt-v0.2.0
+[cortex-r-rt v0.1.0]: https://github.com/rust-embedded/cortex-ar/releases/tag/cortex-r-rt-v0.1.0

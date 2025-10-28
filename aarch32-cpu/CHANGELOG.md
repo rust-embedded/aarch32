@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [v0.3.0]
+### Changed
+
+- Renamed from `cortex-ar` to `aarch32-cpu`
+- Added ARMv4T and ARMv5TE support
+
+## [cortex-ar v0.3.0]
 
 - Bumped MSRV to v1.83 to allow compatibility with `arbitrary-int` v2.
 
@@ -30,7 +35,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Bumped `defmt` to v1
 - Bumped `arbitrary-int` to v2
 
-## [v0.2.0]
+## [cortex-ar v0.2.0]
 
 ### Added
 
@@ -45,11 +50,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - The `dsb` and `isb` functions now include compiler fences
 - Added `nomem`, `nostack` and `preserves_flags` options for ASM where applicable.
 
-## [v0.1.0]
+## [cortex-ar v0.1.0]
 
 Initial release
 
 [Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-v0.3.0...HEAD
-[v0.3.0]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-v0.2.0...cortex-ar-v0.3.0
-[v0.2.0]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-v0.1.0...cortex-ar-v0.2.0
-[v0.1.0]: https://github.com/rust-embedded/cortex-ar/releases/tag/cortex-ar-v0.1.0
+[cortex-ar v0.3.0]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-v0.2.0...cortex-ar-v0.3.0
+[cortex-ar v0.2.0]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-v0.1.0...cortex-ar-v0.2.0
+[cortex-ar v0.1.0]: https://github.com/rust-embedded/cortex-ar/releases/tag/cortex-ar-v0.1.0
