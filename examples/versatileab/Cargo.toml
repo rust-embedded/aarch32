@@ -28,3 +28,4 @@ arm-targets = { version = "0.3.0", path = "../../arm-targets" }
 
 [features]
 eabi-fpu = ["aarch32-rt/eabi-fpu"]
+fpu-d32 = ["aarch32-rt/fpu-d32"]

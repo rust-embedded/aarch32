@@ -30,6 +30,11 @@ aarch32-rt-macros = { path = "../aarch32-rt-macros", version = "=0.1.1" }
 [features]
 # Enable the FPU on start-up, even on a soft-float EABI target
 eabi-fpu = []
+# Make the interrupt context store routines save the upper double-precision
+# registers. If your program is using all 32 double-precision registers (e.g.
+# if you have set the `+d32` target feature) then you need to enable this
+# option otherwise important FPU state may be lost when an exception occurs.
+fpu-d32 = []
 
 [build-dependencies]
 arm-targets = { version = "0.3.0", path = "../arm-targets" }

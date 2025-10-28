@@ -82,6 +82,15 @@ for bin_path in $(ls examples/versatileab/src/bin/*.rs); do
     my_diff ./examples/versatileab/reference/$binary-armv7a-none-eabihf.out ./target/$binary-armv7a-none-eabihf.out || fail $binary "armv7a-none-eabihf"
 done
 
+# armv7a-none-eabihf double-precision tests
+RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Ctarget-feature=+d32" cargo build ${versatile_ab_cargo} --target=armv7a-none-eabihf  --features=fpu-d32 || exit 1
+for bin_path in $(ls examples/versatileab/src/bin/*.rs); do
+    filename=${bin_path##*/}
+    binary=${filename%.rs}
+    RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Ctarget-feature=+d32" cargo run ${versatile_ab_cargo} --target=armv7a-none-eabihf --bin $binary --features=fpu-d32 > ./target/$binary-armv7a-none-eabihf-dp.out
+    my_diff ./examples/versatileab/reference/$binary-armv7a-none-eabihf.out ./target/$binary-armv7a-none-eabihf-dp.out || fail $binary "armv7a-none-eabihf"
+done
+
 # armv5te-none-eabi tests
 RUSTC_BOOTSTRAP=1 cargo build ${versatile_ab_cargo} --target=armv5te-none-eabi
 for bin_path in $(ls examples/versatileab/src/bin/*.rs); do

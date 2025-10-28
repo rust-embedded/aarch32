@@ -509,6 +509,10 @@ core::arch::global_asm!(
 /// This macro expands to code for saving context on entry to an exception
 /// handler. It ensures the stack pointer is 8 byte aligned on exit.
 ///
+/// EABI specifies R4 - R11 as callee-save, and so we don't preserve them
+/// because any C function we call to handle the exception will
+/// preserve/restore them itself as required.
+///
 /// It should match `restore_context!`.
 ///
 /// On entry to this block, we assume that we are in exception context.
@@ -548,18 +552,27 @@ macro_rules! restore_context {
     };
 }
 
-/// This macro expands to code for saving context on entry to an exception
-/// handler.
+/// This macro expands to code for restoring context on exit from an exception
+/// handler. It saves FPU state, assuming 16 DP registers (a 'D16' or 'D16SP'
+/// FPU configuration). Note that SP-only FPUs still have DP registers
+/// - each DP register holds two SP values.
+///
+/// EABI specifies R4 - R11 and D8-D15 as callee-save, and so we don't
+/// preserve them because any C function we call to handle the exception will
+/// preserve/restore them itself as required.
 ///
 /// It should match `restore_context!`.
-#[cfg(any(target_abi = "eabihf", feature = "eabi-fpu"))]
+#[cfg(all(
+    any(target_abi = "eabihf", feature = "eabi-fpu"),
+    not(feature = "fpu-d32")
+))]
 #[macro_export]
 macro_rules! save_context {
     () => {
         r#"
         // save preserved registers (and gives us some working area)
         push    {{ r0-r3 }}
-        // save FPU context
+        // save all D16 FPU context, except D8-D15
         vpush   {{ d0-d7 }}
         vmrs    r0, FPSCR
         vmrs    r1, FPEXC
@@ -575,10 +588,14 @@ macro_rules! save_context {
 }
 
 /// This macro expands to code for restoring context on exit from an exception
-/// handler.
+/// handler. It restores FPU state, assuming 16 DP registers (a 'D16' or
+/// 'D16SP' FPU configuration).
 ///
 /// It should match `save_context!`.
-#[cfg(any(target_abi = "eabihf", feature = "eabi-fpu"))]
+#[cfg(all(
+    any(target_abi = "eabihf", feature = "eabi-fpu"),
+    not(feature = "fpu-d32")
+))]
 #[macro_export]
 macro_rules! restore_context {
     () => {
@@ -587,10 +604,68 @@ macro_rules! restore_context {
         pop     {{ r0, r12 }}
         // restore pre-alignment SP
         add     sp, r0
-        // pop FPU state
+        // restore all D16 FPU context, except D8-D15
         pop     {{ r0-r1 }}
         vmsr    FPEXC, r1
         vmsr    FPSCR, r0
+        vpop    {{ d0-d7 }}
+        // restore more preserved registers
+        pop     {{ r0-r3 }}
+        "#
+    };
+}
+
+/// This macro expands to code for saving context on entry to an exception
+/// handler. It saves FPU state assuming 32 DP registers (a 'D32' FPU
+/// configuration).
+///
+/// EABI specifies R4 - R11 and D8-D15 as callee-save, and so we don't
+/// preserve them because any C function we call to handle the exception will
+/// preserve/restore them itself as required.
+///
+/// It should match `restore_context!`.
+#[cfg(all(any(target_abi = "eabihf", feature = "eabi-fpu"), feature = "fpu-d32"))]
+#[macro_export]
+macro_rules! save_context {
+    () => {
+        r#"
+        // save preserved registers (and gives us some working area)
+        push    {{ r0-r3 }}
+        // save all D32 FPU context, except D8-D15
+        vpush   {{ d0-d7 }}
+        vpush   {{ d16-d31 }}
+        vmrs    r0, FPSCR
+        vmrs    r1, FPEXC
+        push    {{ r0-r1 }}
+        // align SP down to eight byte boundary
+        mov     r0, sp
+        and     r0, r0, 7
+        sub     sp, r0
+        // push alignment amount, and final preserved register
+        push    {{ r0, r12 }}
+        "#
+    };
+}
+
+/// This macro expands to code for restoring context on exit from an exception
+/// handler. It restores FPU state, assuming 32 DP registers (a 'D32' FPU
+/// configuration).
+///
+/// It should match `save_context!`.
+#[cfg(all(any(target_abi = "eabihf", feature = "eabi-fpu"), feature = "fpu-d32"))]
+#[macro_export]
+macro_rules! restore_context {
+    () => {
+        r#"
+        // restore alignment amount, and preserved register
+        pop     {{ r0, r12 }}
+        // restore pre-alignment SP
+        add     sp, r0
+        // restore all D32 FPU context, except D8-D15
+        pop     {{ r0-r1 }}
+        vmsr    FPEXC, r1
+        vmsr    FPSCR, r0
+        vpop    {{ d16-d31 }}
         vpop    {{ d0-d7 }}
         // restore more preserved registers
         pop     {{ r0-r3 }}
