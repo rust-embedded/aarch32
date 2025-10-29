@@ -7,7 +7,7 @@ categories = [
     "embedded",
     "no-std",
 ]
-description = "Run-time support for Arm Cortex-R"
+description = "Run-time support for Arm AArch32"
 edition = "2021"
 keywords = [
     "arm",

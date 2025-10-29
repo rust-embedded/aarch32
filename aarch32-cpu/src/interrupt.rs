@@ -1,4 +1,4 @@
-//! Interrupts on Arm Cortex-R
+//! Interrupts on Arm AArch32
 
 use core::sync::atomic::{compiler_fence, Ordering};
 

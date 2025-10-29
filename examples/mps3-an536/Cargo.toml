@@ -4,7 +4,7 @@ authors = [
 	"The Embedded Devices Working Group Arm Team <arm@teams.rust-embedded.org>"
 ]
 default-run = "hello"
-description = "Examples for MPS3-AN536 device (Arm Cortex-R)"
+description = "Examples for MPS3-AN536 device (Arm Cortex-R52)"
 edition = "2021"
 homepage = "https://github.com/rust-embedded/cortex-ar.git"
 license = "MIT OR Apache-2.0"

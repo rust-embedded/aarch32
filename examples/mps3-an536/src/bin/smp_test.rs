@@ -57,7 +57,7 @@ const CS_MUTEX_LOOPS: u32 = 1000;
 
 /// The entry-point to the Rust application.
 ///
-/// It is called by the start-up code in `cortex-r-rt`.
+/// It is called by the start-up code in `aarch32-rt`.
 #[entry]
 fn main() -> ! {
     let fpga_led = 0xE020_2000 as *mut u32;

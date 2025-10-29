@@ -1,5 +1,4 @@
-//! CPU/peripheral support for Arm Cortex-R
-
+//! CPU/peripheral support for Arm AArch32
 #![no_std]
 
 mod critical_section;
