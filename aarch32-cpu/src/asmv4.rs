@@ -8,8 +8,9 @@ pub fn nop() {
 
 /// Mask IRQ
 #[cfg_attr(not(feature = "check-asm"), inline)]
-#[instruction_set(arm::a32)]
+#[cfg_attr(target_arch = "arm", instruction_set(arm::a32))]
 pub fn irq_disable() {
+    #[cfg(target_arch = "arm")]
     unsafe {
         core::arch::asm!(r#"
             mrs {0}, cpsr 
@@ -28,8 +29,9 @@ pub fn irq_disable() {
 
 /// Unmask IRQ
 #[cfg_attr(not(feature = "check-asm"), inline)]
-#[instruction_set(arm::a32)]
+#[cfg_attr(target_arch = "arm", instruction_set(arm::a32))]
 pub fn irq_enable() {
+    #[cfg(target_arch = "arm")]
     unsafe {
         core::arch::asm!(r#"
             mrs {0}, cpsr 
@@ -50,6 +52,7 @@ pub fn irq_enable() {
 ///
 /// Return the bottom 24-bits of the MPIDR
 #[cfg_attr(not(feature = "check-asm"), inline)]
+#[cfg(target_arch = "arm")]
 #[instruction_set(arm::a32)]
 pub fn core_id() -> u32 {
     let r: u32;
