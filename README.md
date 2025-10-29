@@ -2,6 +2,7 @@
 
 This repository provides support for:
 
+* Legacy Arm Processors, like the ARM7TDMI and ARM926
 * Armv7-R Processors, like the Arm Cortex-R5
 * Armv8-R AArch32 Processors, like the Arm Cortex-R52
 * Armv7-A Processors, like the Arm Cortex-A5

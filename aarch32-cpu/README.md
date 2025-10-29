@@ -5,6 +5,7 @@
 
 This crate provides access to CPU registers and common peripherals for:
 
+* Legacy Arm Processors, like the ARM7TDMI and ARM926
 * Armv7-R Processors, like the Arm Cortex-R5
 * Armv8-R AArch32 Processors, like the Arm Cortex-R52
 * Armv7-A Processors, like the Arm Cortex-A5
@@ -18,7 +19,7 @@ uses different instructions for reading/writing system registers.
 
 This crate contains:
 
-* Raw register access to many Armv7-R and Armv8-R AArch32 system registers
+* Raw register access to many AArch32 system registers
 * A driver for the PMSAv7 Memory Protection Unit (MPU)
 * A driver for the PMSAv8-R Memory Protection Unit (MPU)
 * A driver for the Arm Generic Timer

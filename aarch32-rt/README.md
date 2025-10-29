@@ -1,14 +1,24 @@
-[![crates.io](https://img.shields.io/crates/v/cortex-r-rt)](https://crates.io/crates/cortex-r-rt)
-[![docs.rs](https://img.shields.io/docsrs/cortex-r-rt)](https://docs.rs/cortex-r-rt)
+[![crates.io](https://img.shields.io/crates/v/aarch32-rt)](https://crates.io/crates/aarch32-rt)
+[![docs.rs](https://img.shields.io/docsrs/aarch32-rt)](https://docs.rs/aarch32-rt)
 
-# Run-time support for Arm Cortex-R (AArch32)
+# Run-time support for Arm AArch32 Processors
 
 This library implements a simple Arm vector table, suitable for getting into a
-Rust application running in System Mode. It also provides a reference start
-up method. Most Cortex-R based systems will require chip specific start-up
-code, so the start-up method can be overridden.
+Rust application running in System Mode. It also provides a reference start up
+method. Some Arm AArch32 based systems will require chip specific start-up
+code, so the start-up method can be overridden. It should be suitable for:
 
-See <https://docs.rs/cortex-r-rt> for detailed documentation.
+* Legacy Arm Processors, like the ARM7TDMI and ARM926
+* Armv7-R Processors, like the Arm Cortex-R5
+* Armv8-R AArch32 Processors, like the Arm Cortex-R52
+* Armv7-A Processors, like the Arm Cortex-A5
+* Armv8-A AArch32 Processors, like the Arm Cortex-A53 running in 32-bit mode
+
+It does not support any M-Profile Processors (like the Arm Cortex-M3) as they
+have a fundamentally different interrupt vector table.
+
+It also does not support processors running in AArch64 mode - A64 machine code
+uses different instructions for reading/writing system registers.
 
 ## Minimum Supported Rust Version (MSRV)
 
