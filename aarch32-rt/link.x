@@ -89,12 +89,12 @@ PROVIDE(_abt_stack_size = 0x400);
 PROVIDE(_irq_stack_size = 0x400);
 PROVIDE(_fiq_stack_size = 0x400);
 
-ASSERT(_stack_top % 8 == 0, "ERROR(cortex-r-rt): top of stack is not 8-byte aligned");
-ASSERT(_und_stack_size % 8 == 0, "ERROR(cortex-r-rt): size of UND stack is not 8-byte aligned");
-ASSERT(_svc_stack_size % 8 == 0, "ERROR(cortex-r-rt): size of SVC stack is not 8-byte aligned");
-ASSERT(_abt_stack_size % 8 == 0, "ERROR(cortex-r-rt): size of ABT stack is not 8-byte aligned");
-ASSERT(_irq_stack_size % 8 == 0, "ERROR(cortex-r-rt): size of IRQ stack is not 8-byte aligned");
-ASSERT(_fiq_stack_size % 8 == 0, "ERROR(cortex-r-rt): size of FIQ stack is not 8-byte aligned");
+ASSERT(_stack_top % 8 == 0, "ERROR(aarch32-rt): top of stack is not 8-byte aligned");
+ASSERT(_und_stack_size % 8 == 0, "ERROR(aarch32-rt): size of UND stack is not 8-byte aligned");
+ASSERT(_svc_stack_size % 8 == 0, "ERROR(aarch32-rt): size of SVC stack is not 8-byte aligned");
+ASSERT(_abt_stack_size % 8 == 0, "ERROR(aarch32-rt): size of ABT stack is not 8-byte aligned");
+ASSERT(_irq_stack_size % 8 == 0, "ERROR(aarch32-rt): size of IRQ stack is not 8-byte aligned");
+ASSERT(_fiq_stack_size % 8 == 0, "ERROR(aarch32-rt): size of FIQ stack is not 8-byte aligned");
 
 /* Weak aliases for ASM default handlers */
 PROVIDE(_start                      = _default_start);

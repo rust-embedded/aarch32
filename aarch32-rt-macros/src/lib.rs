@@ -475,14 +475,12 @@ fn check_attr_whitelist(attrs: &[Attribute], caller: Kind) -> Result<(), TokenSt
         }
 
         let err_str = match caller {
-            Kind::Entry => {
-                "this attribute is not allowed on a cortex-r-rt/cortex-a-rt entry point"
-            }
+            Kind::Entry => "this attribute is not allowed on an aarch32-rt entry point",
             Kind::Exception => {
-                "this attribute is not allowed on an exception handler controlled by cortex-r-rt/cortex-a-rt"
+                "this attribute is not allowed on an exception handler controlled by aarch32-rt"
             }
             Kind::Interrupt => {
-                "this attribute is not allowed on an interrupt handler controlled by cortex-r-rt/cortex-a-rt"
+                "this attribute is not allowed on an interrupt handler controlled by aarch32-rt"
             }
         };
 
