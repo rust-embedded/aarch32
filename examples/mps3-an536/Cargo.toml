@@ -16,37 +16,16 @@ rust-version = "1.83"
 version = "0.0.0"
 
 [dependencies]
-cortex-ar = { path = "../../cortex-ar", features = ["critical-section-multi-core"] }
-cortex-r-rt = { path = "../../cortex-r-rt" }
-semihosting = { version = "0.1.18", features = ["stdio"] }
-arm-gic = { version = "0.7.1", optional = true }
+aarch32-cpu = { path = "../../aarch32-cpu", features = ["critical-section-multi-core"] }
+aarch32-rt = { path = "../../aarch32-rt" }
+arm-gic = { version = "0.7.1" }
 critical-section = "1.2.0"
 heapless = "0.9.1"
 libm = "0.2.15"
+semihosting = { version = "0.1.18", features = ["stdio"] }
 
 [build-dependencies]
 arm-targets = {version = "0.3.0", path = "../../arm-targets"}
 
 [features]
-eabi-fpu = ["cortex-r-rt/eabi-fpu"]
-gic = ["arm-gic"]
-
-[[bin]]
-name = "gic-map"
-required-features = ["gic"]
-
-[[bin]]
-name = "gic-static-section-irq"
-required-features = ["gic"]
-
-[[bin]]
-name = "gic-unified-irq"
-required-features = ["gic"]
-
-[[bin]]
-name = "generic_timer_irq"
-required-features = ["gic"]
-
-[[bin]]
-name = "gic-priority-ceiling"
-required-features = ["gic"]
+eabi-fpu = ["aarch32-rt/eabi-fpu"]

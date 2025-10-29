@@ -3,14 +3,12 @@
 #![no_std]
 #![no_main]
 
-use core::sync::atomic::{AtomicU32, Ordering};
+use portable_atomic::{AtomicU32, Ordering};
 
-use cortex_ar::register::{Dfar, Dfsr, Sctlr};
-
-// pull in our start-up code
-use versatileab::rt::{entry, exception};
-
+use aarch32_cpu::register::{Dfar, Dfsr, Sctlr};
+use aarch32_rt::{entry, exception};
 use semihosting::println;
+use versatileab as _;
 
 #[no_mangle]
 static COUNTER: AtomicU32 = AtomicU32::new(0);
@@ -48,7 +46,7 @@ core::arch::global_asm!(
     .type unaligned_from_t32, %function
     unaligned_from_t32:
         ldr     r0, =COUNTER
-        add     r0, r0, 1
+        adds    r0, r0, 1
         ldr     r0, [r0]
         bx      lr
     .size unaligned_from_t32, . - unaligned_from_t32
@@ -90,7 +88,7 @@ unsafe fn data_abort_handler(addr: usize) -> usize {
     enable_alignment_check();
 
     // note the fault isn't at the start of the function
-    let expect_fault_at = unaligned_from_t32 as usize + 5;
+    let expect_fault_at = unaligned_from_t32 as usize + 3;
 
     if addr == expect_fault_at {
         println!("caught unaligned_from_t32");
@@ -112,7 +110,9 @@ unsafe fn data_abort_handler(addr: usize) -> usize {
         );
     }
 
-    match COUNTER.fetch_add(1, Ordering::Relaxed) {
+    let counter = COUNTER.load(Ordering::Relaxed);
+    COUNTER.store(counter + 1, Ordering::Relaxed);
+    match counter {
         0 => {
             // first time, huh?
             // go back and do it again

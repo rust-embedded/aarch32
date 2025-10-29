@@ -3,12 +3,8 @@
 #![no_std]
 #![no_main]
 
-// pull in our start-up code
-use cortex_r_rt::entry;
-
-// pull in our library
+use aarch32_rt::entry;
 use mps3_an536 as _;
-
 use semihosting::println;
 
 static BAR: &str = "............................................................";

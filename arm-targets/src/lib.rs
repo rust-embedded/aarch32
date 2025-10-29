@@ -135,15 +135,11 @@ impl Isa {
     pub fn get(target: &str) -> Option<Isa> {
         let arch = Arch::get(target)?;
         Some(match arch {
-            Arch::Armv4T | Arch::Armv5TE => Isa::A32,
-            Arch::Armv6M => Isa::T32,
-            Arch::Armv7M => Isa::T32,
-            Arch::Armv7EM => Isa::T32,
-            Arch::Armv8MBase => Isa::T32,
-            Arch::Armv8MMain => Isa::T32,
-            Arch::Armv7R => Isa::A32,
-            Arch::Armv8R => Isa::A32,
-            Arch::Armv7A => Isa::A32,
+            Arch::Armv4T | Arch::Armv5TE | Arch::Armv6 => Isa::A32,
+            Arch::Armv6M | Arch::Armv7M | Arch::Armv7EM | Arch::Armv8MBase | Arch::Armv8MMain => {
+                Isa::T32
+            }
+            Arch::Armv7R | Arch::Armv8R | Arch::Armv7A => Isa::A32,
             Arch::Armv8A => Isa::A64,
         })
     }
@@ -177,27 +173,29 @@ impl core::fmt::Display for Isa {
 /// As defined by a particular revision of the Arm Architecture Reference Manual (ARM).
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Arch {
-    /// Armv4T (legacy, also known as ARMv4T)
+    /// Arm Architecture version 4, with Thumb support (e.g. ARM7TDMI)
     Armv4T,
-    /// Armv5TE (also known as ARMv5TE)
+    /// Arm Architecture version 5, with Thumb support and Enhanced DSP Instructions (e.g. ARM926EJ-S)
     Armv5TE,
-    /// Armv6-M (also known as ARMv6-M)
+    /// Arm Architecture version 6 (e.g. ARM1176JZF-S)
+    Armv6,
+    /// Armv6-M (e.g. Cortex-M0+)
     Armv6M,
-    /// Armv7-M (also known as ARMv7-M)
+    /// Armv7-M (e.g. Cortex-M3)
     Armv7M,
-    /// Armv7E-M (also known as ARMv7E-M)
+    /// Armv7E-M (e.g. Cortex-M4)
     Armv7EM,
-    /// Armv8-M Baseline
+    /// Armv8-M Baseline (e.g. Cortex-M23)
     Armv8MBase,
-    /// Armv8-M with Mainline extensions
+    /// Armv8-M with Mainline extensions (e.g. Cortex-M33)
     Armv8MMain,
-    /// Armv7-R (also known as ARMv7-R)
+    /// Armv7-R (e.g. Cortex-R5)
     Armv7R,
-    /// Armv8-R
+    /// Armv8-R (e.g. Cortex-R52)
     Armv8R,
-    /// Armv7-A (also known as ARMv7-A)
+    /// Armv7-A (e.g. Cortex-A8)
     Armv7A,
-    /// Armv8-A
+    /// Armv8-A (e.g. Cortex-A53)
     Armv8A,
 }
 
@@ -226,6 +224,9 @@ impl Arch {
             Some(Arch::Armv7A)
         } else if target.starts_with("aarch64-") || target.starts_with("aarch64be-") {
             Some(Arch::Armv8A)
+        } else if target.starts_with("arm-") {
+            // If not specified, assume Armv6
+            Some(Arch::Armv6)
         } else {
             None
         }
@@ -237,7 +238,7 @@ impl Arch {
             Arch::Armv6M | Arch::Armv7M | Arch::Armv7EM | Arch::Armv8MBase | Arch::Armv8MMain => {
                 Profile::M
             }
-            Arch::Armv4T | Arch::Armv5TE => Profile::Legacy,
+            Arch::Armv4T | Arch::Armv5TE | Arch::Armv6 => Profile::Legacy,
             Arch::Armv7R | Arch::Armv8R => Profile::R,
             Arch::Armv7A | Arch::Armv8A => Profile::A,
         }
@@ -248,6 +249,7 @@ impl Arch {
         let string_versions: Vec<String> = [
             Arch::Armv4T,
             Arch::Armv5TE,
+            Arch::Armv6,
             Arch::Armv6M,
             Arch::Armv7M,
             Arch::Armv7EM,
@@ -273,6 +275,7 @@ impl core::fmt::Display for Arch {
             match self {
                 Arch::Armv4T => "v4t",
                 Arch::Armv5TE => "v5te",
+                Arch::Armv6 => "v6",
                 Arch::Armv6M => "v6-m",
                 Arch::Armv7M => "v7-m",
                 Arch::Armv7EM => "v7e-m",
@@ -350,9 +353,9 @@ impl Abi {
             // e.g. PowerPC also has an ABI called EABI, but it's not the same
             return None;
         }
-        if target.ends_with("-eabi") {
+        if target.ends_with("eabi") {
             Some(Abi::Eabi)
-        } else if target.ends_with("-eabihf") {
+        } else if target.ends_with("eabihf") {
             Some(Abi::EabiHf)
         } else {
             None
@@ -402,6 +405,16 @@ mod test {
         let target_info = process_target(target);
         assert_eq!(target_info.isa(), Some(Isa::A32));
         assert_eq!(target_info.arch(), Some(Arch::Armv5TE));
+        assert_eq!(target_info.profile(), Some(Profile::Legacy));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn arm_unknown_linux_gnueabi() {
+        let target = "arm-unknown-linux-gnueabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv6));
         assert_eq!(target_info.profile(), Some(Profile::Legacy));
         assert_eq!(target_info.abi(), Some(Abi::Eabi));
     }

@@ -3,14 +3,9 @@
 #![no_std]
 #![no_main]
 
-// pull in our start-up code
-use cortex_r_rt::entry;
-
-// pull in our library
+use aarch32_cpu::generic_timer::GenericTimer;
+use aarch32_rt::entry;
 use mps3_an536 as _;
-
-use cortex_ar::generic_timer::GenericTimer;
-
 use semihosting::println;
 
 /// The entry-point to the Rust application.
@@ -20,7 +15,7 @@ use semihosting::println;
 fn main() -> ! {
     let mut board = mps3_an536::Board::new().unwrap();
 
-    let cntfrq = cortex_ar::register::Cntfrq::read().0;
+    let cntfrq = aarch32_cpu::register::Cntfrq::read().0;
     println!("cntfrq = {:.03} MHz", cntfrq as f32 / 1_000_000.0);
 
     let delay_ticks = cntfrq / 2;

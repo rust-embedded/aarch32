@@ -3,10 +3,9 @@
 #![no_std]
 #![no_main]
 
-// pull in our start-up code
-use versatileab::rt::entry;
-
+use aarch32_rt::entry;
 use semihosting::println;
+use versatileab as _;
 
 /// The entry-point to the Rust application.
 ///
@@ -21,14 +20,14 @@ fn main() -> ! {
 }
 
 fn chip_info() {
-    println!("{:?}", cortex_ar::register::Midr::read());
-    println!("{:?}", cortex_ar::register::Cpsr::read());
-    println!("{:?}", cortex_ar::register::Mpidr::read());
+    println!("{:?}", aarch32_cpu::register::Midr::read());
+    println!("{:?}", aarch32_cpu::register::Cpsr::read());
+    println!("{:?}", aarch32_cpu::register::Mpidr::read());
 }
 
 #[cfg(arm_architecture = "v7-r")]
 fn mpu_pmsa_v7() {
-    use cortex_ar::{
+    use aarch32_cpu::{
         pmsav7::{CacheablePolicy, Config, MemAttr, Mpu, Region, RegionSize},
         register::Mpuir,
     };
@@ -82,12 +81,12 @@ fn mpu_pmsa_v7() {
 fn test_changing_sctlr() {
     println!(
         "{:?} before setting C, I and Z",
-        cortex_ar::register::Sctlr::read()
+        aarch32_cpu::register::Sctlr::read()
     );
-    cortex_ar::register::Sctlr::modify(|w| {
+    aarch32_cpu::register::Sctlr::modify(|w| {
         w.set_c(true);
         w.set_i(true);
         w.set_z(true);
     });
-    println!("{:?} after", cortex_ar::register::Sctlr::read());
+    println!("{:?} after", aarch32_cpu::register::Sctlr::read());
 }

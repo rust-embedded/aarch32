@@ -3,12 +3,8 @@
 #![no_std]
 #![no_main]
 
-// pull in our start-up code
-use cortex_r_rt::entry;
-
-// pull in our library
+use aarch32_rt::entry;
 use mps3_an536 as _;
-
 use semihosting::println;
 
 /// The entry-point to the Rust application.
@@ -26,20 +22,20 @@ fn main() -> ! {
 }
 
 fn chip_info() {
-    println!("{:?}", cortex_ar::register::Midr::read());
-    println!("{:?}", cortex_ar::register::Cpsr::read());
+    println!("{:?}", aarch32_cpu::register::Midr::read());
+    println!("{:?}", aarch32_cpu::register::Cpsr::read());
     #[cfg(arm_architecture = "v8-r")]
     {
-        println!("{:?}", cortex_ar::register::ImpCbar::read());
-        println!("{:?}", cortex_ar::register::Vbar::read());
+        println!("{:?}", aarch32_cpu::register::ImpCbar::read());
+        println!("{:?}", aarch32_cpu::register::Vbar::read());
         // This only works in EL2 and start-up put us in EL1
-        // println!("{:?}", cortex_ar::register::Hvbar::read());
+        // println!("{:?}", aarch32_cpu::register::Hvbar::read());
     }
 }
 
 #[cfg(arm_architecture = "v7-r")]
 fn mpu_pmsa_v7() {
-    use cortex_ar::{
+    use aarch32_cpu::{
         pmsav7::{CacheablePolicy, Config, MemAttr, Mpu, Region, RegionSize},
         register::Mpuir,
     };
@@ -92,7 +88,7 @@ fn mpu_pmsa_v7() {
 
 #[cfg(arm_architecture = "v8-r")]
 fn mpu_pmsa_v8() {
-    use cortex_ar::{
+    use aarch32_cpu::{
         pmsav8::{
             Cacheable, El1AccessPerms, El1Config, El1Mpu, El1Region, El1Shareability, MemAttr,
             RwAllocPolicy,
@@ -143,12 +139,12 @@ fn mpu_pmsa_v8() {
 fn test_changing_sctlr() {
     println!(
         "{:?} before setting C, I and Z",
-        cortex_ar::register::Sctlr::read()
+        aarch32_cpu::register::Sctlr::read()
     );
-    cortex_ar::register::Sctlr::modify(|w| {
+    aarch32_cpu::register::Sctlr::modify(|w| {
         w.set_c(true);
         w.set_i(true);
         w.set_z(true);
     });
-    println!("{:?} after", cortex_ar::register::Sctlr::read());
+    println!("{:?} after", aarch32_cpu::register::Sctlr::read());
 }

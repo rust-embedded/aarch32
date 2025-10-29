@@ -3,12 +3,12 @@
 #![no_std]
 #![no_main]
 
-use core::sync::atomic::{AtomicU32, Ordering};
-use cortex_ar::register::{Ifar, Ifsr};
-use semihosting::println;
+use portable_atomic::{AtomicU32, Ordering};
 
-// pull in our start-up code
-use versatileab::rt::{entry, exception};
+use aarch32_cpu::register::{Ifar, Ifsr};
+use aarch32_rt::{entry, exception};
+use semihosting::println;
+use versatileab as _;
 
 static COUNTER: AtomicU32 = AtomicU32::new(0);
 
@@ -50,8 +50,8 @@ core::arch::global_asm!(
 );
 
 #[exception(Undefined)]
-fn undefined_handler(_addr: usize) -> ! {
-    panic!("unexpected undefined exception");
+fn undefined_handler(addr: usize) -> ! {
+    panic!("unexpected undefined exception @ {addr:08x}");
 }
 
 #[exception(PrefetchAbort)]
@@ -60,19 +60,27 @@ unsafe fn prefetch_abort_handler(addr: usize) -> usize {
     let ifsr = Ifsr::read();
     println!("IFSR (Fault Status Register): {:?}", ifsr);
     println!("IFSR Status: {:?}", ifsr.status());
-    let ifar = Ifar::read();
-    println!("IFAR (Faulting Address Register): {:?}", ifar);
 
-    if addr == bkpt_from_a32 as usize {
-        println!("caught bkpt_from_a32");
-    } else {
-        println!(
-            "Bad fault address {:08x} is not {:08x}",
-            addr, bkpt_from_a32 as usize
-        );
+    if cfg!(not(any(
+        arm_architecture = "v4t",
+        arm_architecture = "v5te"
+    ))) {
+        let ifar = Ifar::read();
+        println!("IFAR (Faulting Address Register): {:?}", ifar);
+
+        if addr == bkpt_from_a32 as usize {
+            println!("caught bkpt_from_a32");
+        } else {
+            println!(
+                "Bad fault address {:08x} is not {:08x}",
+                addr, bkpt_from_a32 as usize
+            );
+        }
     }
 
-    match COUNTER.fetch_add(1, Ordering::Relaxed) {
+    let counter = COUNTER.load(Ordering::Relaxed);
+    COUNTER.store(counter + 1, Ordering::Relaxed);
+    match counter {
         0 => {
             // first time, huh?
             // go back and do it again
@@ -93,6 +101,6 @@ unsafe fn prefetch_abort_handler(addr: usize) -> usize {
 }
 
 #[exception(DataAbort)]
-fn data_abort_handler(_addr: usize) -> ! {
-    panic!("unexpected data abort exception");
+fn data_abort_handler(addr: usize) -> ! {
+    panic!("unexpected data abort exception @ {addr:08x}");
 }

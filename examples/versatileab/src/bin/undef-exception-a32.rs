@@ -3,11 +3,11 @@
 #![no_std]
 #![no_main]
 
-use core::sync::atomic::{AtomicU32, Ordering};
-use semihosting::println;
+use portable_atomic::{AtomicU32, Ordering};
 
-// pull in our start-up code
-use versatileab::rt::{entry, exception};
+use aarch32_rt::{entry, exception};
+use semihosting::println;
+use versatileab as _;
 
 static COUNTER: AtomicU32 = AtomicU32::new(0);
 
@@ -64,7 +64,9 @@ unsafe fn undefined_handler(addr: usize) -> usize {
         );
     }
 
-    match COUNTER.fetch_add(1, Ordering::Relaxed) {
+    let counter = COUNTER.load(Ordering::Relaxed);
+    COUNTER.store(counter + 1, Ordering::Relaxed);
+    match counter {
         0 => {
             // first time, huh?
             // go back and do it again

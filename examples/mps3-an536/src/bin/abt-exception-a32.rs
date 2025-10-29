@@ -5,14 +5,9 @@
 
 use core::sync::atomic::{AtomicU32, Ordering};
 
-use cortex_ar::register::{Dfar, Dfsr, Sctlr};
-
-// pull in our start-up code
-use cortex_r_rt::{entry, exception};
-
-// pull in our library
+use aarch32_cpu::register::{Dfar, Dfsr, Sctlr};
+use aarch32_rt::{entry, exception};
 use mps3_an536 as _;
-
 use semihosting::println;
 
 #[no_mangle]

@@ -3,15 +3,11 @@
 #![no_std]
 #![no_main]
 
-use core::sync::atomic::{AtomicU32, Ordering::SeqCst};
+use portable_atomic::{AtomicU32, Ordering::SeqCst};
 
-// pull in our start-up code
-use versatileab::{
-    rt::{entry, exception},
-    Pl190,
-};
-
+use aarch32_rt::{entry, exception};
 use semihosting::println;
+use versatileab::Pl190;
 
 static MARKER: AtomicU32 = AtomicU32::new(0);
 
@@ -24,7 +20,7 @@ fn my_main() -> ! {
 
     // Safety: Not in a critical-section
     unsafe {
-        cortex_ar::interrupt::enable();
+        aarch32_cpu::interrupt::enable();
     }
 
     println!("Firing interrupt...");

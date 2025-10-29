@@ -3,12 +3,9 @@
 #![no_std]
 #![no_main]
 
-use arm_gic::{
-    gicv3::{GicCpuInterface, Group, InterruptGroup},
-    IntId,
-};
-use cortex_ar::generic_timer::{El1VirtualTimer, GenericTimer};
-use cortex_r_rt::{entry, irq};
+use aarch32_cpu::generic_timer::{El1VirtualTimer, GenericTimer};
+use aarch32_rt::{entry, irq};
+use arm_gic::gicv3::{GicCpuInterface, Group, InterruptGroup};
 use mps3_an536::VIRTUAL_TIMER_PPI;
 use semihosting::println;
 
@@ -49,13 +46,13 @@ fn main() -> ! {
     println!("Enabling interrupts...");
     dump_cpsr();
     unsafe {
-        cortex_ar::interrupt::enable();
+        aarch32_cpu::interrupt::enable();
     }
     dump_cpsr();
 
     let mut count: u32 = 0;
     loop {
-        cortex_ar::asm::wfi();
+        aarch32_cpu::asm::wfi();
         println!("Main loop wake up {}", count);
         count = count.wrapping_add(1);
 
@@ -67,7 +64,7 @@ fn main() -> ! {
 }
 
 fn dump_cpsr() {
-    let cpsr = cortex_ar::register::Cpsr::read();
+    let cpsr = aarch32_cpu::register::Cpsr::read();
     println!("CPSR: {:?}", cpsr);
 }
 

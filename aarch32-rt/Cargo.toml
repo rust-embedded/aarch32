@@ -1,0 +1,43 @@
+[package]
+authors = [
+    "Jonathan Pallant <jonathan.pallant@ferrous-systems.com>",
+    "The Embedded Devices Working Group Arm Team <arm@teams.rust-embedded.org>"
+]
+categories = [
+    "embedded",
+    "no-std",
+]
+description = "Run-time support for Arm Cortex-R"
+edition = "2021"
+keywords = [
+    "arm",
+    "cortex-r",
+    "embedded",
+    "no-std",
+    "run-time",
+]
+license = "MIT OR Apache-2.0"
+name = "aarch32-rt"
+readme = "README.md"
+repository = "https://github.com/rust-embedded/cortex-ar.git"
+rust-version = "1.83"
+version = "0.1.0"
+
+[dependencies]
+aarch32-cpu = { version = "0.1.0", path = "../aarch32-cpu" }
+aarch32-rt-macros = { path = "../aarch32-rt-macros", version = "=0.1.0" }
+
+[features]
+# Enable the FPU on start-up, even on a soft-float EABI target
+eabi-fpu = []
+# Make the interrupt context store routines save the upper double-precision
+# registers. If your program is using all 32 double-precision registers (e.g.
+# if you have set the `+d32` target feature) then you need to enable this
+# option otherwise important FPU state may be lost when an exception occurs.
+fpu-d32 = []
+
+[build-dependencies]
+arm-targets = { version = "0.3.0", path = "../arm-targets" }
+
+[package.metadata.docs.rs]
+targets = ["armv7r-none-eabihf", "armv7r-none-eabihf", "armv7a-none-eabi"]
