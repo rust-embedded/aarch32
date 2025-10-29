@@ -25,7 +25,7 @@ This crate contains:
 * A driver for the Arm Generic Timer
 
 If you need a driver for the Arm Generic Interrupt Controller, see
-<https://github.com/google/arm-gic>.
+<https://github.com/ArmFirmwareCrates/arm-gic>.
 
 ## Minimum Supported Rust Version (MSRV)
 
