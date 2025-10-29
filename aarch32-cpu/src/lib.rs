@@ -3,7 +3,22 @@
 
 mod critical_section;
 
-#[cfg(any(doc, target_arch = "arm"))]
+#[cfg(any(
+    doc,
+    arm_architecture = "v7-a",
+    arm_architecture = "v7-r",
+    arm_architecture = "v8-r"
+))]
+#[path = "asmv7.rs"]
+pub mod asm;
+
+#[cfg(not(any(
+    doc,
+    arm_architecture = "v7-a",
+    arm_architecture = "v7-r",
+    arm_architecture = "v8-r"
+)))]
+#[path = "asmv4.rs"]
 pub mod asm;
 
 pub mod cache;

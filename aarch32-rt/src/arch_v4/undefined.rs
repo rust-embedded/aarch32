@@ -12,6 +12,7 @@ core::arch::global_asm!(
     // or
     // `extern "C" fn _undefined_handler(addr: usize) -> !;`
     .section .text._asm_default_undefined_handler
+    .arm
     .global _asm_default_undefined_handler
     .type _asm_default_undefined_handler, %function
     _asm_default_undefined_handler:

@@ -223,7 +223,11 @@ pub trait SysRegRead: SysReg {
     ///
     /// You need to read the Architecture Reference Manual because this read
     /// may have side-effects.
-    #[inline]
+    #[cfg_attr(not(feature = "check-asm"), inline)]
+    #[cfg_attr(
+        any(arm_architecture = "v4t", arm_architecture = "v5te"),
+        instruction_set(arm::a32)
+    )]
     unsafe fn read_raw() -> u32 {
         let r: u32;
         #[cfg(target_arch = "arm")]
@@ -255,7 +259,11 @@ pub trait SysRegWrite: SysReg {
     ///
     /// You need to read the Architecture Reference Manual to verify that you are
     /// writing valid data here.
-    #[inline]
+    #[cfg_attr(not(feature = "check-asm"), inline)]
+    #[cfg_attr(
+        any(arm_architecture = "v4t", arm_architecture = "v5te"),
+        instruction_set(arm::a32)
+    )]
     unsafe fn write_raw(_value: u32) {
         #[cfg(target_arch = "arm")]
         unsafe {

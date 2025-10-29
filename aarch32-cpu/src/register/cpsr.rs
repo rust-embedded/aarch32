@@ -70,7 +70,14 @@ pub struct Cpsr {
 
 impl Cpsr {
     /// Read CPSR (*Current Program Status Register*)
-    #[inline]
+    ///
+    /// On Armv4T and Armv5TE this will be an Arm function, even on the
+    /// `thumb*` targets, as Thumb-1 cannot do an MRS.
+    #[cfg_attr(not(feature = "check-asm"), inline)]
+    #[cfg_attr(
+        any(arm_architecture = "v4t", arm_architecture = "v5te"),
+        instruction_set(arm::a32)
+    )]
     pub fn read() -> Self {
         let r: u32;
         // Safety: Reading this register has no side-effects and is atomic
@@ -96,7 +103,14 @@ impl Cpsr {
     ///
     /// You almost certainly want to follow this with an [ISB](crate::asm::isb)
     /// instruction.
-    #[inline]
+    ///
+    /// On Armv4T and Armv5TE this will be an Arm function, even on the
+    /// `thumb*` targets, as Thumb-1 cannot do an MSR.
+    #[cfg_attr(not(feature = "check-asm"), inline)]
+    #[cfg_attr(
+        any(arm_architecture = "v4t", arm_architecture = "v5te"),
+        instruction_set(arm::a32)
+    )]
     pub unsafe fn write(_value: Self) {
         // Safety: This is risky, but we're in an unsafe function
         #[cfg(target_arch = "arm")]

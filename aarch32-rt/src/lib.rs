@@ -491,6 +491,7 @@ pub extern "C" fn _default_handler() {
 core::arch::global_asm!(
     r#"
     .section .vector_table,"ax",%progbits
+    .arm
     .global _vector_table
     .type _vector_table, %function
     _vector_table:
@@ -776,6 +777,7 @@ core::arch::global_asm!(
     // Initialises stacks, .data and .bss
     .section .text._init_segments
     .global _init_segments
+    .arm
     .type _init_segments, %function
     _init_segments:
         // Initialise .bss
@@ -862,6 +864,7 @@ core::arch::global_asm!(
     .fpu vfp2
 
     .section .text.default_start
+    .arm
     .global _default_start
     .type _default_start, %function
     _default_start:
@@ -908,7 +911,7 @@ core::arch::global_asm!(
     .fpu vfp2
 
     .section .text.default_start
-
+    .arm
     .global _default_start
     .type _default_start, %function
     _default_start:

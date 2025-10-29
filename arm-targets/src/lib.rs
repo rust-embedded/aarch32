@@ -133,15 +133,15 @@ pub enum Isa {
 impl Isa {
     /// Decode a target string
     pub fn get(target: &str) -> Option<Isa> {
-        let arch = Arch::get(target)?;
-        Some(match arch {
-            Arch::Armv4T | Arch::Armv5TE | Arch::Armv6 => Isa::A32,
-            Arch::Armv6M | Arch::Armv7M | Arch::Armv7EM | Arch::Armv8MBase | Arch::Armv8MMain => {
-                Isa::T32
-            }
-            Arch::Armv7R | Arch::Armv8R | Arch::Armv7A => Isa::A32,
-            Arch::Armv8A => Isa::A64,
-        })
+        if target.starts_with("arm") {
+            Some(Isa::A32)
+        } else if target.starts_with("thumb") {
+            Some(Isa::T32)
+        } else if target.starts_with("aarch64") {
+            Some(Isa::A64)
+        } else {
+            None
+        }
     }
 
     /// Get a comma-separated list of values, suitable for cfg-check
@@ -202,9 +202,9 @@ pub enum Arch {
 impl Arch {
     /// Decode a target string
     pub fn get(target: &str) -> Option<Arch> {
-        if target.starts_with("armv4t-") {
+        if target.starts_with("armv4t-") || target.starts_with("thumbv4t-") {
             Some(Arch::Armv4T)
-        } else if target.starts_with("armv5te-") {
+        } else if target.starts_with("armv5te-") || target.starts_with("thumbv5te-") {
             Some(Arch::Armv5TE)
         } else if target.starts_with("thumbv6m-") {
             Some(Arch::Armv6M)
