@@ -18,10 +18,11 @@ version = "0.0.0"
 [dependencies]
 aarch32-cpu = { path = "../../aarch32-cpu", features = ["critical-section-single-core"] }
 aarch32-rt = { path = "../../aarch32-rt" }
-semihosting = { version = "0.1.18", features = ["stdio"] }
-libm = "0.2.15"
 derive-mmio = "0.6.1"
+libm = "0.2.15"
+pl190-vic = "0.1.0"
 portable-atomic = { version = "1.11.1", features = ["critical-section"] }
+semihosting = { version = "0.1.18", features = ["stdio"] }
 
 [build-dependencies]
 arm-targets = { version = "0.3.0", path = "../../arm-targets" }

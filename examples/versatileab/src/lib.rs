@@ -2,10 +2,8 @@
 
 #![no_std]
 
-mod pl190;
-
-#[doc(inline)]
-pub use pl190::Pl190;
+/// The base address of our PL190 interrupt controller
+pub const PL190_BASE_ADDRESS: usize = 0x1014_0000;
 
 #[cfg(arm_architecture = "v8-r")]
 compile_error!("This example/board is not compatible with the ARMv8-R architecture");
