@@ -27,6 +27,3 @@ runner = "qemu-system-arm -machine versatileab -cpu arm926 -semihosting -nograph
 
 [target.thumbv4t-none-eabi]
 runner = "qemu-system-arm -machine versatileab -cpu pxa250 -semihosting -nographic -audio none -kernel"
-
-[unstable]
-build-std = ["core", "alloc"]
