@@ -17,6 +17,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-rt-macros-v0.1.1...HEAD
-[cortex-ar-rt-macros v0.1.1]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-rt-macros-v0.1.0...cortex-ar-rt-macros-v0.1.1
-[cortex-ar-rt-macros v0.1.0]: https://github.com/rust-embedded/cortex-ar/releases/tag/cortex-ar-rt-macros-v0.1.0
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-rt-macros-v0.1.1...HEAD
+[cortex-ar-rt-macros v0.1.1]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-rt-macros-v0.1.0...cortex-ar-rt-macros-v0.1.1
+[cortex-ar-rt-macros v0.1.0]: https://github.com/rust-embedded/aarch32/releases/tag/cortex-ar-rt-macros-v0.1.0

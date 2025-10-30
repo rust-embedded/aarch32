@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/arm-targets-v0.3.0...HEAD
-[v0.3.0]: https://github.com/rust-embedded/cortex-ar/compare/arm-targets-v0.2.0...arm-targets-v0.3.0
-[v0.2.0]: https://github.com/rust-embedded/cortex-ar/compare/arm-targets-v0.1.0...arm-targets-v0.2.0
-[v0.1.0]: https://github.com/rust-embedded/cortex-ar/releases/tag/arm-targets-v0.1.0
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.3.0...HEAD
+[v0.3.0]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.2.0...arm-targets-v0.3.0
+[v0.2.0]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.1.0...arm-targets-v0.2.0
+[v0.1.0]: https://github.com/rust-embedded/aarch32/releases/tag/arm-targets-v0.1.0
