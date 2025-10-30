@@ -7,9 +7,11 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 /// There is no `modify` method because this register holds a single 32-bit address.
 ///
 /// This is only available in EL2.
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(transparent)]
-pub struct Hvbar(*mut u32);
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct Hvbar(pub u32);
 
 impl SysReg for Hvbar {
     const CP: u32 = 15;
@@ -28,7 +30,7 @@ impl Hvbar {
     #[inline]
     pub fn read() -> Hvbar {
         // Safety: Reading this register has no side-effects and is atomic
-        unsafe { Self(<Self as SysRegRead>::read_raw() as *mut u32) }
+        unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 
     /// Write HVBAR (*Hyp Vector Base Address Register*)
@@ -43,18 +45,5 @@ impl Hvbar {
         unsafe {
             <Self as SysRegWrite>::write_raw(value.0 as u32);
         }
-    }
-}
-
-impl core::fmt::Debug for Hvbar {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "HVBAR {{ {:010p} }}", self.0)
-    }
-}
-
-#[cfg(feature = "defmt")]
-impl defmt::Format for Hvbar {
-    fn format(&self, f: defmt::Formatter) {
-        defmt::write!(f, "HVBAR {{ 0x{=usize:08x} }}", self.0 as usize)
     }
 }

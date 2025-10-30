@@ -56,7 +56,7 @@ impl Mpu {
             return None;
         }
         register::Rgnr::write(register::Rgnr(idx as u32));
-        let base = register::Irbar::read().0;
+        let base = register::Irbar::read().0 as *mut u8;
         let rsr = register::Irsr::read();
         let racr = register::Iracr::read();
 
@@ -85,7 +85,7 @@ impl Mpu {
             return None;
         }
         register::Rgnr::write(register::Rgnr(idx as u32));
-        let base = register::Drbar::read().0;
+        let base = register::Drbar::read().0 as *mut u8;
         let rsr = register::Drsr::read();
         let racr = register::Dracr::read();
 
@@ -120,7 +120,7 @@ impl Mpu {
             if !region.size.is_aligned(region.base) {
                 return Err(Error::UnalignedRegion(region.base));
             }
-            register::Irbar::write(register::Irbar(region.base));
+            register::Irbar::write(register::Irbar(region.base as u32));
             register::Irsr::write({
                 let mut out = register::Irsr::new_with_raw_value(0);
                 out.set_enabled(region.enabled);
@@ -145,7 +145,7 @@ impl Mpu {
                 return Err(Error::UnalignedRegion(region.base));
             }
             register::Rgnr::write(register::Rgnr(idx as u32));
-            register::Drbar::write(register::Drbar(region.base));
+            register::Drbar::write(register::Drbar(region.base as u32));
             register::Drsr::write({
                 let mut out = register::Drsr::new_with_raw_value(0);
                 out.set_enabled(region.enabled);
