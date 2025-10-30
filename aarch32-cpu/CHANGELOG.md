@@ -54,7 +54,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-v0.3.0...HEAD
-[cortex-ar v0.3.0]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-v0.2.0...cortex-ar-v0.3.0
-[cortex-ar v0.2.0]: https://github.com/rust-embedded/cortex-ar/compare/cortex-ar-v0.1.0...cortex-ar-v0.2.0
-[cortex-ar v0.1.0]: https://github.com/rust-embedded/cortex-ar/releases/tag/cortex-ar-v0.1.0
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-v0.3.0...HEAD
+[cortex-ar v0.3.0]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-v0.2.0...cortex-ar-v0.3.0
+[cortex-ar v0.2.0]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-v0.1.0...cortex-ar-v0.2.0
+[cortex-ar v0.1.0]: https://github.com/rust-embedded/aarch32/releases/tag/cortex-ar-v0.1.0

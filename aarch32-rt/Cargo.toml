@@ -19,7 +19,7 @@ keywords = [
 license = "MIT OR Apache-2.0"
 name = "aarch32-rt"
 readme = "README.md"
-repository = "https://github.com/rust-embedded/cortex-ar.git"
+repository = "https://github.com/rust-embedded/aarch32.git"
 rust-version = "1.83"
 version = "0.1.0"
 

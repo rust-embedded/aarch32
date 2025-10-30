@@ -6,12 +6,12 @@ authors = [
 default-run = "hello"
 description = "Examples for MPS3-AN536 device (Arm Cortex-R52)"
 edition = "2021"
-homepage = "https://github.com/rust-embedded/cortex-ar.git"
+homepage = "https://github.com/rust-embedded/aarch32"
 license = "MIT OR Apache-2.0"
 name = "mps3-an536"
 publish = false
 readme = "README.md"
-repository = "https://github.com/rust-embedded/cortex-ar.git"
+repository = "https://github.com/rust-embedded/aarch32.git"
 rust-version = "1.83"
 version = "0.0.0"
 

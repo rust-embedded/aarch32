@@ -443,7 +443,7 @@
 //! ## Examples
 //!
 //! You can find example code using QEMU inside the [project
-//! repository](https://github.com/rust-embedded/cortex-ar/tree/main/examples)
+//! repository](https://github.com/rust-embedded/aarch32/tree/main/examples)
 
 #![no_std]
 
