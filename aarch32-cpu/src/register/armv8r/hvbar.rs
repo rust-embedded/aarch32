@@ -35,7 +35,7 @@ impl Hvbar {
     ///
     /// # Safety
     ///
-    /// You must supply a correctly-aligned address of a valid Arm Cortex-R
+    /// You must supply a correctly-aligned address of a valid Arm AArch32
     /// Vector Table.
     #[inline]
     pub unsafe fn write(value: Self) {

@@ -1,4 +1,4 @@
-//! Simple assembly routines
+//! Simple assembly routines for ARMv7
 
 /// Data Memory Barrier
 ///
@@ -6,11 +6,6 @@
 /// instruction are observed before any explicit memory accesses that appear in program order
 /// after the `DMB` instruction.
 #[cfg_attr(not(feature = "check-asm"), inline)]
-#[cfg(any(
-    arm_architecture = "v7-r",
-    arm_architecture = "v7-a",
-    arm_architecture = "v8-r"
-))]
 pub fn dmb() {
     use core::sync::atomic::{compiler_fence, Ordering};
     compiler_fence(Ordering::SeqCst);
@@ -28,11 +23,6 @@ pub fn dmb() {
 ///  * any explicit memory access made before this instruction is complete
 ///  * all cache and branch predictor maintenance operations before this instruction complete
 #[cfg_attr(not(feature = "check-asm"), inline)]
-#[cfg(any(
-    arm_architecture = "v7-r",
-    arm_architecture = "v7-a",
-    arm_architecture = "v8-r"
-))]
 pub fn dsb() {
     use core::sync::atomic::{compiler_fence, Ordering};
     compiler_fence(Ordering::SeqCst);
@@ -47,11 +37,6 @@ pub fn dsb() {
 /// Flushes the pipeline in the processor, so that all instructions following the `ISB` are fetched
 /// from cache or memory, after the instruction has been completed.
 #[cfg_attr(not(feature = "check-asm"), inline)]
-#[cfg(any(
-    arm_architecture = "v7-r",
-    arm_architecture = "v7-a",
-    arm_architecture = "v8-r"
-))]
 pub fn isb() {
     use core::sync::atomic::{compiler_fence, Ordering};
     compiler_fence(Ordering::SeqCst);
@@ -69,36 +54,37 @@ pub fn nop() {
 
 /// Emit an WFI instruction
 #[cfg_attr(not(feature = "check-asm"), inline)]
-#[cfg(any(
-    arm_architecture = "v7-r",
-    arm_architecture = "v7-a",
-    arm_architecture = "v8-r"
-))]
 pub fn wfi() {
     unsafe { core::arch::asm!("wfi", options(nomem, nostack, preserves_flags)) }
 }
 
 /// Emit an WFE instruction
 #[cfg_attr(not(feature = "check-asm"), inline)]
-#[cfg(any(
-    arm_architecture = "v7-r",
-    arm_architecture = "v7-a",
-    arm_architecture = "v8-r"
-))]
 pub fn wfe() {
     unsafe { core::arch::asm!("wfe", options(nomem, nostack, preserves_flags)) }
 }
 
 /// Emit an SEV instruction
 #[cfg_attr(not(feature = "check-asm"), inline)]
-#[cfg(any(
-    arm_architecture = "v7-r",
-    arm_architecture = "v7-a",
-    arm_architecture = "v8-r"
-))]
 pub fn sev() {
     unsafe {
         core::arch::asm!("sev");
+    }
+}
+
+/// Mask IRQ
+#[cfg_attr(not(feature = "check-asm"), inline)]
+pub fn irq_disable() {
+    unsafe {
+        core::arch::asm!("cpsid i");
+    }
+}
+
+/// Unmask IRQ
+#[cfg_attr(not(feature = "check-asm"), inline)]
+pub fn irq_enable() {
+    unsafe {
+        core::arch::asm!("cpsie i");
     }
 }
 
@@ -112,13 +98,4 @@ pub fn core_id() -> u32 {
         core::arch::asm!("MRC p15, 0, {}, c0, c0, 5", out(reg) r, options(nomem, nostack, preserves_flags));
     }
     r & 0x00FF_FFFF
-}
-
-#[cfg(any(arm_architecture = "v4t", arm_architecture = "v5te"))]
-#[no_mangle]
-pub extern "C" fn __sync_synchronize() {
-    // we don't have a barrier instruction - the linux kernel just uses an empty inline asm block
-    unsafe {
-        core::arch::asm!("");
-    }
 }

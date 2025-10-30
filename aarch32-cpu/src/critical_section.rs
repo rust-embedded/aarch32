@@ -1,4 +1,4 @@
-//! Code that implements the `critical-section` traits on Cortex-R or Cortex-A
+//! Code that implements the `critical-section` traits on AArch32
 //!
 //! We have single-core and multi-core versions. Select with the
 //! `critical-section-single-core` and `critical-section-multi-core` features.

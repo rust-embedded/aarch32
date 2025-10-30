@@ -100,6 +100,15 @@ for bin_path in $(ls examples/versatileab/src/bin/*.rs); do
     my_diff ./examples/versatileab/reference/$binary-armv5te-none-eabi.out ./target/$binary-armv5te-none-eabi.out || fail $binary "armv5te-none-eabi"
 done
 
+# thumbv5te-none-eabi tests
+RUSTC_BOOTSTRAP=1 cargo build ${versatile_ab_cargo} --target=thumbv5te-none-eabi
+for bin_path in $(ls examples/versatileab/src/bin/*.rs); do
+    filename=${bin_path##*/}
+    binary=${filename%.rs}
+    RUSTC_BOOTSTRAP=1 cargo run ${versatile_ab_cargo} --target=thumbv5te-none-eabi --bin $binary > ./target/$binary-thumbv5te-none-eabi.out
+    my_diff ./examples/versatileab/reference/$binary-thumbv5te-none-eabi.out ./target/$binary-thumbv5te-none-eabi.out || fail $binary "thumbv5te-none-eabi"
+done
+
 # armv4t-none-eabi tests
 RUSTC_BOOTSTRAP=1 cargo build ${versatile_ab_cargo} --target=armv4t-none-eabi
 for bin_path in $(ls examples/versatileab/src/bin/*.rs); do
@@ -107,6 +116,15 @@ for bin_path in $(ls examples/versatileab/src/bin/*.rs); do
     binary=${filename%.rs}
     RUSTC_BOOTSTRAP=1 cargo run ${versatile_ab_cargo} --target=armv4t-none-eabi --bin $binary > ./target/$binary-armv4t-none-eabi.out
     my_diff ./examples/versatileab/reference/$binary-armv4t-none-eabi.out ./target/$binary-armv4t-none-eabi.out || fail $binary "armv4t-none-eabi"
+done
+
+# thumbv4t-none-eabi tests
+RUSTC_BOOTSTRAP=1 cargo build ${versatile_ab_cargo} --target=thumbv4t-none-eabi
+for bin_path in $(ls examples/versatileab/src/bin/*.rs); do
+    filename=${bin_path##*/}
+    binary=${filename%.rs}
+    RUSTC_BOOTSTRAP=1 cargo run ${versatile_ab_cargo} --target=thumbv4t-none-eabi --bin $binary > ./target/$binary-thumbv4t-none-eabi.out
+    my_diff ./examples/versatileab/reference/$binary-thumbv4t-none-eabi.out ./target/$binary-thumbv4t-none-eabi.out || fail $binary "thumbv4t-none-eabi"
 done
 
 # These tests only run on QEMU 9 or higher.

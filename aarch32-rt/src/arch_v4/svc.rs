@@ -12,6 +12,7 @@ core::arch::global_asm!(
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _svc_handler(svc: u32);`
     .global _asm_default_svc_handler
+    .arm
     .type _asm_default_svc_handler, %function
     _asm_default_svc_handler:
         stmfd   sp!, {{ r0, lr }}

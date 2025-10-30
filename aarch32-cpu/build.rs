@@ -1,4 +1,4 @@
-//! # Build script for the Cortex-R library
+//! # Build script for the aarch32-cpu library
 //!
 //! This script only executes when using `cargo` to build the project.
 //!

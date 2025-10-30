@@ -14,6 +14,7 @@ core::arch::global_asm!(
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _irq_handler();`
     .global _asm_default_irq_handler
+    .arm
     .type _asm_default_irq_handler, %function
     _asm_default_irq_handler:
         // make sure we jump back to the right place

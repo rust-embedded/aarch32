@@ -1,4 +1,4 @@
-//! GIC example to implement Priority Ceilings for Arm Cortex-R52 on an MPS2-AN336
+//! GIC example to implement Priority Ceilings for Arm Cortex-R52 on an MPS2-AN536
 
 #![no_std]
 #![no_main]
@@ -21,7 +21,7 @@ const HIGH_PRIORITY: u8 = 0x10;
 
 /// The entry-point to the Rust application.
 ///
-/// It is called by the start-up code in `cortex-r-rt`.
+/// It is called by the start-up code in `aarch32-rt`.
 #[entry]
 fn main() -> ! {
     let mut board = mps3_an536::Board::new().unwrap();

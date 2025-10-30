@@ -1,4 +1,4 @@
-//! # Build script for the Cortex-R Examples
+//! # Build script for the VersatileAB Examples
 //!
 //! This script only executes when using `cargo` to build the project.
 //!
