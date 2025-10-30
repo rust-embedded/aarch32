@@ -18,7 +18,9 @@ impl SysReg for Hmpuir {
     const CRM: u32 = 0;
     const OP2: u32 = 4;
 }
+
 impl crate::register::SysRegRead for Hmpuir {}
+
 impl Hmpuir {
     #[inline]
     /// Reads HMPUIR (*Hyp MPU Type Register*)

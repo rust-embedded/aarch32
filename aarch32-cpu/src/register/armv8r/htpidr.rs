@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Htpidr(pub u32);
+
 impl SysReg for Htpidr {
     const CP: u32 = 15;
     const CRN: u32 = 13;
@@ -14,7 +15,9 @@ impl SysReg for Htpidr {
     const CRM: u32 = 0;
     const OP2: u32 = 2;
 }
+
 impl crate::register::SysRegRead for Htpidr {}
+
 impl Htpidr {
     #[inline]
     /// Reads HTPIDR (*Hyp Software Thread ID Register*)
@@ -22,7 +25,9 @@ impl Htpidr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Htpidr {}
+
 impl Htpidr {
     #[inline]
     /// Writes HTPIDR (*Hyp Software Thread ID Register*)

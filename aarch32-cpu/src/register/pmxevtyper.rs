@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pmxevtyper(pub u32);
+
 impl SysReg for Pmxevtyper {
     const CP: u32 = 15;
     const CRN: u32 = 9;
@@ -14,7 +15,9 @@ impl SysReg for Pmxevtyper {
     const CRM: u32 = 13;
     const OP2: u32 = 1;
 }
+
 impl crate::register::SysRegRead for Pmxevtyper {}
+
 impl Pmxevtyper {
     #[inline]
     /// Reads PMXEVTYPER (*Performance Monitors Selected Event Type Register*)
@@ -22,7 +25,9 @@ impl Pmxevtyper {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Pmxevtyper {}
+
 impl Pmxevtyper {
     #[inline]
     /// Writes PMXEVTYPER (*Performance Monitors Selected Event Type Register*)

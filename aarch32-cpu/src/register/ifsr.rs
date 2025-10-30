@@ -58,7 +58,9 @@ impl SysReg for Ifsr {
     const CRM: u32 = 0;
     const OP2: u32 = 1;
 }
+
 impl crate::register::SysRegRead for Ifsr {}
+
 impl Ifsr {
     #[inline]
     /// Reads IFSR (*Instruction Fault Status Register*)
@@ -66,7 +68,9 @@ impl Ifsr {
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Ifsr {}
+
 impl Ifsr {
     #[inline]
     /// Writes IFSR (*Instruction Fault Status Register*)

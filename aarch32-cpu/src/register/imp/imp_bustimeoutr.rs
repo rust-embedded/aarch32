@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpBustimeoutr(pub u32);
+
 impl SysReg for ImpBustimeoutr {
     const CP: u32 = 15;
     const CRN: u32 = 15;
@@ -14,7 +15,9 @@ impl SysReg for ImpBustimeoutr {
     const CRM: u32 = 3;
     const OP2: u32 = 2;
 }
+
 impl crate::register::SysRegRead for ImpBustimeoutr {}
+
 impl ImpBustimeoutr {
     #[inline]
     /// Reads IMP_BUSTIMEOUTR (*Bus Timeout Register*)
@@ -22,7 +25,9 @@ impl ImpBustimeoutr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for ImpBustimeoutr {}
+
 impl ImpBustimeoutr {
     #[inline]
     /// Writes IMP_BUSTIMEOUTR (*Bus Timeout Register*)

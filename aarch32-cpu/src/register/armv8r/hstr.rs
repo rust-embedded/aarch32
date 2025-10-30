@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Hstr(pub u32);
+
 impl SysReg for Hstr {
     const CP: u32 = 15;
     const CRN: u32 = 1;
@@ -14,7 +15,9 @@ impl SysReg for Hstr {
     const CRM: u32 = 1;
     const OP2: u32 = 3;
 }
+
 impl crate::register::SysRegRead for Hstr {}
+
 impl Hstr {
     #[inline]
     /// Reads HSTR (*Hyp System Trap Register*)
@@ -22,7 +25,9 @@ impl Hstr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Hstr {}
+
 impl Hstr {
     #[inline]
     /// Writes HSTR (*Hyp System Trap Register*)

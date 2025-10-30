@@ -37,6 +37,7 @@ impl SysReg for CntpCtl {
     const CRM: u32 = 2;
     const OP2: u32 = 1;
 }
+
 impl SysRegRead for CntpCtl {}
 
 impl CntpCtl {

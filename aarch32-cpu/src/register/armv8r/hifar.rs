@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Hifar(pub u32);
+
 impl SysReg for Hifar {
     const CP: u32 = 15;
     const CRN: u32 = 6;
@@ -14,7 +15,9 @@ impl SysReg for Hifar {
     const CRM: u32 = 0;
     const OP2: u32 = 2;
 }
+
 impl crate::register::SysRegRead for Hifar {}
+
 impl Hifar {
     #[inline]
     /// Reads HIFAR (*Hyp Instruction Fault Address Register*)
@@ -22,7 +25,9 @@ impl Hifar {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Hifar {}
+
 impl Hifar {
     #[inline]
     /// Writes HIFAR (*Hyp Instruction Fault Address Register*)

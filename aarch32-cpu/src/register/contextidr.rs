@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Contextidr(pub u32);
+
 impl SysReg for Contextidr {
     const CP: u32 = 15;
     const CRN: u32 = 13;
@@ -14,7 +15,9 @@ impl SysReg for Contextidr {
     const CRM: u32 = 0;
     const OP2: u32 = 1;
 }
+
 impl crate::register::SysRegRead for Contextidr {}
+
 impl Contextidr {
     #[inline]
     /// Reads CONTEXTIDR (*Context ID Register*)
@@ -22,7 +25,9 @@ impl Contextidr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Contextidr {}
+
 impl Contextidr {
     #[inline]
     /// Writes CONTEXTIDR (*Context ID Register*)

@@ -31,7 +31,9 @@ impl SysReg for Csselr {
     const CRM: u32 = 0;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for Csselr {}
+
 impl Csselr {
     #[inline]
     /// Reads CSSELR (*Cache Size Selection Register*)
@@ -39,7 +41,9 @@ impl Csselr {
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Csselr {}
+
 impl Csselr {
     #[inline]
     /// Writes CSSELR (*Cache Size Selection Register*)

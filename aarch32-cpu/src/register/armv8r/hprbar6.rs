@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Hprbar6(pub u32);
+
 impl SysReg for Hprbar6 {
     const CP: u32 = 15;
     const CRN: u32 = 6;
@@ -14,7 +15,9 @@ impl SysReg for Hprbar6 {
     const CRM: u32 = 11;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for Hprbar6 {}
+
 impl Hprbar6 {
     #[inline]
     /// Reads HPRBAR6 (*Hyp Protection Region Base Address Register 6*)
@@ -22,7 +25,9 @@ impl Hprbar6 {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Hprbar6 {}
+
 impl Hprbar6 {
     #[inline]
     /// Writes HPRBAR6 (*Hyp Protection Region Base Address Register 6*)

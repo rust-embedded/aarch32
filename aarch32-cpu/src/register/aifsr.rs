@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Aifsr(pub u32);
+
 impl SysReg for Aifsr {
     const CP: u32 = 15;
     const CRN: u32 = 5;
@@ -14,7 +15,9 @@ impl SysReg for Aifsr {
     const CRM: u32 = 1;
     const OP2: u32 = 1;
 }
+
 impl crate::register::SysRegRead for Aifsr {}
+
 impl Aifsr {
     #[inline]
     /// Reads AIFSR (*Auxiliary Instruction Fault Status Register*)
@@ -22,7 +25,9 @@ impl Aifsr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Aifsr {}
+
 impl Aifsr {
     #[inline]
     /// Writes AIFSR (*Auxiliary Instruction Fault Status Register*)

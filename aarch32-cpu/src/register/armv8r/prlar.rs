@@ -25,7 +25,9 @@ impl SysReg for Prlar {
     const CRM: u32 = 3;
     const OP2: u32 = 1;
 }
+
 impl crate::register::SysRegRead for Prlar {}
+
 impl Prlar {
     #[inline]
     /// Reads PRLAR (*Protection Region Limit Address Register*)
@@ -33,7 +35,9 @@ impl Prlar {
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Prlar {}
+
 impl Prlar {
     #[inline]
     /// Writes PRLAR (*Protection Region Limit Address Register*)

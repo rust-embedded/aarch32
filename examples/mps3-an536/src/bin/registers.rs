@@ -22,12 +22,12 @@ fn main() -> ! {
 }
 
 fn chip_info() {
-    println!("{:?}", aarch32_cpu::register::Midr::read());
-    println!("{:?}", aarch32_cpu::register::Cpsr::read());
+    println!("{:x?}", aarch32_cpu::register::Midr::read());
+    println!("{:x?}", aarch32_cpu::register::Cpsr::read());
     #[cfg(arm_architecture = "v8-r")]
     {
-        println!("{:?}", aarch32_cpu::register::ImpCbar::read());
-        println!("{:?}", aarch32_cpu::register::Vbar::read());
+        println!("{:x?}", aarch32_cpu::register::ImpCbar::read());
+        println!("{:x?}", aarch32_cpu::register::Vbar::read());
         // This only works in EL2 and start-up put us in EL1
         // println!("{:?}", aarch32_cpu::register::Hvbar::read());
     }

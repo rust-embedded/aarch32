@@ -39,6 +39,7 @@ impl Dcisw {
         Self(super::dc_sw_ops::new_with_offsets(a, way, n, set, level))
     }
 }
+
 impl SysReg for Dcisw {
     const CP: u32 = 15;
     const CRN: u32 = 7;

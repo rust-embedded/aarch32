@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct IccPmr(pub u32);
+
 impl SysReg for IccPmr {
     const CP: u32 = 15;
     const CRN: u32 = 4;
@@ -14,7 +15,9 @@ impl SysReg for IccPmr {
     const CRM: u32 = 6;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for IccPmr {}
+
 impl IccPmr {
     #[inline]
     /// Reads ICC_PMR (*Interrupt Controller Interrupt Priority Mask Register*)
@@ -22,7 +25,9 @@ impl IccPmr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for IccPmr {}
+
 impl IccPmr {
     #[inline]
     /// Writes ICC_PMR (*Interrupt Controller Interrupt Priority Mask Register*)

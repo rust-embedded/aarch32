@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Pmovsset(pub u32);
+
 impl SysReg for Pmovsset {
     const CP: u32 = 15;
     const CRN: u32 = 9;
@@ -14,7 +15,9 @@ impl SysReg for Pmovsset {
     const CRM: u32 = 14;
     const OP2: u32 = 3;
 }
+
 impl crate::register::SysRegRead for Pmovsset {}
+
 impl Pmovsset {
     #[inline]
     /// Reads PMOVSSET (*Performance Monitor Overflow Flag Status Set Register*)
@@ -22,7 +25,9 @@ impl Pmovsset {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Pmovsset {}
+
 impl Pmovsset {
     #[inline]
     /// Writes PMOVSSET (*Performance Monitor Overflow Flag Status Set Register*)

@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpPinoptr(pub u32);
+
 impl SysReg for ImpPinoptr {
     const CP: u32 = 15;
     const CRN: u32 = 15;
@@ -14,7 +15,9 @@ impl SysReg for ImpPinoptr {
     const CRM: u32 = 2;
     const OP2: u32 = 7;
 }
+
 impl crate::register::SysRegRead for ImpPinoptr {}
+
 impl ImpPinoptr {
     #[inline]
     /// Reads IMP_PINOPTR (*Pin Options Register*)

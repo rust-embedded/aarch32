@@ -20,9 +20,9 @@ fn main() -> ! {
 }
 
 fn chip_info() {
-    println!("{:?}", aarch32_cpu::register::Midr::read());
-    println!("{:?}", aarch32_cpu::register::Cpsr::read());
-    println!("{:?}", aarch32_cpu::register::Mpidr::read());
+    println!("{:x?}", aarch32_cpu::register::Midr::read());
+    println!("{:x?}", aarch32_cpu::register::Cpsr::read());
+    println!("{:x?}", aarch32_cpu::register::Mpidr::read());
 }
 
 #[cfg(arm_architecture = "v7-r")]

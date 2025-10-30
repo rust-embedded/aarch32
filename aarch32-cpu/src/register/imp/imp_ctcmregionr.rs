@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ImpCtcmregionr(pub u32);
+
 impl SysReg for ImpCtcmregionr {
     const CP: u32 = 15;
     const CRN: u32 = 9;
@@ -14,7 +15,9 @@ impl SysReg for ImpCtcmregionr {
     const CRM: u32 = 1;
     const OP2: u32 = 2;
 }
+
 impl crate::register::SysRegRead for ImpCtcmregionr {}
+
 impl ImpCtcmregionr {
     #[inline]
     /// Reads IMP_CTCMREGIONR (*TCM Region Registers A B and C*)
@@ -22,7 +25,9 @@ impl ImpCtcmregionr {
         unsafe { Self(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for ImpCtcmregionr {}
+
 impl ImpCtcmregionr {
     #[inline]
     /// Writes IMP_CTCMREGIONR (*TCM Region Registers A B and C*)

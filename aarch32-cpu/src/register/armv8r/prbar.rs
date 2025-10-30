@@ -60,7 +60,9 @@ impl SysReg for Prbar {
     const CRM: u32 = 3;
     const OP2: u32 = 0;
 }
+
 impl crate::register::SysRegRead for Prbar {}
+
 impl Prbar {
     #[inline]
     /// Reads PRBAR (*Protection Region Base Address Register*)
@@ -68,7 +70,9 @@ impl Prbar {
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
+
 impl crate::register::SysRegWrite for Prbar {}
+
 impl Prbar {
     #[inline]
     /// Writes PRBAR (*Protection Region Base Address Register*)
