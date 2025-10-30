@@ -16,15 +16,13 @@ jobs:
           echo 'rust_versions={"rust": ["stable", "1.83"]}' >> "$GITHUB_OUTPUT"
 
   # Build the workspace for a target architecture
-  build:
+  build-tier2:
     runs-on: ubuntu-24.04
     needs: setup
     strategy:
       matrix:
         rust: ${{ fromJSON(needs.setup.outputs.matrix).rust }}
         target:
-          - armebv7r-none-eabi
-          - armebv7r-none-eabihf
           - armv7r-none-eabi
           - armv7r-none-eabihf
           - armv7a-none-eabi
@@ -38,8 +36,57 @@ jobs:
           rustup target add ${{ matrix.target }}
       - name: Build
         run: |
-          cargo build --target ${{ matrix.target }} --features "serde, defmt, check-asm"
-          cargo build --target ${{ matrix.target }} --no-default-features
+          cargo build --target ${{ matrix.target }}
+          cargo build --target ${{ matrix.target }} --features "serde, defmt, critical-section-multi-core, check-asm"
+          cargo build --target ${{ matrix.target }} --features "serde, defmt, critical-section-single-core, check-asm"
+
+  # These targets are in nightly and coming to stable soon
+  build-tier2-nightly:
+    runs-on: ubuntu-24.04
+    needs: setup
+    strategy:
+      matrix:
+        target:
+          - armv7a-none-eabi
+          - armv7a-none-eabihf
+          - armv7r-none-eabi
+          - armv7r-none-eabihf
+          - armv8r-none-eabihf
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install rust
+        run: |
+          rustup install nightly-2025-10-29
+          rustup target add ${{ matrix.target }} --toolchain nightly-2025-10-29
+      - name: Build
+        run: |
+          cargo +nightly-2025-10-29 build --target ${{ matrix.target }}
+          cargo +nightly-2025-10-29 build --target ${{ matrix.target }} --features "serde, defmt, critical-section-multi-core, check-asm"
+          cargo +nightly-2025-10-29 build --target ${{ matrix.target }} --features "serde, defmt, critical-section-single-core, check-asm"
+
+  # These targets need build-std, and have no atomics so cannot build the critical-section module
+  build-tier3-no-atomics:
+    runs-on: ubuntu-24.04
+    needs: setup
+    strategy:
+      matrix:
+        target:
+          - armv4t-none-eabi
+          - thumbv4t-none-eabi
+          - armv5te-none-eabi
+          - thumbv5te-none-eabi
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install rust
+        run: |
+          rustup install nightly-2025-10-29
+          rustup component add rust-src --toolchain nightly-2025-10-29
+      - name: Build
+        run: |
+          cargo +nightly-2025-10-29 build --target ${{ matrix.target }} -Zbuild-std=core
+          cargo +nightly-2025-10-29 build --target ${{ matrix.target }} -Zbuild-std=core --features "serde, defmt, check-asm"
 
   build-versatileab:
     runs-on: ubuntu-24.04
@@ -50,18 +97,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install rust
-        run: |
-          rustup install ${{ matrix.rust }}
-          rustup default ${{ matrix.rust }}
-          rustup target add armv7a-none-eabi
-          rustup target add armv7r-none-eabi
-          rustup target add armv7r-none-eabihf
       - name: Build
         run: |
-          cargo build --manifest-path ./examples/versatileab/Cargo.toml --target armv7a-none-eabi
-          cargo build --manifest-path ./examples/versatileab/Cargo.toml --target armv7r-none-eabi
-          cargo build --manifest-path ./examples/versatileab/Cargo.toml --target armv7r-none-eabihf
+          cd examples/versatileab
+          cargo build --target armv7a-none-eabi
+          cargo build --target armv7r-none-eabi
+          cargo build --target armv7r-none-eabihf
 
   build-mps3-an536:
     runs-on: ubuntu-24.04
@@ -72,14 +113,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install rust
-        run: |
-          rustup install nightly
-          rustup default nightly
-          rustup component add rust-src --toolchain nightly
       - name: Build
         run: |
-          cargo build --manifest-path ./examples/mps3-an536/Cargo.toml --target armv8r-none-eabihf -Zbuild-std=core
+          cd examples/mps3-an536
+          cargo build --target armv8r-none-eabihf
 
   # Build the host tools
   build-host:
@@ -101,38 +138,10 @@ jobs:
           cargo build
           cargo test
 
-  # Build the workspace for the target architecture but using nightly to compile libcore
-  # Technically it doesn't need 'setup' but it makes the graph look nicer
-  build-tier3:
-    runs-on: ubuntu-24.04
-    needs: setup
-    strategy:
-      matrix:
-        target:
-          - armv7a-none-eabi
-          - armv7a-none-eabihf
-          - armv7r-none-eabi
-          - armv7r-none-eabihf
-          - armv8r-none-eabihf
-          - armebv7r-none-eabi
-          - armebv7r-none-eabihf
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install rust
-        run: |
-          rustup install nightly
-          rustup default nightly
-          rustup component add rust-src --toolchain nightly
-      - name: Build
-        run: |
-          cargo build --target ${{ matrix.target }} -Zbuild-std=core --features "serde, defmt, check-asm"
-          cargo build --target ${{ matrix.target }} -Zbuild-std=core --no-default-features
-
   # Gather all the above build jobs together for the purposes of getting an overall pass-fail
   build-all:
     runs-on: ubuntu-24.04
-    needs: [build, build-tier3, build-host, build-versatileab, build-mps3-an536]
+    needs: [build-tier2, build-tier2-nightly, build-tier3-no-atomics, build-host, build-versatileab, build-mps3-an536]
     steps:
       - run: /bin/true
 
@@ -145,8 +154,6 @@ jobs:
         rust: ${{ fromJSON(needs.setup.outputs.matrix).rust }}
         target:
           - armv7a-none-eabi
-          - armebv7r-none-eabi
-          - armebv7r-none-eabihf
           - armv7r-none-eabi
           - armv7r-none-eabihf
     steps:
@@ -160,7 +167,6 @@ jobs:
       - name: Build docs
         run: |
           cargo doc --target ${{ matrix.target }}
-          cargo doc --target ${{ matrix.target }} --no-default-features
           cargo doc --target ${{ matrix.target }} --all-features
 
   # Build the docs for the host tools
@@ -235,8 +241,6 @@ jobs:
       matrix:
         rust: ${{ fromJSON(needs.setup.outputs.matrix).rust }}
         target:
-          - armebv7r-none-eabi
-          - armebv7r-none-eabihf
           - armv7r-none-eabi
           - armv7r-none-eabihf
           - armv7a-none-eabi
@@ -303,10 +307,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install rust
-        run: |
-          rustup install 1.89
-          rustup default 1.89
       - name: Install Dependencies
         run: |
           sudo apt-get -y update
