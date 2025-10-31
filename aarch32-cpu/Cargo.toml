@@ -13,8 +13,6 @@ keywords = [
     "arm",
     "cortex-a",
     "cortex-r",
-    "arm7",
-    "arm9",
     "embedded",
     "no-std",
 ]
