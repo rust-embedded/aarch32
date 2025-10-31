@@ -20,9 +20,6 @@ fail() {
 
 mkdir -p ./target
 
-versatile_ab_cargo=""
-mps3_an536_cargo=""
-
 my_diff() {
     file_a=$1
     file_b=$2
