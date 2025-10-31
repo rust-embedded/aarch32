@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [aarch32-rt v0.1.0]
+
+### Added
+
+- ARMv7-A support, by merging with the old `cortex-a-rt` crate
+- ARMv4T and ARMv5TE support
+- Thumb mode target support
+- `fpu-d32` feature (was called `vfp-dp` in the old `cortex-a-rt`)
+
 ### Changed
 
 - Renamed from `cortex-r-rt` to `aarch32-rt`
-- Added ARMv4T and ARMv5TE support
-- Added `fpu-d32` feature
+- Restarted numbering from 0.1.0
 - Fixed SVC handling from T32 mode
 
 ## [cortex-r-rt v0.2.1]
@@ -42,7 +50,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/cortex-r-rt-v0.2.1...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.1.0...HEAD
+[aarch32-rt v0.1.0]: https://github.com/rust-embedded/aarch32/compare/cortex-r-rt-v0.2.1...aarch32-rt-v0.1.0
 [cortex-r-rt v0.2.1]: https://github.com/rust-embedded/aarch32/compare/cortex-r-rt-v0.2.0...cortex-r-rt-v0.2.1
 [cortex-r-rt v0.2.0]: https://github.com/rust-embedded/aarch32/compare/cortex-r-rt-v0.1.0...cortex-r-rt-v0.2.0
 [cortex-r-rt v0.1.0]: https://github.com/rust-embedded/aarch32/releases/tag/cortex-r-rt-v0.1.0

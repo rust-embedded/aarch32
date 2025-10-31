@@ -7,10 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [aarch32-cpu v0.1.0]
+
+### Added
+
+- ARMv4T and ARMv5TE support
+- Thumb mode target support
+
 ### Changed
 
 - Renamed from `cortex-ar` to `aarch32-cpu`
-- Added ARMv4T and ARMv5TE support
+- Restarted numbering from 0.1.0
+- All BAR register types now hold plain `u32`, not `*mut u32` - fixes issues with `serde` derives on some types
 
 ## [cortex-ar v0.3.0]
 
@@ -54,7 +62,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-v0.3.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-cpu-v0.1.0...HEAD
+[aarch32-cpu v0.1.0]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-v0.3.0...aarch32-cpu-v0.1.0
 [cortex-ar v0.3.0]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-v0.2.0...cortex-ar-v0.3.0
 [cortex-ar v0.2.0]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-v0.1.0...cortex-ar-v0.2.0
 [cortex-ar v0.1.0]: https://github.com/rust-embedded/aarch32/releases/tag/cortex-ar-v0.1.0

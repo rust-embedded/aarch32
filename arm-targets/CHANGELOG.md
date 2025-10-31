@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [v0.4.0]
+
+### Added
+
+- Added `Arch::Armv6`
+
+### Changed
+
+- Targets starting with `thumb` are identified as T32 targets
+
 ## [v0.3.0]
 
 ### Added
@@ -32,7 +42,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.3.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.4.0...HEAD
+[v0.4.0]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.3.0...arm-targets-v0.4.0
 [v0.3.0]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.2.0...arm-targets-v0.3.0
 [v0.2.0]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.1.0...arm-targets-v0.2.0
 [v0.1.0]: https://github.com/rust-embedded/aarch32/releases/tag/arm-targets-v0.1.0

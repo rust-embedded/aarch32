@@ -37,7 +37,7 @@ eabi-fpu = []
 fpu-d32 = []
 
 [build-dependencies]
-arm-targets = { version = "0.3.0", path = "../arm-targets" }
+arm-targets = { version = "0.4.0", path = "../arm-targets" }
 
 [package.metadata.docs.rs]
 targets = ["armv7r-none-eabihf", "armv7r-none-eabihf", "armv7a-none-eabi"]
