@@ -11,7 +11,7 @@ description = "Run-time support for Arm AArch32"
 edition = "2021"
 keywords = [
     "arm",
-    "cortex-r",
+    "aarch32",
     "embedded",
     "no-std",
     "run-time",
@@ -37,7 +37,7 @@ eabi-fpu = []
 fpu-d32 = []
 
 [build-dependencies]
-arm-targets = { version = "0.3.0", path = "../arm-targets" }
+arm-targets = { version = "0.4.0", path = "../arm-targets" }
 
 [package.metadata.docs.rs]
 targets = ["armv7r-none-eabihf", "armv7r-none-eabihf", "armv7a-none-eabi"]

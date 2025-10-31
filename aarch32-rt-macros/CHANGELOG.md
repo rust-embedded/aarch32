@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-- Renamed to `aarch32-rt-macros`
+## [aarch32-rt-macros v0.1.0]
+
+- Renamed to `aarch32-rt-macros`, restarted numbering from 0.1.0
 
 ## [cortex-ar-rt-macros v0.1.1]
 
@@ -17,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-rt-macros-v0.1.1...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-macros-v0.1.0...HEAD
+[aarch32-rt-macros v0.1.0]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-rt-macros-v0.1.1...aarch32-rt-macros-v0.1.0
 [cortex-ar-rt-macros v0.1.1]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-rt-macros-v0.1.0...cortex-ar-rt-macros-v0.1.1
 [cortex-ar-rt-macros v0.1.0]: https://github.com/rust-embedded/aarch32/releases/tag/cortex-ar-rt-macros-v0.1.0

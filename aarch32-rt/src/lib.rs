@@ -17,6 +17,12 @@
 //! ## Features
 //!
 //! - `eabi-fpu`: Enables the FPU, even if you selected a soft-float ABI target.
+//! - `fpu-d32`: Make the interrupt context store routines save the upper
+//!   double-precision registers.
+//!
+//!   If your program is using all 32 double-precision registers (e.g. if you
+//!   have set the `+d32` target feature) then you need to enable this option
+//!   otherwise important FPU state may be lost when an exception occurs.
 //!
 //! ## Information about the Run-Time
 //!
