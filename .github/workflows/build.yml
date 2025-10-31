@@ -88,36 +88,6 @@ jobs:
           cargo +nightly-2025-10-29 build --target ${{ matrix.target }} -Zbuild-std=core
           cargo +nightly-2025-10-29 build --target ${{ matrix.target }} -Zbuild-std=core --features "serde, defmt, check-asm"
 
-  build-versatileab:
-    runs-on: ubuntu-24.04
-    needs: setup
-    strategy:
-      matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.matrix).rust }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Build
-        run: |
-          cd examples/versatileab
-          cargo build --target armv7a-none-eabi
-          cargo build --target armv7r-none-eabi
-          cargo build --target armv7r-none-eabihf
-
-  build-mps3-an536:
-    runs-on: ubuntu-24.04
-    needs: setup
-    strategy:
-      matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.matrix).rust }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Build
-        run: |
-          cd examples/mps3-an536
-          cargo build --target armv8r-none-eabihf
-
   # Build the host tools
   build-host:
     runs-on: ubuntu-24.04
@@ -141,7 +111,7 @@ jobs:
   # Gather all the above build jobs together for the purposes of getting an overall pass-fail
   build-all:
     runs-on: ubuntu-24.04
-    needs: [build-tier2, build-tier2-nightly, build-tier3-no-atomics, build-host, build-versatileab, build-mps3-an536]
+    needs: [build-tier2, build-tier2-nightly, build-tier3-no-atomics, build-host]
     steps:
       - run: /bin/true
 
@@ -301,6 +271,7 @@ jobs:
           cargo test --manifest-path aarch32-cpu/Cargo.toml
 
   # Run some programs in QEMU 9
+  # These tests build with nightly as pinned by the rust-toolchain.toml file, because they include Tier 3 targets
   qemu-test:
     runs-on: ubuntu-24.04
     needs: [build-all]
