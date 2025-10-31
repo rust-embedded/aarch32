@@ -16,9 +16,9 @@ fn main() -> ! {
     let y = x + 1;
     let z = (y as f64) * 1.5;
     println!("x = {}, y = {}, z = {:0.3}", x, y, z);
-    #[cfg(arm_isa = "a32")]
-    aarch32_cpu::svc!(0xABCDEF);
+    do_svc1();
     println!("x = {}, y = {}, z = {:0.3}", x, y, z);
+
     panic!("I am an example panic");
 }
 
@@ -28,7 +28,22 @@ fn svc_handler(arg: u32) {
     println!("In svc_handler, with arg=0x{:06x}", arg);
     if arg == 0xABCDEF {
         // test nested SVC calls
-        #[cfg(arm_isa = "a32")]
-        aarch32_cpu::svc!(0x456789);
+        do_svc2();
     }
+}
+
+#[cfg_attr(
+    any(arm_architecture = "v4t", arm_architecture = "v5te"),
+    instruction_set(arm::a32)
+)]
+fn do_svc1() {
+    aarch32_cpu::svc!(0xABCDEF);
+}
+
+#[cfg_attr(
+    any(arm_architecture = "v4t", arm_architecture = "v5te"),
+    instruction_set(arm::a32)
+)]
+fn do_svc2() {
+    aarch32_cpu::svc!(0x456789);
 }
