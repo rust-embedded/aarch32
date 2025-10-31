@@ -11,8 +11,7 @@ description = "Run-time support for Arm AArch32"
 edition = "2021"
 keywords = [
     "arm",
-    "cortex-r",
-    "cortex-a",
+    "aarch32",
     "embedded",
     "no-std",
     "run-time",
