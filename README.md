@@ -22,7 +22,7 @@ These libraries were originally written by Ferrous Systems, and are based on the
 
 There are currently five libraries here:
 
-* [aarch32](./aarch32/) - support library for AArch32 CPUs (like the [cortex-m] crate)
+* [aarch32-cpu](./aarch32-cpu/) - support library for AArch32 CPUs (like the [cortex-m] crate)
 * [aarch32-rt](./aarch32-rt/) - run-time library for AArch32 CPUs (like the [cortex-m-rt] crate)
 * [arm-targets](./arm-targets/) - a helper library for your build.rs that sets various `--cfg` flags according to the current target
 * [aarch32-rt-macros](./aarch32-rt-macros/) - macros for `aarch32-rt` (this is an implementation detail - do not use this crate directly)
