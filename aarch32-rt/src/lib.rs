@@ -39,19 +39,24 @@
 //!
 //! ## Constants
 //!
-//! * `_stack_top` - the address of the top of some region of RAM that we can
-//!   use as stack space, with eight-byte alignment. Our linker script PROVIDEs
-//!   a default pointing at the top of RAM.
 //! * `__sbss` - the start of zero-initialised data in RAM. Must be 4-byte
 //!   aligned.
 //! * `__ebss` - the end of zero-initialised data in RAM. Must be 4-byte
 //!   aligned.
 //! * `_fiq_stack_size` - the number of bytes to be reserved for stack space
-//!   when in FIQ mode; must be a multiple of 8.
+//!   when in FIQ mode; will be padded to a multiple of 8.
 //! * `_irq_stack_size` - the number of bytes to be reserved for stack space
-//!   when in FIQ mode; must be a multiple of 8.
+//!   when in FIQ mode; will be padded to a multiple of 8.
 //! * `_svc_stack_size` - the number of bytes to be reserved for stack space
-//!   when in SVC mode; must be a multiple of 8.
+//!   when in SVC mode; will be padded to a multiple of 8.
+//! * `_und_stack_size` - the number of bytes to be reserved for stack space
+//!   when in Undefined mode; will be padded to a multiple of 8.
+//! * `_abt_stack_size` - the number of bytes to be reserved for stack space
+//!   when in Abort mode; will be padded to a multiple of 8.
+//! * `_hyp_stack_size` - the number of bytes to be reserved for stack space
+//!   when in Hyp mode; will be padded to a multiple of 8.
+//! * `_sys_stack_size` - the number of bytes to be reserved for stack space
+//!   when in System mode; will be padded to a multiple of 8.
 //! * `__sdata` - the start of initialised data in RAM. Must be 4-byte aligned.
 //! * `__edata` - the end of initialised data in RAM. Must be 4-byte aligned.
 //! * `__sidata` - the start of the initialisation values for data, in read-only
@@ -61,10 +66,16 @@
 //! `__sbss` and `__ebss` is zeroed, and the memory between `__sdata` and
 //! `__edata` is initialised with the data found at `__sidata`.
 //!
+//! ## Stacks
+//!
+//! Stacks are located in `.stacks` section which is mapped to the `STACKS`
+//! memory region. Per default, the stacks are pushed to the end of the `STACKS`
+//! by a filler section.
+//!
 //! The stacks look like:
 //!
 //! ```text
-//! +------------------+ <----_stack_top
+//! +------------------+ <----_stack_top equals ORIGIN(STACKS) + LENGTH(STACKS)
 //! |     HYP Stack    | } _hyp_stack_size bytes (Armv8-R only)
 //! +------------------+
 //! |     UND Stack    | } _und_stack_size bytes
@@ -77,9 +88,16 @@
 //! +------------------+
 //! |     FIQ Stack    | } _fiq_stack_size bytes
 //! +------------------+
-//! |     SYS Stack    | } No specific size
+//! |     SYS Stack    | } _sys_stack_size bytes
 //! +------------------+
+//! |  filler section  | } calculated so that _stack_top equals end of STACKS
+//! +------------------+ <----either ORIGIN(STACKS) or the end of previous
+//!                           section located in STACKS or its alias.
 //! ```
+//!
+//! Our linker script PROVIDEs a symbol `_pack_stacks`. By setting this symbol
+//! to 0 in memory.x, the stacks can be moved to the beginning of the `STACKS`
+//! region or the end of the previous section located in STACKS or its alias.
 //!
 //! ## C-Compatible Functions
 //!
@@ -434,7 +452,16 @@
 //! * `_default_handler` - a C compatible function that spins forever.
 //! * `_init_segments` - initialises `.bss` and `.data`
 //! * `_stack_setup` - initialises UND, SVC, ABT, IRQ, FIQ and SYS stacks from
-//!   the address given in `r0`
+//!   the address given in `r0`. Deprecated, use `stack_setup_prealloc` instead
+//! * `_stack_setup_prealloc` - initialises UND, SVC, ABT, IRQ, FIQ and SYS
+//!   stacks from the `.stacks` section defined in link.x, based on
+//!   _xxx_stack_size values
+//! * `_xxx_stack` and `_xxx_stack_end` where the former is the top and the latter
+//!   the bottom of the stack for each mode (`und`, `svc`, `abt`, `irq`, `fiq`, `sys`)
+//! * `_stack_top` - the address of the top of the STACKS region that contains
+//!   the reseved stacks, with eight-byte alignment.
+//!   Using this symbol is deprecated, stacks should be initialized by their
+//!   individual _xxx_stack symbols
 //!
 //! The assembly language trampolines are required because AArch32
 //! processors do not save a great deal of state on entry to an exception
@@ -493,6 +520,7 @@ pub extern "C" fn _default_handler() {
 }
 
 // The Interrupt Vector Table, and some default assembly-language handler.
+// Needs to be aligned to 5bits/2^5 to be stored correctly in VBAR
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
@@ -500,6 +528,7 @@ core::arch::global_asm!(
     .arm
     .global _vector_table
     .type _vector_table, %function
+    .align 5
     _vector_table:
         ldr     pc, =_start
         ldr     pc, =_asm_undefined_handler
@@ -725,7 +754,8 @@ macro_rules! fpu_enable {
 }
 
 // Start-up code for Armv7-R (and Armv8-R once we've left EL2)
-//
+// DEPRECATED: use _stack_setup_prealloc to use sections defined
+// in linker script
 // We set up our stacks and `kmain` in system mode.
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
@@ -779,6 +809,100 @@ core::arch::global_asm!(
         // return to caller
         bx      r2
     .size _stack_setup, . - _stack_setup
+    "#,
+    und_mode = const {
+        Cpsr::new_with_raw_value(0)
+            .with_mode(ProcessorMode::Und)
+            .with_i(true)
+            .with_f(true)
+            .raw_value()
+    },
+    svc_mode = const {
+        Cpsr::new_with_raw_value(0)
+            .with_mode(ProcessorMode::Svc)
+            .with_i(true)
+            .with_f(true)
+            .raw_value()
+    },
+    abt_mode = const {
+        Cpsr::new_with_raw_value(0)
+            .with_mode(ProcessorMode::Abt)
+            .with_i(true)
+            .with_f(true)
+            .raw_value()
+    },
+    fiq_mode = const {
+        Cpsr::new_with_raw_value(0)
+            .with_mode(ProcessorMode::Fiq)
+            .with_i(true)
+            .with_f(true)
+            .raw_value()
+    },
+    irq_mode = const {
+        Cpsr::new_with_raw_value(0)
+            .with_mode(ProcessorMode::Irq)
+            .with_i(true)
+            .with_f(true)
+            .raw_value()
+    },
+    sys_mode = const {
+        Cpsr::new_with_raw_value(0)
+            .with_mode(ProcessorMode::Sys)
+            .with_i(true)
+            .with_f(true)
+            .raw_value()
+    },
+    te_bit = const {
+        aarch32_cpu::register::Sctlr::new_with_raw_value(0)
+            .with_te(true)
+            .raw_value()
+    }
+);
+
+// Start-up code for Armv7-R (and Armv8-R once we've left EL2)
+// Stack location and sizes are taken from sections defined in linker script
+// We set up our stacks and `kmain` in system mode.
+#[cfg(target_arch = "arm")]
+core::arch::global_asm!(
+    r#"
+    // Work around https://github.com/rust-lang/rust/issues/127269
+    .fpu vfp2
+
+    // Configure a stack for every mode. Leaves you in sys mode.
+    //
+    .section .text._stack_setup_prealloc
+    .global _stack_setup_prealloc
+    .type _stack_setup_prealloc, %function
+    _stack_setup_prealloc:
+        // Save LR from whatever mode we're currently in
+        mov     r2, lr
+        // (we might not be in the same mode when we return).
+        // Set stack pointer and mask interrupts for UND mode (Mode 0x1B)
+        msr     cpsr_c, {und_mode}
+        ldr	r13, =_und_stack
+        // Set stack pointer (right after) and mask interrupts for SVC mode (Mode 0x13)
+        msr     cpsr_c, {svc_mode}
+        ldr	r13, =_svc_stack
+        // Set stack pointer (right after) and mask interrupts for ABT mode (Mode 0x17)
+        msr     cpsr_c, {abt_mode}
+        ldr	r13, =_abt_stack
+        // Set stack pointer (right after) and mask interrupts for IRQ mode (Mode 0x12)
+        msr     cpsr_c, {irq_mode}
+        ldr	r13, =_irq_stack
+        // Set stack pointer (right after) and mask interrupts for FIQ mode (Mode 0x11)
+        msr     cpsr_c, {fiq_mode}
+        ldr	r13, =_fiq_stack
+        // Set stack pointer (right after) and mask interrupts for System mode (Mode 0x1F)
+        msr     cpsr_c, {sys_mode}
+        ldr	r13, =_sys_stack
+        // Clear the Thumb Exception bit because all our targets are currently
+        // for Arm (A32) mode
+        mrc     p15, 0, r1, c1, c0, 0
+        bic     r1, #{te_bit}
+        mcr     p15, 0, r1, c1, c0, 0
+        // return to caller
+        bx      r2
+    .size _stack_setup_prealloc, . - _stack_setup_prealloc
 
     // Initialises stacks, .data and .bss
     .section .text._init_segments
@@ -875,8 +999,7 @@ core::arch::global_asm!(
     .type _default_start, %function
     _default_start:
         // Set up stacks.
-        ldr     r0, =_stack_top
-        bl      _stack_setup
+        bl      _stack_setup_prealloc
         // Init .data and .bss
         bl      _init_segments
         "#,
@@ -927,10 +1050,7 @@ core::arch::global_asm!(
         cmp     r0, {cpsr_mode_hyp}
         bne     1f
         // Set stack pointer
-        ldr     r0, =_stack_top
-        mov     sp, r0
-        ldr     r1, =_hyp_stack_size
-        sub     r0, r0, r1
+        ldr     sp, =_hyp_stack
         // Set the HVBAR (for EL2) to _vector_table
         ldr     r1, =_vector_table
         mcr     p15, 4, r1, c12, c0, 0
@@ -948,8 +1068,8 @@ core::arch::global_asm!(
         isb
         eret
     1:
-        // Set up stacks. r0 points to the bottom of the hyp stack.
-        bl      _stack_setup
+        // Set up stacks.
+        bl      _stack_setup_prealloc
         // Set the VBAR (for EL1) to _vector_table. NB: This isn't required on
         // Armv7-R because that only supports 'low' (default) or 'high'.
         ldr     r0, =_vector_table

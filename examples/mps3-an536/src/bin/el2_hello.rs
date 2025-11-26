@@ -43,10 +43,7 @@ core::arch::global_asm!(
     .type _start, %function
     _start:
         // Set stack pointer
-        ldr     r0, =_stack_top
-        mov     sp, r0
-        ldr     r1, =_hyp_stack_size
-        sub     r0, r0, r1
+        ldr     sp, =_hyp_stack
         // Set the HVBAR (for EL2) to _vector_table
         ldr     r1, =_vector_table
         mcr     p15, 4, r1, c12, c0, 0
