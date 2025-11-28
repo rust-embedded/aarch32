@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Reworked stack allocation (PR #93)
+
 ## [aarch32-rt v0.1.0]
 
 ### Added

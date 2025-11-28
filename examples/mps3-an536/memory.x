@@ -12,6 +12,7 @@ MEMORY {
 REGION_ALIAS("VECTORS", QSPI);
 REGION_ALIAS("CODE", QSPI);
 REGION_ALIAS("DATA", DDR);
+REGION_ALIAS("STACKS", DDR);
 
 SECTIONS {
     /* ### Interrupt Handler Entries
@@ -39,3 +40,4 @@ PROVIDE(_svc_stack_size = 1M);
 PROVIDE(_abt_stack_size = 1M);
 PROVIDE(_irq_stack_size = 1M);
 PROVIDE(_fiq_stack_size = 1M);
+PROVIDE(_sys_stack_size = 1M);

@@ -2,9 +2,10 @@
 Basic AArch32 linker script.
 
 You must supply a file called `memory.x` which defines the memory regions
-'VECTORS', 'CODE' and 'DATA'.
+'VECTORS', 'CODE', 'DATA', 'STACKS'.
 
-The stack pointer(s) will be (near) the top of the DATA region by default.
+The stacks will be at the top of the STACKS region by default, use `_pack_stacks`
+to overwrite default behaviour.
 
 Based upon the linker script from https://github.com/rust-embedded/cortex-m
 */
@@ -70,31 +71,66 @@ SECTIONS {
         __euninit = .;
     } > DATA
 
+    .filler (NOLOAD) : {
+        /* Move the .stacks section to the end of the STACKS memory region */
+        _next_region = ORIGIN(STACKS) + LENGTH(STACKS);
+        _start_moved_stacks = _next_region - SIZEOF(.stacks);
+        _start_stacks = _pack_stacks ? . : _start_moved_stacks;
+        FILL(0x00)
+        . = _start_stacks;
+    } > STACKS
+
+    .stacks (NOLOAD) : ALIGN(8)
+    {
+        . = ALIGN(8);
+        _stacks_low_end = .;
+        _sys_stack_end = .;
+        . += _sys_stack_size;
+        . = ALIGN(8);
+        _sys_stack = .;
+        _fiq_stack_end = .;
+        . += _fiq_stack_size;
+        . = ALIGN(8);
+        _fiq_stack = .;
+        _irq_stack_end = .;
+        . += _irq_stack_size;
+        . = ALIGN(8);
+        _irq_stack = .;
+        _abt_stack_end = .;
+        . += _abt_stack_size;
+        . = ALIGN(8);
+        _abt_stack = .;
+        _svc_stack_end = .;
+        . += _svc_stack_size;
+        . = ALIGN(8);
+        _svc_stack = .;
+        _und_stack_end = .;
+        . += _und_stack_size;
+        . = ALIGN(8);
+        _und_stack = .;
+        _hyp_stack_end = .;
+        . += _hyp_stack_size;
+        . = ALIGN(8);
+        _hyp_stack = .;
+        _stacks_high_end = .;
+    } > STACKS
+
     /DISCARD/ : {
         *(.note .note*)
     }
 }
 
-/*
-We reserve some space at the top of the RAM for our exception stacks. The
-remainder is our system mode stack.
-
-You must keep _stack_top and the stack sizes aligned to eight byte boundaries.
-*/
-PROVIDE(_stack_top = ORIGIN(DATA) + LENGTH(DATA));
+/* We provide default sizes for the stacks to be overwritten in memory.x */
+PROVIDE(_stack_top = _stacks_high_end); /* deprecated, use _xxx_stack labels as defined in .stacks section */
 PROVIDE(_hyp_stack_size = 0x400);
 PROVIDE(_und_stack_size = 0x400);
 PROVIDE(_svc_stack_size = 0x400);
 PROVIDE(_abt_stack_size = 0x400);
 PROVIDE(_irq_stack_size = 0x400);
 PROVIDE(_fiq_stack_size = 0x400);
+PROVIDE(_sys_stack_size = 0x2000);
+PROVIDE(_pack_stacks = 0); /* set this to 1 to remove the filler section pushing the stacks to the end of STACKS. */
 
-ASSERT(_stack_top % 8 == 0, "ERROR(aarch32-rt): top of stack is not 8-byte aligned");
-ASSERT(_und_stack_size % 8 == 0, "ERROR(aarch32-rt): size of UND stack is not 8-byte aligned");
-ASSERT(_svc_stack_size % 8 == 0, "ERROR(aarch32-rt): size of SVC stack is not 8-byte aligned");
-ASSERT(_abt_stack_size % 8 == 0, "ERROR(aarch32-rt): size of ABT stack is not 8-byte aligned");
-ASSERT(_irq_stack_size % 8 == 0, "ERROR(aarch32-rt): size of IRQ stack is not 8-byte aligned");
-ASSERT(_fiq_stack_size % 8 == 0, "ERROR(aarch32-rt): size of FIQ stack is not 8-byte aligned");
 
 /* Weak aliases for ASM default handlers */
 PROVIDE(_start                      = _default_start);
