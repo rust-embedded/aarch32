@@ -84,16 +84,14 @@ SECTIONS {
     {
         . = ALIGN(8);
         _stacks_low_end = .;
-         _sys_stack_end = .;
+        _sys_stack_end = .;
         . += _sys_stack_size;
         . = ALIGN(8);
         _sys_stack = .;
-        . = ALIGN(8);
         _fiq_stack_end = .;
         . += _fiq_stack_size;
         . = ALIGN(8);
         _fiq_stack = .;
-        . = ALIGN(8);
         _irq_stack_end = .;
         . += _irq_stack_size;
         . = ALIGN(8);
@@ -124,7 +122,7 @@ SECTIONS {
 
 /* We provide default sizes for the stacks to be overwritten in memory.x */
 PROVIDE(_stack_top = _stacks_high_end); /* deprecated, use _xxx_stack labels as defined in .stacks section */
-PROVIDE(_hyp_stack_size = 0x401);
+PROVIDE(_hyp_stack_size = 0x400);
 PROVIDE(_und_stack_size = 0x400);
 PROVIDE(_svc_stack_size = 0x400);
 PROVIDE(_abt_stack_size = 0x400);

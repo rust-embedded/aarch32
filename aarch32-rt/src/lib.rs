@@ -452,8 +452,8 @@
 //! * `_default_handler` - a C compatible function that spins forever.
 //! * `_init_segments` - initialises `.bss` and `.data`
 //! * `_stack_setup` - initialises UND, SVC, ABT, IRQ, FIQ and SYS stacks from
-//!   the address given in `r0`. Deprecated, use `stack_setup_prealloc` instead
-//! * `_stack_setup_prealloc` - initialises UND, SVC, ABT, IRQ, FIQ and SYS
+//!   the address given in `r0`. Deprecated, use `_stack_setup_preallocated` instead
+//! * `_stack_setup_preallocated` - initialises UND, SVC, ABT, IRQ, FIQ and SYS
 //!   stacks from the `.stacks` section defined in link.x, based on
 //!   _xxx_stack_size values
 //! * `_xxx_stack` and `_xxx_stack_end` where the former is the top and the latter
@@ -754,7 +754,7 @@ macro_rules! fpu_enable {
 }
 
 // Start-up code for Armv7-R (and Armv8-R once we've left EL2)
-// DEPRECATED: use _stack_setup_prealloc to use sections defined
+// DEPRECATED: use _stack_setup_preallocated to use sections defined
 // in linker script
 // We set up our stacks and `kmain` in system mode.
 #[cfg(target_arch = "arm")]
@@ -870,10 +870,10 @@ core::arch::global_asm!(
 
     // Configure a stack for every mode. Leaves you in sys mode.
     //
-    .section .text._stack_setup_prealloc
-    .global _stack_setup_prealloc
-    .type _stack_setup_prealloc, %function
-    _stack_setup_prealloc:
+    .section .text._stack_setup_preallocated
+    .global _stack_setup_preallocated
+    .type _stack_setup_preallocated, %function
+    _stack_setup_preallocated:
         // Save LR from whatever mode we're currently in
         mov     r2, lr
         // (we might not be in the same mode when we return).
@@ -902,7 +902,7 @@ core::arch::global_asm!(
         mcr     p15, 0, r1, c1, c0, 0
         // return to caller
         bx      r2
-    .size _stack_setup_prealloc, . - _stack_setup_prealloc
+    .size _stack_setup_preallocated, . - _stack_setup_preallocated
 
     // Initialises stacks, .data and .bss
     .section .text._init_segments
@@ -999,7 +999,7 @@ core::arch::global_asm!(
     .type _default_start, %function
     _default_start:
         // Set up stacks.
-        bl      _stack_setup_prealloc
+        bl      _stack_setup_preallocated
         // Init .data and .bss
         bl      _init_segments
         "#,
@@ -1069,7 +1069,7 @@ core::arch::global_asm!(
         eret
     1:
         // Set up stacks.
-        bl      _stack_setup_prealloc
+        bl      _stack_setup_preallocated
         // Set the VBAR (for EL1) to _vector_table. NB: This isn't required on
         // Armv7-R because that only supports 'low' (default) or 'high'.
         ldr     r0, =_vector_table
