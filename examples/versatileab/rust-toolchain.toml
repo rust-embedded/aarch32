@@ -1,5 +1,5 @@
 [toolchain]
-channel = "nightly-2025-10-29"
+channel = "nightly-2025-12-01"
 targets = [
 	"armv7r-none-eabi",
 	"armv7r-none-eabihf",
