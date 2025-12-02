@@ -63,12 +63,12 @@ unsafe fn prefetch_abort_handler(addr: usize) -> usize {
     let ifar = Ifar::read();
     println!("IFAR (Faulting Address Register): {:?}", ifar);
 
-    if addr == bkpt_from_a32 as usize {
+    if addr == bkpt_from_a32 as unsafe extern "C" fn() as usize {
         println!("caught bkpt_from_a32");
     } else {
         println!(
             "Bad fault address {:08x} is not {:08x}",
-            addr, bkpt_from_a32 as usize
+            addr, bkpt_from_a32 as unsafe extern "C" fn() as usize
         );
     }
 

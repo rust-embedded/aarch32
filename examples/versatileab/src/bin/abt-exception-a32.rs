@@ -88,7 +88,7 @@ unsafe fn data_abort_handler(addr: usize) -> usize {
     enable_alignment_check();
 
     // note the fault isn't at the start of the function
-    let expect_fault_at = unaligned_from_a32 as usize + 8;
+    let expect_fault_at = unaligned_from_a32 as unsafe extern "C" fn() as usize + 8;
 
     if addr == expect_fault_at {
         println!("caught unaligned_from_a32");
