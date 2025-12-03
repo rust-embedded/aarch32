@@ -55,12 +55,12 @@ fn prefetch_abort_handler(_addr: usize) -> ! {
 unsafe fn undefined_handler(addr: usize) -> usize {
     println!("undefined abort occurred");
 
-    if addr == udf_from_a32 as usize {
+    if addr == udf_from_a32 as unsafe extern "C" fn() as usize {
         println!("caught udf_from_a32");
     } else {
         println!(
             "Bad fault address {:08x} is not {:08x}",
-            addr, udf_from_a32 as usize
+            addr, udf_from_a32 as unsafe extern "C" fn() as usize
         );
     }
 

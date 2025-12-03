@@ -55,7 +55,7 @@ fn prefetch_abort_handler(_addr: usize) -> ! {
 unsafe fn undefined_handler(addr: usize) -> usize {
     println!("undefined abort occurred");
 
-    if (addr + 1) == udf_from_t32 as usize {
+    if (addr + 1) == udf_from_t32 as unsafe extern "C" fn() as usize {
         // note that thumb functions have their LSB set, despite always being a
         // multiple of two - that's how the CPU knows they are written in T32
         // machine code.
@@ -63,7 +63,7 @@ unsafe fn undefined_handler(addr: usize) -> usize {
     } else {
         println!(
             "Bad fault address {:08x} is not {:08x}",
-            addr, udf_from_t32 as usize
+            addr, udf_from_t32 as unsafe extern "C" fn() as usize
         );
     }
 
