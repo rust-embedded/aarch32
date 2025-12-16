@@ -1,6 +1,5 @@
 [toolchain]
-channel = "nightly-2025-12-01"
+channel = "stable"
 targets = [
 	"armv8r-none-eabihf",
 ]
-components = ["rust-src"]
