@@ -25,6 +25,11 @@ jobs:
       matrix:
         rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
         target: ${{ fromJSON(needs.setup.outputs.stable-targets) }}
+        exclude:
+          - rust: 1.83
+            target: armv7a-none-eabihf
+          - rust: 1.83
+            target: armv8r-none-eabihf
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -97,6 +102,11 @@ jobs:
       matrix:
         rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
         target: ${{ fromJSON(needs.setup.outputs.stable-targets) }}
+        exclude:
+          - rust: 1.83
+            target: armv7a-none-eabihf
+          - rust: 1.83
+            target: armv8r-none-eabihf
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -182,6 +192,11 @@ jobs:
       matrix:
         rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
         target: ${{ fromJSON(needs.setup.outputs.stable-targets) }}
+        exclude:
+          - rust: 1.83
+            target: armv7a-none-eabihf
+          - rust: 1.83
+            target: armv8r-none-eabihf
     steps:
       - name: Checkout
         uses: actions/checkout@v4
