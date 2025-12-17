@@ -9,11 +9,13 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.rust_versions }}
+      rust-versions: ${{ steps.set-matrix.outputs.rust_versions }}
+      stable-targets: ${{ steps.set-matrix.outputs.stable_targets }}
     steps:
       - id: set-matrix
         run: |
-          echo 'rust_versions={"rust": ["stable", "1.83"]}' >> "$GITHUB_OUTPUT"
+          echo 'rust_versions=["stable", "1.83"]' >> "$GITHUB_OUTPUT"
+          echo 'stable_targets=["armv7a-none-eabi","armv7a-none-eabihf","armv7r-none-eabi","armv7r-none-eabihf","armv8r-none-eabihf"]' >> "$GITHUB_OUTPUT"
 
   # Build the workspace for a target architecture
   build-tier2:
@@ -21,11 +23,13 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.matrix).rust }}
-        target:
-          - armv7r-none-eabi
-          - armv7r-none-eabihf
-          - armv7a-none-eabi
+        rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
+        target: ${{ fromJSON(needs.setup.outputs.stable-targets) }}
+        exclude:
+          - rust: 1.83
+            target: armv7a-none-eabihf
+          - rust: 1.83
+            target: armv8r-none-eabihf
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,32 +44,7 @@ jobs:
           cargo build --target ${{ matrix.target }} --features "serde, defmt, critical-section-multi-core, check-asm"
           cargo build --target ${{ matrix.target }} --features "serde, defmt, critical-section-single-core, check-asm"
 
-  # These targets are in nightly and coming to stable soon
-  build-tier2-nightly:
-    runs-on: ubuntu-24.04
-    needs: setup
-    strategy:
-      matrix:
-        target:
-          - armv7a-none-eabi
-          - armv7a-none-eabihf
-          - armv7r-none-eabi
-          - armv7r-none-eabihf
-          - armv8r-none-eabihf
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install rust
-        run: |
-          rustup install nightly-2025-10-29
-          rustup target add ${{ matrix.target }} --toolchain nightly-2025-10-29
-      - name: Build
-        run: |
-          cargo +nightly-2025-10-29 build --target ${{ matrix.target }}
-          cargo +nightly-2025-10-29 build --target ${{ matrix.target }} --features "serde, defmt, critical-section-multi-core, check-asm"
-          cargo +nightly-2025-10-29 build --target ${{ matrix.target }} --features "serde, defmt, critical-section-single-core, check-asm"
-
-  # These targets need build-std, and have no atomics so cannot build the critical-section module
+  # These targets need build-std, and have no atomics
   build-tier3-no-atomics:
     runs-on: ubuntu-24.04
     needs: setup
@@ -111,7 +90,7 @@ jobs:
   # Gather all the above build jobs together for the purposes of getting an overall pass-fail
   build-all:
     runs-on: ubuntu-24.04
-    needs: [build-tier2, build-tier2-nightly, build-tier3-no-atomics, build-host]
+    needs: [build-tier2, build-tier3-no-atomics, build-host]
     steps:
       - run: /bin/true
 
@@ -121,11 +100,13 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.matrix).rust }}
-        target:
-          - armv7a-none-eabi
-          - armv7r-none-eabi
-          - armv7r-none-eabihf
+        rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
+        target: ${{ fromJSON(needs.setup.outputs.stable-targets) }}
+        exclude:
+          - rust: 1.83
+            target: armv7a-none-eabihf
+          - rust: 1.83
+            target: armv8r-none-eabihf
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -145,7 +126,7 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.matrix).rust }}
+        rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -209,11 +190,13 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.matrix).rust }}
-        target:
-          - armv7r-none-eabi
-          - armv7r-none-eabihf
-          - armv7a-none-eabi
+        rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
+        target: ${{ fromJSON(needs.setup.outputs.stable-targets) }}
+        exclude:
+          - rust: 1.83
+            target: armv7a-none-eabihf
+          - rust: 1.83
+            target: armv8r-none-eabihf
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -235,7 +218,7 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.matrix).rust }}
+        rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
