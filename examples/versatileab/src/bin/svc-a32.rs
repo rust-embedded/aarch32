@@ -33,7 +33,11 @@ fn svc_handler(arg: u32) {
 }
 
 #[cfg_attr(
-    any(arm_architecture = "v4t", arm_architecture = "v5te"),
+    any(
+        arm_architecture = "v4t",
+        arm_architecture = "v5te",
+        arm_architecture = "v6"
+    ),
     instruction_set(arm::a32)
 )]
 fn do_svc1() {
@@ -41,7 +45,11 @@ fn do_svc1() {
 }
 
 #[cfg_attr(
-    any(arm_architecture = "v4t", arm_architecture = "v5te"),
+    any(
+        arm_architecture = "v4t",
+        arm_architecture = "v5te",
+        arm_architecture = "v6"
+    ),
     instruction_set(arm::a32)
 )]
 fn do_svc2() {
