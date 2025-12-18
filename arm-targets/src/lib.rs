@@ -227,7 +227,10 @@ impl Arch {
             Some(Arch::Armv7A)
         } else if target.starts_with("aarch64-") || target.starts_with("aarch64be-") {
             Some(Arch::Armv8A)
-        } else if target.starts_with("arm-") {
+        } else if target.starts_with("arm-")
+            || target.starts_with("armv6-")
+            || target.starts_with("thumbv6-")
+        {
             // If not specified, assume Armv6
             Some(Arch::Armv6)
         } else {
@@ -405,6 +408,26 @@ mod test {
         assert_eq!(target_info.arch(), Some(Arch::Armv5TE));
         assert_eq!(target_info.profile(), Some(Profile::Legacy));
         assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn armv6_none_eabi() {
+        let target = "armv6-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv6));
+        assert_eq!(target_info.profile(), Some(Profile::Legacy));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn armv6_none_eabihf() {
+        let target = "armv6-none-eabihf";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv6));
+        assert_eq!(target_info.profile(), Some(Profile::Legacy));
+        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
     }
 
     #[test]

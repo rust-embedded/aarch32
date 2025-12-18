@@ -34,6 +34,15 @@ runner = "qemu-system-arm -machine versatileab -cpu cortex-a8 -semihosting -nogr
 [target.thumbv7a-none-eabi]
 runner = "qemu-system-arm -machine versatileab -cpu cortex-a8 -semihosting -nographic -audio none -kernel"
 
+[target.armv6-none-eabihf]
+runner = "qemu-system-arm -machine versatileab -cpu arm1176 -semihosting -nographic -audio none -kernel"
+
+[target.armv6-none-eabi]
+runner = "qemu-system-arm -machine versatileab -cpu arm1176 -semihosting -nographic -audio none -kernel"
+
+[target.thumbv6-none-eabi]
+runner = "qemu-system-arm -machine versatileab -cpu arm1176 -semihosting -nographic -audio none -kernel"
+
 [target.armv5te-none-eabi]
 runner = "qemu-system-arm -machine versatileab -cpu arm926 -semihosting -nographic -audio none -kernel"
 
