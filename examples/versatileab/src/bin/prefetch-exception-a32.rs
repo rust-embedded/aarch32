@@ -63,7 +63,8 @@ unsafe fn prefetch_abort_handler(addr: usize) -> usize {
 
     if cfg!(not(any(
         arm_architecture = "v4t",
-        arm_architecture = "v5te"
+        arm_architecture = "v5te",
+        arm_architecture = "v6"
     ))) {
         let ifar = Ifar::read();
         println!("IFAR (Faulting Address Register): {:?}", ifar);

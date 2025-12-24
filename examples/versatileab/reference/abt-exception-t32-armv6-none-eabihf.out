@@ -1,0 +1,14 @@
+Hello, this is an data abort exception example
+data abort occurred
+DFSR (Fault Status Register): DFSR { ext=false wnr=false Domain=0b0000 Status=0b00001 }
+DFSR Status: Ok(AlignmentFault)
+caught unaligned_from_t32
+caught fault on COUNTER
+Doing it again
+data abort occurred
+DFSR (Fault Status Register): DFSR { ext=false wnr=false Domain=0b0000 Status=0b00001 }
+DFSR Status: Ok(AlignmentFault)
+caught unaligned_from_t32
+caught fault on COUNTER
+Skipping instruction
+Recovered from fault OK!

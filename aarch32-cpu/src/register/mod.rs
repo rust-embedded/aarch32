@@ -225,7 +225,11 @@ pub trait SysRegRead: SysReg {
     /// may have side-effects.
     #[cfg_attr(not(feature = "check-asm"), inline)]
     #[cfg_attr(
-        any(arm_architecture = "v4t", arm_architecture = "v5te"),
+        any(
+            arm_architecture = "v4t",
+            arm_architecture = "v5te",
+            arm_architecture = "v6"
+        ),
         instruction_set(arm::a32)
     )]
     unsafe fn read_raw() -> u32 {
@@ -261,7 +265,11 @@ pub trait SysRegWrite: SysReg {
     /// writing valid data here.
     #[cfg_attr(not(feature = "check-asm"), inline)]
     #[cfg_attr(
-        any(arm_architecture = "v4t", arm_architecture = "v5te"),
+        any(
+            arm_architecture = "v4t",
+            arm_architecture = "v5te",
+            arm_architecture = "v6"
+        ),
         instruction_set(arm::a32)
     )]
     unsafe fn write_raw(_value: u32) {
