@@ -1,0 +1,48 @@
+Found PERIPHBASE 0xf0000000
+Creating GIC driver @ 0xf0000000 / 0xf0100000
+Calling git.setup(0)
+Configure Timer Interrupt...
+Enabling interrupts...
+CPSR: CPSR { N=0 Z=0 C=1 V=0 Q=0 J=0 E=0 A=0 I=1 F=1 T=0 MODE=Ok(Sys) }
+CPSR: CPSR { N=0 Z=0 C=1 V=0 Q=0 J=0 E=0 A=0 I=0 F=1 T=0 MODE=Ok(Sys) }
+  > IRQ
+    - Timer fired, resetting
+  < IRQ
+Main loop wake up 0
+  > IRQ
+    - Timer fired, resetting
+  < IRQ
+Main loop wake up 1
+  > IRQ
+    - Timer fired, resetting
+  < IRQ
+Main loop wake up 2
+  > IRQ
+    - Timer fired, resetting
+  < IRQ
+Main loop wake up 3
+  > IRQ
+    - Timer fired, resetting
+  < IRQ
+Main loop wake up 4
+  > IRQ
+    - Timer fired, resetting
+  < IRQ
+Main loop wake up 5
+  > IRQ
+    - Timer fired, resetting
+  < IRQ
+Main loop wake up 6
+  > IRQ
+    - Timer fired, resetting
+  < IRQ
+Main loop wake up 7
+  > IRQ
+    - Timer fired, resetting
+  < IRQ
+Main loop wake up 8
+  > IRQ
+    - Timer fired, resetting
+  < IRQ
+Main loop wake up 9
+Timer IRQ test completed OK

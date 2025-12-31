@@ -1,0 +1,23 @@
+Found PERIPHBASE 0xf0000000
+Creating GIC driver @ 0xf0000000 / 0xf0100000
+Calling git.setup(0)
+Configure low-prio SGI...
+Configure high-prio SGI...
+gic.enable_interrupt()
+Enabling interrupts...
+CPSR: CPSR { N=0 Z=0 C=1 V=0 Q=0 J=0 E=0 A=0 I=1 F=1 T=0 MODE=Ok(Sys) }
+CPSR: CPSR { N=0 Z=0 C=1 V=0 Q=0 J=0 E=0 A=0 I=0 F=1 T=0 MODE=Ok(Sys) }
+Send lo-prio SGI
+> IRQ
+- IRQ Handling SGI 3
+    - Low prio!
+    - Pre lock exit
+    - HIGH PRIO SHOULD RUN AFTER THIS
+> IRQ
+- IRQ Handling SGI 4
+    - High prio!
+< IRQ
+    - HIGH PRIO SHOULD RUN BEFORE THIS
+    - Post lock exit
+< IRQ
+IRQ test completed OK

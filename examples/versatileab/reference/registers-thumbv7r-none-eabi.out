@@ -1,0 +1,38 @@
+MIDR { implementer=0x41 variant=0x1 arch=0xf part_no=0xc15 rev=0x3 }
+CPSR { N=0 Z=1 C=1 V=0 Q=0 J=0 E=0 A=1 I=1 F=1 T=0 MODE=Ok(Sys) }
+Mpidr(c0000000)
+SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=0 FI=0 DZ=0 BR=0 RR=0 V=0 I=0 Z=0 SW=0 C=0 A=0 M=0 } before setting C, I and Z
+SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=0 FI=0 DZ=0 BR=0 RR=0 V=0 I=1 Z=1 SW=0 C=1 A=0 M=0 } after
+PMSA-v7 MPUIR: Mpuir { iregions: 0, dregions: 16, non_unified: false }
+DRegion 0: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 1: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 2: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 3: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 4: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 5: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 6: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 7: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 8: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 9: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 10: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 11: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 12: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 13: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 14: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 15: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 0: Region { base: 0x20000000, size: _16M, subregion_mask: 0, enabled: true, no_exec: false, mem_attr: Cacheable { outer: NonCacheable, inner: WriteThroughNoWriteAllocate, shareable: true } }
+DRegion 1: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 2: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 3: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 4: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 5: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 6: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 7: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 8: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 9: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 10: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 11: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 12: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 13: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 14: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
+DRegion 15: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
