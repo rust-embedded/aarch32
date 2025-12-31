@@ -216,11 +216,14 @@ impl Arch {
             Some(Arch::Armv8MBase)
         } else if target.starts_with("thumbv8m.main-") {
             Some(Arch::Armv8MMain)
-        } else if target.starts_with("armv7r-") || target.starts_with("armebv7r") {
+        } else if target.starts_with("armv7r-")
+            || target.starts_with("armebv7r-")
+            || target.starts_with("thumbv7r-")
+        {
             Some(Arch::Armv7R)
-        } else if target.starts_with("armv8r-") {
+        } else if target.starts_with("armv8r-") || target.starts_with("thumbv8r-") {
             Some(Arch::Armv8R)
-        } else if target.starts_with("armv7a-") {
+        } else if target.starts_with("armv7a-") || target.starts_with("thumbv7a-") {
             Some(Arch::Armv7A)
         } else if target.starts_with("aarch64-") || target.starts_with("aarch64be-") {
             Some(Arch::Armv8A)
@@ -479,6 +482,16 @@ mod test {
         let target = "armv8r-none-eabihf";
         let target_info = process_target(target);
         assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv8R));
+        assert_eq!(target_info.profile(), Some(Profile::R));
+        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+    }
+
+    #[test]
+    fn thumbv8r_none_eabihf() {
+        let target = "thumbv8r-none-eabihf";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::T32));
         assert_eq!(target_info.arch(), Some(Arch::Armv8R));
         assert_eq!(target_info.profile(), Some(Profile::R));
         assert_eq!(target_info.abi(), Some(Abi::EabiHf));

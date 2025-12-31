@@ -1,0 +1,26 @@
+Found PERIPHBASE 0xf0000000
+Creating GIC driver @ 0xf0000000 / 0xf0100000
+Calling git.setup(0)
+cntfrq = 62.500 MHz
+Using physical timer ************************
+Print five, every 100ms...
+i = 0
+i = 1
+i = 2
+i = 3
+i = 4
+Waiting for 31250000 physical ticks to count up...
+Matched! physical
+Waiting for 31250000 physical ticks to count down...
+physical countdown hit zero!
+Using virtual timer ************************
+Print five, every 100ms...
+i = 0
+i = 1
+i = 2
+i = 3
+i = 4
+Waiting for 31250000 virtual ticks to count up...
+Matched! virtual
+Waiting for 31250000 virtual ticks to count down...
+virtual countdown hit zero!

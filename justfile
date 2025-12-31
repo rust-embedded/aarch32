@@ -35,18 +35,29 @@ build-all: \
 	(build-tier3-no-atomics "armv5te-none-eabi") \
 	(build-tier3-no-atomics "thumbv5te-none-eabi") \
 	(build-tier2 "armv7r-none-eabi") \
+	(build-tier3 "thumbv7r-none-eabi") \
 	(build-tier2 "armv7r-none-eabihf") \
+	(build-tier3 "thumbv7r-none-eabihf") \
 	(build-tier2 "armv7a-none-eabi") \
+	(build-tier3 "thumbv7a-none-eabi") \
 	(build-tier2 "armv7a-none-eabihf") \
+	(build-tier3 "thumbv7a-none-eabihf") \
 	(build-tier2 "armv8r-none-eabihf") \
+	(build-tier3 "thumbv8r-none-eabihf") \
 
 # Build the arm-targets library
 build-arm-targets:
 		cd arm-targets && cargo build {{verbose}}
 
-# Builds our workspace with various features, building core from source
+# Builds our workspace with various features, building core from source, but skipping anything that requires atomics
 build-tier3-no-atomics target:
     cargo build --target {{target}} -Zbuild-std=core {{verbose}}
+    cargo build --target {{target}} -Zbuild-std=core --features "serde, defmt, critical-section-single-core, check-asm" {{verbose}}
+
+# Builds our workspace with various features, building core from source
+build-tier3 target:
+    cargo build --target {{target}} -Zbuild-std=core {{verbose}}
+    cargo build --target {{target}} -Zbuild-std=core --features "serde, defmt, critical-section-multi-core, check-asm" {{verbose}}
     cargo build --target {{target}} -Zbuild-std=core --features "serde, defmt, critical-section-single-core, check-asm" {{verbose}}
 
 # Builds our workspace with various features
@@ -61,6 +72,11 @@ build-all-examples: \
 	(build-versatileab-tier3 "thumbv4t-none-eabi") \
 	(build-versatileab-tier3 "armv5te-none-eabi") \
 	(build-versatileab-tier3 "thumbv5te-none-eabi") \
+	(build-versatileab-tier3 "thumbv7r-none-eabi") \
+	(build-versatileab-tier3 "thumbv7r-none-eabihf") \
+	(build-versatileab-tier3 "thumbv7a-none-eabi") \
+	(build-versatileab-tier3 "thumbv7a-none-eabihf") \
+	(build-mps3-tier3 "thumbv8r-none-eabihf") \
 	(build-versatileab-tier2 "armv7r-none-eabi") \
 	(build-versatileab-tier2 "armv7r-none-eabihf") \
 	(build-versatileab-tier2 "armv7a-none-eabi") \
@@ -74,6 +90,10 @@ build-versatileab-tier3 target:
 # Builds the Versatile AB examples, assuming core has been prebuilt
 build-versatileab-tier2 target:
 	cd examples/versatileab && cargo build --target={{target}} {{verbose}}
+
+# Builds the MPS3-AN536 examples, building core from source
+build-mps3-tier3 target:
+	cd examples/mps3-an536 && cargo build --target={{target}} -Zbuild-std=core {{verbose}}
 
 # Builds the MPS3-AN536 examples, assuming core has been prebuilt
 build-mps3-tier2 target:
@@ -142,12 +162,19 @@ test-qemu:
 	./tests.sh examples/versatileab armv5te-none-eabi -Zbuild-std=core {{verbose}} || FAIL=1
 	./tests.sh examples/versatileab thumbv5te-none-eabi -Zbuild-std=core {{verbose}} || FAIL=1
 	./tests.sh examples/versatileab armv7r-none-eabi {{verbose}} || FAIL=1
+	./tests.sh examples/versatileab thumbv7r-none-eabi -Zbuild-std=core {{verbose}} || FAIL=1
 	./tests.sh examples/versatileab armv7r-none-eabihf {{verbose}} || FAIL=1
+	./tests.sh examples/versatileab thumbv7r-none-eabihf -Zbuild-std=core {{verbose}} || FAIL=1
 	./tests.sh examples/versatileab armv7a-none-eabi {{verbose}} || FAIL=1
+	./tests.sh examples/versatileab thumbv7a-none-eabi -Zbuild-std=core {{verbose}} || FAIL=1
 	./tests.sh examples/versatileab armv7a-none-eabihf {{verbose}} || FAIL=1
+	./tests.sh examples/versatileab thumbv7a-none-eabihf -Zbuild-std=core {{verbose}} || FAIL=1
 	RUSTFLAGS=-Ctarget-feature=+d32 ./tests.sh examples/versatileab armv7a-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} || FAIL=1
+	RUSTFLAGS=-Ctarget-feature=+d32 ./tests.sh examples/versatileab thumbv7a-none-eabihf -Zbuild-std=core --features=fpu-d32 --target-dir=target-d32 {{verbose}} || FAIL=1
 	./tests.sh examples/mps3-an536 armv8r-none-eabihf {{verbose}} || FAIL=1
+	./tests.sh examples/mps3-an536 thumbv8r-none-eabihf -Zbuild-std=core {{verbose}} || FAIL=1
 	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536 armv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} || FAIL=1
+	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536 thumbv8r-none-eabihf -Zbuild-std=core --features=fpu-d32 --target-dir=target-d32 {{verbose}} || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
 # Run the special SMP test
