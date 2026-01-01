@@ -111,6 +111,7 @@ fn mpu_pmsa_v8() {
     }
 
     // Load a config (but don't enable it)
+    #[allow(clippy::zero_ptr)]
     mpu.configure(&El1Config {
         background_config: true,
         regions: &[El1Region {
