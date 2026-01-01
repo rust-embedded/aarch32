@@ -274,7 +274,7 @@
 //! use aarch32_rt::exception;
 //!
 //! #[exception(PrefetchAbort)]
-//! fn my_handler(addr: usize) -> usize {
+//! unsafe fn my_handler(addr: usize) -> usize {
 //!     // do stuff, then go back to the instruction after the one that failed
 //!     addr + 4
 //! }
