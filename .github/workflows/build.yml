@@ -33,16 +33,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install rust
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Rust
         run: |
           rustup install ${{ matrix.rust }}
           rustup default ${{ matrix.rust }}
           rustup target add ${{ matrix.target }}
       - name: Build
         run: |
-          cargo build --target ${{ matrix.target }}
-          cargo build --target ${{ matrix.target }} --features "serde, defmt, critical-section-multi-core, check-asm"
-          cargo build --target ${{ matrix.target }} --features "serde, defmt, critical-section-single-core, check-asm"
+          just build-tier2 ${{ matrix.target }}
 
   # These targets need build-std, and have no atomics
   build-tier3-no-atomics:
@@ -58,39 +58,41 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install rust
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Rust
         run: |
           rustup install nightly-2025-10-29
           rustup component add rust-src --toolchain nightly-2025-10-29
+          rustup default nightly-2025-10-29
       - name: Build
         run: |
-          cargo +nightly-2025-10-29 build --target ${{ matrix.target }} -Zbuild-std=core
-          cargo +nightly-2025-10-29 build --target ${{ matrix.target }} -Zbuild-std=core --features "serde, defmt, check-asm"
+          just build-tier3-no-atomics ${{ matrix.target }}
 
-  # Build the host tools
-  build-host:
+  # Build the host-only stuff
+  build-arm-targets:
     runs-on: ubuntu-24.04
     needs: setup
     strategy:
       matrix:
-        rust: [stable, 1.59]
+        rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install rust
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Rust
         run: |
           rustup install ${{ matrix.rust }}
           rustup default ${{ matrix.rust }}
       - name: Build
         run: |
-          cd arm-targets
-          cargo build
-          cargo test
+          just build-arm-targets
 
   # Gather all the above build jobs together for the purposes of getting an overall pass-fail
   build-all:
     runs-on: ubuntu-24.04
-    needs: [build-tier2, build-tier3-no-atomics, build-host]
+    needs: [build-tier2, build-tier3-no-atomics, build-arm-targets]
     steps:
       - run: /bin/true
 
@@ -110,7 +112,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install rust
+      - name: Install Rust
         run: |
           rustup install ${{ matrix.rust }}
           rustup default ${{ matrix.rust }}
@@ -130,7 +132,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install rust
+      - name: Install Rust
         run: |
           rustup install ${{ matrix.rust }}
           rustup default ${{ matrix.rust }}
@@ -147,42 +149,21 @@ jobs:
       - run: /bin/true
 
   # Format the workspace
-  fmt:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install rust
-        run: |
-          rustup install stable
-          rustup default stable
-          rustup component add rustfmt
-      - name: Format
-        run: |
-          cargo fmt --check
-
-  # Format the host tools
-  fmt-host:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install rust
-        run: |
-          rustup install stable
-          rustup default stable
-          rustup component add rustfmt
-      - name: Format
-        run: |
-          cd arm-targets
-          cargo fmt --check
-
-  # Gather all the above fmt jobs together for the purposes of getting an overall pass-fail
   fmt-all:
     runs-on: ubuntu-24.04
-    needs: [fmt, fmt-host]
     steps:
-      - run: /bin/true
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Rust
+        run: |
+          rustup install stable
+          rustup default stable
+          rustup component add rustfmt
+      - name: Format
+        run: |
+          just fmt-check
 
   # Run clippy on the workpace
   clippy:
@@ -190,52 +171,64 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
         target: ${{ fromJSON(needs.setup.outputs.stable-targets) }}
-        exclude:
-          - rust: 1.83
-            target: armv7a-none-eabihf
-          - rust: 1.83
-            target: armv8r-none-eabihf
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install rust
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Rust
         run: |
-          rustup install ${{ matrix.rust }}
-          rustup default ${{ matrix.rust }}
+          rustup toolchain install 1.92
+          rustup default 1.92
           rustup target add ${{ matrix.target }}
           rustup component add clippy
       - name: Clippy
         run: |
-          cargo clippy --target ${{ matrix.target }}
-          cargo clippy --target ${{ matrix.target }} --no-default-features
-          cargo clippy --target ${{ matrix.target }} --all-features
+          just clippy-target ${{ matrix.target }}
+
+  # Run clippy on the examples
+  clippy-examples:
+    runs-on: ubuntu-24.04
+    needs: setup
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Rust
+        run: |
+          rustup toolchain install 1.92
+          rustup default 1.92
+          rustup target add armv7r-none-eabihf
+          rustup target add armv8r-none-eabihf
+          rustup component add clippy
+      - name: Clippy
+        run: |
+          just clippy-examples
 
   # Run clippy on the host tools
   clippy-host:
     runs-on: ubuntu-24.04
     needs: setup
-    strategy:
-      matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install rust
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Rust
         run: |
-          rustup install ${{ matrix.rust }}
-          rustup default ${{ matrix.rust }}
+          rustup toolchain install 1.92
+          rustup default 1.92
           rustup component add clippy
       - name: Clippy
         run: |
-          cd arm-targets
-          cargo clippy
+          just clippy-host
 
   # Gather all the above clippy jobs together for the purposes of getting an overall pass-fail
   clippy-all:
     runs-on: ubuntu-24.04
-    needs: [clippy, clippy-host]
+    needs: [clippy, clippy-examples, clippy-host]
     steps:
       - run: /bin/true
 
@@ -245,13 +238,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install rust
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Rust
         run: |
           rustup install stable
           rustup default stable
-      - name: Run cargo test
-        run: |
-          cargo test --manifest-path aarch32-cpu/Cargo.toml
+      - run: |
+          just test-cargo
 
   # Run some programs in QEMU 9
   # These tests build with nightly as pinned by the rust-toolchain.toml file, because they include Tier 3 targets
@@ -261,6 +255,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install Just
+        uses: taiki-e/install-action@just
       - name: Install Dependencies
         run: |
           sudo apt-get -y update
@@ -271,7 +267,7 @@ jobs:
       - name: Run tests in QEMU
         run: |
           export PATH=/opt/qemu/bin:$PATH
-          ./tests.sh
+          just test-qemu
 
   # Gather all the above xxx-all jobs together for the purposes of getting an overall pass-fail
   all:

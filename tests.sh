@@ -38,38 +38,20 @@ my_diff() {
     fi
 }
 
-run_tests() {
-    directory=$1
-    target="$2"
-    flags=$3
-    echo "Running directory=$directory target=$target flags=$flags"
-    pushd $directory
-    cargo build --target=$target $flags || exit 1
-    for bin_path in src/bin/*.rs; do
-        filename=$(basename $bin_path)
-        binary=${filename%.rs}
-        cargo run --target=$target --bin $binary $flags > ./target/$binary-$target.out
-        my_diff ./reference/$binary-$target.out ./target/$binary-$target.out || fail $binary $target
-    done
-    popd
-}
-
-run_tests examples/versatileab armv7r-none-eabi ""
-run_tests examples/versatileab armv7r-none-eabihf ""
-run_tests examples/versatileab armv7a-none-eabi ""
-run_tests examples/versatileab armv7a-none-eabihf ""
-RUSTFLAGS="-Ctarget-feature=+d32" run_tests examples/versatileab armv7a-none-eabihf "--features=fpu-d32"
-RUSTC_BOOTSTRAP=1 run_tests examples/versatileab armv5te-none-eabi "-Zbuild-std=core"
-RUSTC_BOOTSTRAP=1 run_tests examples/versatileab armv4t-none-eabi "-Zbuild-std=core"
-RUSTC_BOOTSTRAP=1 run_tests examples/versatileab thumbv5te-none-eabi "-Zbuild-std=core"
-RUSTC_BOOTSTRAP=1 run_tests examples/versatileab thumbv4t-none-eabi "-Zbuild-std=core"
-run_tests examples/mps3-an536 armv8r-none-eabihf ""
-RUSTFLAGS="-Ctarget-cpu=cortex-r52" run_tests examples/mps3-an536 armv8r-none-eabihf "--features=fpu-d32"
-
-# Special case the SMP test. You can't run the normal examples with two CPUs because nothing stops the second CPU from running :/
-pushd examples/mps3-an536
-cargo run --target=armv8r-none-eabihf --bin smp_test -- --smp 2 > ./target/smp_test-armv8r-none-eabihf_smp2.out
-my_diff ./reference/smp_test-armv8r-none-eabihf_smp2.out ./target/smp_test-armv8r-none-eabihf_smp2.out || fail smp_test armv8r-none-eabihf
+directory=$1
+shift
+target=$1
+shift
+flags="$*"
+echo "Running directory=$directory target=$target flags=$flags"
+pushd $directory
+cargo build --target=$target $flags || exit 1
+for bin_path in src/bin/*.rs; do
+    filename=$(basename $bin_path)
+    binary=${filename%.rs}
+    cargo run --target=$target --bin $binary $flags > ./target/$binary-$target.out
+    my_diff ./reference/$binary-$target.out ./target/$binary-$target.out || fail $binary $target
+done
 popd
 
 if [ "$FAILURE" == "1" ]; then
