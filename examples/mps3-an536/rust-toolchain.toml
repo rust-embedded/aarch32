@@ -3,3 +3,4 @@ channel = "nightly-2026-01-02"
 targets = [
 	"armv8r-none-eabihf",
 ]
+components = ["rust-src", "clippy", "rustfmt"]
