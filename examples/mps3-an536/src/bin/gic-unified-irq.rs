@@ -58,11 +58,11 @@ fn main() -> ! {
         .unwrap();
 
     println!("Enabling interrupts...");
-    dump_cpsr();
+    dump_sctlr();
     unsafe {
         aarch32_cpu::interrupt::enable();
     }
-    dump_cpsr();
+    dump_sctlr();
 
     // Send it
     println!("Send lo-prio SGI");
@@ -87,9 +87,9 @@ fn main() -> ! {
     semihosting::process::exit(0);
 }
 
-fn dump_cpsr() {
-    let cpsr = aarch32_cpu::register::Cpsr::read();
-    println!("CPSR: {:?}", cpsr);
+fn dump_sctlr() {
+    let sctlr = aarch32_cpu::register::Sctlr::read();
+    println!("{:?}", sctlr);
 }
 
 #[irq]
