@@ -133,17 +133,20 @@ test-cargo:
 
 # Run the integration tests in QEMU
 test-qemu:
-	./tests.sh examples/versatileab armv4t-none-eabi -Zbuild-std=core {{verbose}}
-	./tests.sh examples/versatileab thumbv4t-none-eabi -Zbuild-std=core {{verbose}}
-	./tests.sh examples/versatileab armv5te-none-eabi -Zbuild-std=core {{verbose}}
-	./tests.sh examples/versatileab thumbv5te-none-eabi -Zbuild-std=core {{verbose}}
-	./tests.sh examples/versatileab armv7r-none-eabi {{verbose}}
-	./tests.sh examples/versatileab armv7r-none-eabihf {{verbose}}
-	./tests.sh examples/versatileab armv7a-none-eabi {{verbose}}
-	./tests.sh examples/versatileab armv7a-none-eabihf {{verbose}}
-	RUSTFLAGS=-Ctarget-feature=+d32 ./tests.sh examples/versatileab armv7a-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}}
-	./tests.sh examples/mps3-an536 armv8r-none-eabihf {{verbose}}
-	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536 armv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}}
+	#!/bin/sh
+	FAIL=0
+	./tests.sh examples/versatileab armv4t-none-eabi -Zbuild-std=core {{verbose}} || FAIL=1
+	./tests.sh examples/versatileab thumbv4t-none-eabi -Zbuild-std=core {{verbose}} || FAIL=1
+	./tests.sh examples/versatileab armv5te-none-eabi -Zbuild-std=core {{verbose}} || FAIL=1
+	./tests.sh examples/versatileab thumbv5te-none-eabi -Zbuild-std=core {{verbose}} || FAIL=1
+	./tests.sh examples/versatileab armv7r-none-eabi {{verbose}} || FAIL=1
+	./tests.sh examples/versatileab armv7r-none-eabihf {{verbose}} || FAIL=1
+	./tests.sh examples/versatileab armv7a-none-eabi {{verbose}} || FAIL=1
+	./tests.sh examples/versatileab armv7a-none-eabihf {{verbose}} || FAIL=1
+	RUSTFLAGS=-Ctarget-feature=+d32 ./tests.sh examples/versatileab armv7a-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} || FAIL=1
+	./tests.sh examples/mps3-an536 armv8r-none-eabihf {{verbose}} || FAIL=1
+	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536 armv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} || FAIL=1
+	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
 # Run the special SMP test
 #
