@@ -44,11 +44,11 @@ fn main() -> ! {
     );
 
     println!("Enabling interrupts...");
-    dump_cpsr();
+    dump_sctlr();
     unsafe {
         aarch32_cpu::interrupt::enable();
     }
-    dump_cpsr();
+    dump_sctlr();
 
     let mut count: u32 = 0;
     loop {
@@ -63,9 +63,9 @@ fn main() -> ! {
     }
 }
 
-fn dump_cpsr() {
-    let cpsr = aarch32_cpu::register::Cpsr::read();
-    println!("CPSR: {:?}", cpsr);
+fn dump_sctlr() {
+    let sctlr = aarch32_cpu::register::Sctlr::read();
+    println!("{:?}", sctlr);
 }
 
 #[irq]

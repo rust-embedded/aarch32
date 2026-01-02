@@ -3,8 +3,8 @@ Creating GIC driver @ 0xf0000000 / 0xf0100000
 Calling git.setup(0)
 Configure Timer Interrupt...
 Enabling interrupts...
-CPSR: CPSR { N=0 Z=1 C=1 V=0 Q=0 J=0 E=0 A=0 I=1 F=1 T=0 MODE=Ok(Sys) }
-CPSR: CPSR { N=0 Z=1 C=1 V=0 Q=0 J=0 E=0 A=0 I=0 F=1 T=0 MODE=Ok(Sys) }
+SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=0 RR=0 V=0 I=0 Z=1 SW=0 C=0 A=0 M=0 }
+SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=0 RR=0 V=0 I=0 Z=1 SW=0 C=0 A=0 M=0 }
   > IRQ
     - Timer fired, resetting
   < IRQ
