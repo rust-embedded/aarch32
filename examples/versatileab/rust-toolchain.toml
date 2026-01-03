@@ -1,9 +1,9 @@
 [toolchain]
-channel = "stable"
+channel = "nightly-2026-01-02"
 targets = [
 	"armv7r-none-eabi",
 	"armv7r-none-eabihf",
 	"armv7a-none-eabi",
 	"armv7a-none-eabihf",
 ]
-components = ["rust-src"]
+components = ["rust-src", "clippy", "rustfmt"]

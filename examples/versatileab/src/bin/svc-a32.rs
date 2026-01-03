@@ -32,18 +32,12 @@ fn svc_handler(arg: u32) {
     }
 }
 
-#[cfg_attr(
-    any(arm_architecture = "v4t", arm_architecture = "v5te"),
-    instruction_set(arm::a32)
-)]
+#[instruction_set(arm::a32)]
 fn do_svc1() {
     aarch32_cpu::svc!(0xABCDEF);
 }
 
-#[cfg_attr(
-    any(arm_architecture = "v4t", arm_architecture = "v5te"),
-    instruction_set(arm::a32)
-)]
+#[instruction_set(arm::a32)]
 fn do_svc2() {
     aarch32_cpu::svc!(0x456789);
 }

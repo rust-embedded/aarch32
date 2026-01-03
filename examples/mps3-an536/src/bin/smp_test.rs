@@ -102,11 +102,13 @@ fn main() -> ! {
         aarch32_cpu::asm::nop();
     }
 
+    let mut code = 0;
     let total_a = SHARED_VARIABLE.load(Ordering::Relaxed);
     if total_a == CAS_LOOPS * 2 {
         println!("CAS test passed");
     } else {
         println!("CAS test failed, got {} not 2000", total_a);
+        code = 1;
     }
 
     let total_b = critical_section::with(|cs| {
@@ -118,9 +120,10 @@ fn main() -> ! {
         println!("CS Mutex test passed");
     } else {
         println!("CS Mutex test failed, got {} not 2000", total_b);
+        code = 1;
     }
 
-    semihosting::process::exit(0);
+    semihosting::process::exit(code);
 }
 
 /// The entry-point to the Rust application.

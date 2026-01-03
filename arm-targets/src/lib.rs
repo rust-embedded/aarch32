@@ -347,12 +347,7 @@ pub enum Abi {
 impl Abi {
     /// Decode a target string
     pub fn get(target: &str) -> Option<Abi> {
-        if Arch::get(target).is_none() {
-            // Don't give an ABI for non-Arm targets
-            //
-            // e.g. PowerPC also has an ABI called EABI, but it's not the same
-            return None;
-        }
+        let _ = Arch::get(target)?;
         if target.ends_with("eabi") {
             Some(Abi::Eabi)
         } else if target.ends_with("eabihf") {

@@ -2,7 +2,7 @@
 
 /// Entry point to the program
 fn main() {
-    if let Some(target) = std::env::args().skip(1).next() {
+    if let Some(target) = std::env::args().nth(1) {
         println!("// These are the features for the target '{}'", target);
         arm_targets::process_target(&target);
     } else {
