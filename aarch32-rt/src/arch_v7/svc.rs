@@ -21,10 +21,14 @@ core::arch::global_asm!(
     r#"
         mrs     r0, spsr                 // Load processor status that was banked on entry
         tst     r0, {t_bit}              // SVC occurred from Thumb state?
-        ldrhne  r0, [lr,#-2]             // Yes: Load halfword and...
-        bicne   r0, r0, #0xFF00          // ...extract comment field
-        ldreq   r0, [lr,#-4]             // No: Load word and...
-        biceq   r0, r0, #0xFF000000      // ...extract comment field
+        beq     1f
+        ldrh    r0, [lr,#-2]             // Yes: Load halfword and...
+        bic     r0, r0, #0xFF00          // ...extract comment field
+        b       2f
+    1:
+        ldr     r0, [lr,#-4]             // No: Load word and...
+        bic     r0, r0, #0xFF000000      // ...extract comment field
+    2:
         // r0 now contains SVC number
         bl      _svc_handler
     "#,

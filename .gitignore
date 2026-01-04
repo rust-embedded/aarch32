@@ -4,3 +4,5 @@ examples/mps3-an536/target-d32
 examples/versatileab/target
 examples/versatileab/target-d32
 Cargo.lock
+**/.DS_Store
+

@@ -1,0 +1,8 @@
+Hello, this is a undef exception example
+undefined abort occurred
+caught udf_from_a32
+Doing it again
+undefined abort occurred
+caught udf_from_a32
+Skipping instruction
+Recovered from fault OK!
