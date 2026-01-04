@@ -3,7 +3,7 @@ PANIC: PanicInfo {
     message: I am an example panic,
     location: Location {
         file: "src/bin/hello.rs",
-        line: 18,
+        line: 20,
         column: 5,
     },
     can_unwind: true,

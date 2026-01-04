@@ -18,7 +18,7 @@ fn main() -> ! {
     println!("x = {}, y = {}, z = {:0.3}", x, y, z);
     aarch32_cpu::svc!(0xABCDEF);
     println!("x = {}, y = {}, z = {:0.3}", x, y, z);
-    panic!("I am an example panic");
+    semihosting::process::exit(0);
 }
 
 /// This is our SVC exception handler

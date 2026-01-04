@@ -23,7 +23,9 @@ clean:
 	cd arm-targets && cargo clean
 	# The cross-compiled examples
 	cd examples/versatileab && cargo clean
+	rm -rf examples/versatileab/target-d32
 	cd examples/mps3-an536 && cargo clean
+	rm -rf examples/mps3-an536/target-d32
 
 # Builds our workspace for all targets
 build-all: \

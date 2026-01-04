@@ -18,8 +18,7 @@ fn main() -> ! {
     println!("x = {}, y = {}, z = {:0.3}", x, y, z);
     do_svc1();
     println!("x = {}, y = {}, z = {:0.3}", x, y, z);
-
-    panic!("I am an example panic");
+    semihosting::process::exit(0);
 }
 
 /// This is our SVC exception handler

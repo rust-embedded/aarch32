@@ -15,5 +15,6 @@ fn my_main() -> ! {
     let x = 1.0f64;
     let y = x * 2.0;
     println!("Hello, this is semihosting! x = {:0.3}, y = {:0.3}", x, y);
+    versatileab::want_panic();
     panic!("I am an example panic");
 }

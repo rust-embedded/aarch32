@@ -64,6 +64,8 @@ pub const VIRTUAL_TIMER_PPI: arm_gic::IntId = arm_gic::IntId::ppi(11);
 #[cfg(not(arm_architecture = "v8-r"))]
 compile_error!("This example is only compatible to the ARMv8-R architecture");
 
+static WANT_PANIC: AtomicBool = AtomicBool::new(false);
+
 /// Called when the application raises an unrecoverable `panic!`.
 ///
 /// Prints the panic to the console and then exits QEMU using a semihosting
@@ -72,7 +74,16 @@ compile_error!("This example is only compatible to the ARMv8-R architecture");
 #[cfg(target_os = "none")]
 fn panic(info: &core::panic::PanicInfo) -> ! {
     semihosting::println!("PANIC: {:#?}", info);
-    semihosting::process::abort();
+    if WANT_PANIC.load(Ordering::Relaxed) {
+        semihosting::process::exit(0);
+    } else {
+        semihosting::process::abort();
+    }
+}
+
+/// Set the panic function as no longer returning a failure code via semihosting
+pub fn want_panic() {
+    WANT_PANIC.store(true, Ordering::Relaxed);
 }
 
 #[derive(Clone, Debug)]
