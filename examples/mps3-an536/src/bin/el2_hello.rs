@@ -24,6 +24,7 @@ fn main() -> ! {
         }
     }
 
+    mps3_an536::want_panic();
     panic!("I am an example panic");
 }
 

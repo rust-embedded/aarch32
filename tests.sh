@@ -8,7 +8,17 @@ EXIT_FAST=0
 
 FAILURE=0
 
-fail() {
+fail_build() {
+    echo "***************************************************"
+    echo "test.sh FAIL: Binary $1 for target $2 returned non-zero"
+    echo "***************************************************"
+    FAILURE=1
+    if [ $EXIT_FAST == "1" ]; then
+        exit 1
+    fi
+}
+
+fail_diff() {
     echo "***************************************************"
     echo "test.sh MISMATCH: Binary $1 for target $2 mismatched"
     echo "***************************************************"
@@ -49,8 +59,8 @@ cargo build --target=$target $flags || exit 1
 for bin_path in src/bin/*.rs; do
     filename=$(basename $bin_path)
     binary=${filename%.rs}
-    cargo run --target=$target --bin $binary $flags > ./target/$binary-$target.out
-    my_diff ./reference/$binary-$target.out ./target/$binary-$target.out || fail $binary $target
+    cargo run --target=$target --bin $binary $flags > ./target/$binary-$target.out || fail_build $binary $target
+    my_diff ./reference/$binary-$target.out ./target/$binary-$target.out || fail_diff $binary $target
 done
 popd
 
