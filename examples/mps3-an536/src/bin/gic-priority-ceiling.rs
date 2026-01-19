@@ -95,8 +95,10 @@ fn dump_cpsr() {
     println!("CPSR: {:?}", cpsr);
 }
 
+// This function doesn't need to be unsafe - I'm just checking you can apply the unsafe
+// attribute to it
 #[irq]
-fn irq_handler() {
+unsafe fn irq_handler() {
     println!("> IRQ");
     while let Some(int_id) = GicCpuInterface::get_and_acknowledge_interrupt(InterruptGroup::Group1)
     {
