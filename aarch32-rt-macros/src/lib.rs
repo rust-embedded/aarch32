@@ -80,8 +80,16 @@ pub fn entry(args: TokenStream, input: TokenStream) -> TokenStream {
             .into();
     }
 
-    let tramp_ident = Ident::new("__cortex_ar_rt_kmain", Span::call_site());
-    let ident = &f.sig.ident;
+    // This is the name that other Rust code needs to use to call this function -
+    // we make it long an complicated because no-one is supposed to call this function.
+    // The `__aarch32_rt` prefix re-inforces this.
+    //
+    // However, this is not the symbol that the linker sees - we override that to be
+    // `kmain` because that's what the start-up assembly code is looking for. As you
+    // cannot call that symbol without using `extern "C" { }`, it should be sufficiently
+    // well hidden.
+    let tramp_ident = Ident::new("__aarch32_rt_kmain", Span::call_site());
+    let block = f.block;
 
     if let Err(error) = check_attr_whitelist(&f.attrs, Kind::Entry) {
         return error;
@@ -95,10 +103,8 @@ pub fn entry(args: TokenStream, input: TokenStream) -> TokenStream {
         #[doc(hidden)]
         #[export_name = "kmain"]
         pub unsafe extern "C" fn #tramp_ident() -> ! {
-            #ident()
+            #block
         }
-
-        #f
     )
     .into()
 }
