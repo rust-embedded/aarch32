@@ -14,7 +14,10 @@ use core::sync::atomic::{compiler_fence, Ordering};
 pub unsafe fn enable() {
     // Ensure no preceeding memory accesses are reordered to after interrupts are enabled.
     compiler_fence(Ordering::SeqCst);
-    crate::asm::irq_enable();
+    // Safety: as per outer function
+    unsafe {
+        crate::asm::irq_enable();
+    }
 }
 
 /// Disable IRQ

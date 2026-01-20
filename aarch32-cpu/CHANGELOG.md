@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+- Mark `asm::irq_enable()` as unsafe to match `interrupt::enable()`
+
 ## [aarch32-cpu v0.1.0]
 
 ### Added

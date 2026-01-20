@@ -82,7 +82,7 @@ pub fn irq_disable() {
 
 /// Unmask IRQ
 #[cfg_attr(not(feature = "check-asm"), inline)]
-pub fn irq_enable() {
+pub unsafe fn irq_enable() {
     unsafe {
         core::arch::asm!("cpsie i");
     }

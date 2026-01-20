@@ -30,7 +30,7 @@ pub fn irq_disable() {
 /// Unmask IRQ
 #[cfg_attr(not(feature = "check-asm"), inline)]
 #[cfg_attr(target_arch = "arm", instruction_set(arm::a32))]
-pub fn irq_enable() {
+pub unsafe fn irq_enable() {
     #[cfg(target_arch = "arm")]
     unsafe {
         core::arch::asm!(r#"
