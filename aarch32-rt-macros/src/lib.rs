@@ -35,7 +35,7 @@ use syn::{
 /// ```rust
 /// #[doc(hidden)]
 /// #[export_name = "kmain"]
-/// pub unsafe extern "C" fn __cortex_ar_rt_kmain() -> ! {
+/// pub unsafe extern "C" fn __aarch32_rt_kmain() -> ! {
 ///     foo()
 /// }
 ///
@@ -80,10 +80,18 @@ pub fn entry(args: TokenStream, input: TokenStream) -> TokenStream {
             .into();
     }
 
-    let tramp_ident = Ident::new("__cortex_ar_rt_kmain", Span::call_site());
-    let ident = &f.sig.ident;
+    // This is the name that other Rust code needs to use to call this function -
+    // we make it long an complicated because no-one is supposed to call this function.
+    // The `__aarch32_rt` prefix re-inforces this.
+    //
+    // However, this is not the symbol that the linker sees - we override that to be
+    // `kmain` because that's what the start-up assembly code is looking for. As you
+    // cannot call that symbol without using `extern "C" { }`, it should be sufficiently
+    // well hidden.
+    let tramp_ident = Ident::new("__aarch32_rt_kmain", Span::call_site());
+    let block = f.block;
 
-    if let Err(error) = check_attr_whitelist(&f.attrs, Kind::Entry) {
+    if let Err(error) = check_attr_whitelist(&f.attrs, VectorKind::Entry) {
         return error;
     }
 
@@ -95,10 +103,8 @@ pub fn entry(args: TokenStream, input: TokenStream) -> TokenStream {
         #[doc(hidden)]
         #[export_name = "kmain"]
         pub unsafe extern "C" fn #tramp_ident() -> ! {
-            #ident()
+            #block
         }
-
-        #f
     )
     .into()
 }
@@ -144,7 +150,7 @@ impl std::fmt::Display for Exception {
 /// ```rust
 /// #[doc(hidden)]
 /// #[export_name = "_undefined_handler"]
-/// pub unsafe extern "C" fn __cortex_ar_rt_undefined_handler(addr: usize) -> ! {
+/// pub unsafe extern "C" fn __aarch32_rt_undefined_handler(addr: usize) -> ! {
 ///     foo(addr)
 /// }
 ///
@@ -162,7 +168,7 @@ impl std::fmt::Display for Exception {
 /// * Irq (creates `_irq_handler`) - although people should prefer `#[irq]`.
 #[proc_macro_attribute]
 pub fn exception(args: TokenStream, input: TokenStream) -> TokenStream {
-    handle_exception_interrupt(args, input, Kind::Exception)
+    handle_vector(args, input, VectorKind::Exception)
 }
 
 /// Creates an `unsafe` interrupt handler.
@@ -184,7 +190,7 @@ pub fn exception(args: TokenStream, input: TokenStream) -> TokenStream {
 /// ```rust
 /// #[doc(hidden)]
 /// #[export_name = "_irq_handler"]
-/// pub unsafe extern "C" fn __cortex_ar_rt_irq_handler(addr: usize) -> ! {
+/// pub unsafe extern "C" fn __aarch32_rt_irq_handler(addr: usize) -> ! {
 ///     foo(addr)
 /// }
 ///
@@ -197,12 +203,12 @@ pub fn exception(args: TokenStream, input: TokenStream) -> TokenStream {
 /// probably won't consider interrupts to be a form of exception.
 #[proc_macro_attribute]
 pub fn irq(args: TokenStream, input: TokenStream) -> TokenStream {
-    handle_exception_interrupt(args, input, Kind::Interrupt)
+    handle_vector(args, input, VectorKind::Interrupt)
 }
 
 /// Note if we got `#[entry]`, `#[exception(...)]` or `#[irq]`
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
-enum Kind {
+enum VectorKind {
     /// Corresponds to `#[entry]`
     Entry,
     /// Corresponds to `#[exception(...)]`
@@ -212,7 +218,7 @@ enum Kind {
 }
 
 /// A common routine for handling exception or interrupt functions
-fn handle_exception_interrupt(args: TokenStream, input: TokenStream, kind: Kind) -> TokenStream {
+fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> TokenStream {
     let f = parse_macro_input!(input as ItemFn);
 
     if let Err(error) = check_attr_whitelist(&f.attrs, kind) {
@@ -225,10 +231,10 @@ fn handle_exception_interrupt(args: TokenStream, input: TokenStream, kind: Kind)
     };
 
     let exception = match kind {
-        Kind::Entry => {
-            panic!("Don't handle #[entry] with `handle_exception_interrupt`!");
+        VectorKind::Entry => {
+            panic!("Don't handle #[entry] with `handle_vector`!");
         }
-        Kind::Exception => {
+        VectorKind::Exception => {
             let mut args_iter = args.into_iter();
             let Some(TokenTree::Ident(exception_name)) = args_iter.next() else {
                 return parse::Error::new(
@@ -292,17 +298,17 @@ fn handle_exception_interrupt(args: TokenStream, input: TokenStream, kind: Kind)
                 }
             }
         }
-        Kind::Interrupt => Exception::Irq,
+        VectorKind::Interrupt => Exception::Irq,
     };
 
-    let ident = &f.sig.ident;
+    let block = f.block;
     let (ref cfgs, ref attrs) = extract_cfgs(f.attrs.clone());
 
     let handler = match exception {
         // extern "C" fn _undefined_handler(addr: usize) -> !;
         // unsafe extern "C" fn _undefined_handler(addr: usize) -> usize;
         Exception::Undefined => {
-            let tramp_ident = Ident::new("__cortex_ar_rt_undefined_handler", Span::call_site());
+            let tramp_ident = Ident::new("__aarch32_rt_undefined_handler", Span::call_site());
             if returns_never {
                 quote!(
                     #(#cfgs)*
@@ -310,10 +316,9 @@ fn handle_exception_interrupt(args: TokenStream, input: TokenStream, kind: Kind)
                     #[doc(hidden)]
                     #[export_name = "_undefined_handler"]
                     pub unsafe extern "C" fn #tramp_ident(addr: usize) -> ! {
-                        #ident(addr)
+                        #block
                     }
 
-                    #f
                 )
             } else {
                 quote!(
@@ -322,20 +327,16 @@ fn handle_exception_interrupt(args: TokenStream, input: TokenStream, kind: Kind)
                     #[doc(hidden)]
                     #[export_name = "_undefined_handler"]
                     pub unsafe extern "C" fn #tramp_ident(addr: usize) -> usize {
-                        unsafe {
-                            #ident(addr)
-                        }
+                        #block
                     }
 
-                    #f
                 )
             }
         }
         // extern "C" fn _prefetch_abort_handler(addr: usize) -> !;
         // unsafe extern "C" fn _prefetch_abort_handler(addr: usize) -> usize;
         Exception::PrefetchAbort => {
-            let tramp_ident =
-                Ident::new("__cortex_ar_rt_prefetch_abort_handler", Span::call_site());
+            let tramp_ident = Ident::new("__aarch32_rt_prefetch_abort_handler", Span::call_site());
             if returns_never {
                 quote!(
                     #(#cfgs)*
@@ -343,10 +344,8 @@ fn handle_exception_interrupt(args: TokenStream, input: TokenStream, kind: Kind)
                     #[doc(hidden)]
                     #[export_name = "_prefetch_abort_handler"]
                     pub unsafe extern "C" fn #tramp_ident(addr: usize) -> ! {
-                        #ident(addr)
+                        #block
                     }
-
-                    #f
                 )
             } else {
                 quote!(
@@ -355,19 +354,16 @@ fn handle_exception_interrupt(args: TokenStream, input: TokenStream, kind: Kind)
                     #[doc(hidden)]
                     #[export_name = "_prefetch_abort_handler"]
                     pub unsafe extern "C" fn #tramp_ident(addr: usize) -> usize {
-                        unsafe {
-                            #ident(addr)
-                        }
+                        #block
                     }
 
-                    #f
                 )
             }
         }
         // extern "C" fn _data_abort_handler(addr: usize) -> !;
         // unsafe extern "C" fn _data_abort_handler(addr: usize) -> usize;
         Exception::DataAbort => {
-            let tramp_ident = Ident::new("__cortex_ar_rt_data_abort_handler", Span::call_site());
+            let tramp_ident = Ident::new("__aarch32_rt_data_abort_handler", Span::call_site());
             if returns_never {
                 quote!(
                     #(#cfgs)*
@@ -375,10 +371,9 @@ fn handle_exception_interrupt(args: TokenStream, input: TokenStream, kind: Kind)
                     #[doc(hidden)]
                     #[export_name = "_data_abort_handler"]
                     pub unsafe extern "C" fn #tramp_ident(addr: usize) -> ! {
-                        #ident(addr)
+                        #block
                     }
 
-                    #f
                 )
             } else {
                 quote!(
@@ -387,43 +382,35 @@ fn handle_exception_interrupt(args: TokenStream, input: TokenStream, kind: Kind)
                     #[doc(hidden)]
                     #[export_name = "_data_abort_handler"]
                     pub unsafe extern "C" fn #tramp_ident(addr: usize) -> usize {
-                        unsafe {
-                            #ident(addr)
-                        }
+                        #block
                     }
-
-                    #f
                 )
             }
         }
         // extern "C" fn _svc_handler(addr: usize);
         Exception::SupervisorCall => {
-            let tramp_ident = Ident::new("__cortex_ar_rt_svc_handler", Span::call_site());
+            let tramp_ident = Ident::new("__aarch32_rt_svc_handler", Span::call_site());
             quote!(
                 #(#cfgs)*
                 #(#attrs)*
                 #[doc(hidden)]
                 #[export_name = "_svc_handler"]
                 pub unsafe extern "C" fn #tramp_ident(arg: u32) {
-                    #ident(arg)
+                    #block
                 }
-
-                #f
             )
         }
         // extern "C" fn _irq_handler(addr: usize);
         Exception::Irq => {
-            let tramp_ident = Ident::new("__cortex_ar_rt_irq_handler", Span::call_site());
+            let tramp_ident = Ident::new("__aarch32_rt_irq_handler", Span::call_site());
             quote!(
                 #(#cfgs)*
                 #(#attrs)*
                 #[doc(hidden)]
                 #[export_name = "_irq_handler"]
                 pub unsafe extern "C" fn #tramp_ident() {
-                    #ident()
+                    #block
                 }
-
-                #f
             )
         }
     };
@@ -453,7 +440,7 @@ fn extract_cfgs(attrs: Vec<Attribute>) -> (Vec<Attribute>, Vec<Attribute>) {
 }
 
 /// Check whether any disallowed attributes have been applied to our entry/exception function.
-fn check_attr_whitelist(attrs: &[Attribute], caller: Kind) -> Result<(), TokenStream> {
+fn check_attr_whitelist(attrs: &[Attribute], caller: VectorKind) -> Result<(), TokenStream> {
     let whitelist = &[
         "doc",
         "link_section",
@@ -475,11 +462,11 @@ fn check_attr_whitelist(attrs: &[Attribute], caller: Kind) -> Result<(), TokenSt
         }
 
         let err_str = match caller {
-            Kind::Entry => "this attribute is not allowed on an aarch32-rt entry point",
-            Kind::Exception => {
+            VectorKind::Entry => "this attribute is not allowed on an aarch32-rt entry point",
+            VectorKind::Exception => {
                 "this attribute is not allowed on an exception handler controlled by aarch32-rt"
             }
-            Kind::Interrupt => {
+            VectorKind::Interrupt => {
                 "this attribute is not allowed on an interrupt handler controlled by aarch32-rt"
             }
         };

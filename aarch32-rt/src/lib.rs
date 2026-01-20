@@ -115,7 +115,10 @@
 //! ```
 //!
 //! You can also create a 'kmain' function by using the `#[entry]` attribute on
-//! a normal Rust function.
+//! a normal Rust function. The function will be renamed in such a way that the
+//! start-up assembly code can find it, but normal Rust code cannot. Therefore
+//! you can be assured that the function will only be called once (unless someone
+//! resorts to `unsafe` Rust to import the `kmain` symbol as an `extern "C" fn`).
 //!
 //! ```rust
 //! use aarch32_rt::entry;
