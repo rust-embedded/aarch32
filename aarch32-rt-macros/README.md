@@ -1,6 +1,6 @@
 # Macros for `aarch32-rt`
 
-This crate contains proc-macros that are re-exported through the `aarch32-rt` crate
+This crate contains proc-macros that are re-exported through the `aarch32-rt` crate.
 
 [aarch32-rt]: https://crates.io/crates/aarch32-rt
 
