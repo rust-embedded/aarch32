@@ -21,11 +21,11 @@ name = "aarch32-rt"
 readme = "README.md"
 repository = "https://github.com/rust-embedded/aarch32.git"
 rust-version = "1.83"
-version = "0.1.0"
+version = "0.2.0"
 
 [dependencies]
-aarch32-cpu = { version = "0.1.0", path = "../aarch32-cpu" }
-aarch32-rt-macros = { path = "../aarch32-rt-macros", version = "=0.1.0" }
+aarch32-cpu = { version = "0.2.0", path = "../aarch32-cpu" }
+aarch32-rt-macros = { path = "../aarch32-rt-macros", version = "=0.2.0" }
 
 [features]
 # Enable the FPU on start-up, even on a soft-float EABI target
