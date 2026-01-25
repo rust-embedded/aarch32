@@ -19,7 +19,7 @@ PANIC: PanicInfo {
     message: I am an example panic,
     location: Location {
         file: "src/bin/el2_hello.rs",
-        line: 27,
+        line: 28,
         column: 5,
     },
     can_unwind: true,
