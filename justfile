@@ -155,7 +155,7 @@ test-cargo:
 
 # Run the integration tests in QEMU
 test-qemu:
-	#!/bin/sh
+	#!/bin/bash
 	FAIL=0
 	./tests.sh examples/versatileab armv4t-none-eabi -Zbuild-std=core {{verbose}} || FAIL=1
 	./tests.sh examples/versatileab thumbv4t-none-eabi -Zbuild-std=core {{verbose}} || FAIL=1
