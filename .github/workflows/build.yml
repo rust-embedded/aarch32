@@ -63,9 +63,9 @@ jobs:
         uses: taiki-e/install-action@just
       - name: Install Rust
         run: |
-          rustup install nightly-2026-01-25
-          rustup component add rust-src --toolchain nightly-2026-01-25
-          rustup default nightly-2026-01-25
+          rustup install nightly-2026-01-26
+          rustup component add rust-src --toolchain nightly-2026-01-26
+          rustup default nightly-2026-01-26
       - name: Build
         run: |
           just build-tier3 ${{ matrix.target }}
@@ -89,9 +89,9 @@ jobs:
         uses: taiki-e/install-action@just
       - name: Install Rust
         run: |
-          rustup install nightly-2026-01-25
-          rustup component add rust-src --toolchain nightly-2026-01-25
-          rustup default nightly-2026-01-25
+          rustup install nightly-2026-01-26
+          rustup component add rust-src --toolchain nightly-2026-01-26
+          rustup default nightly-2026-01-26
       - name: Build
         run: |
           just build-tier3-no-atomics ${{ matrix.target }}
