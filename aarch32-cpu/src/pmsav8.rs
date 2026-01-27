@@ -135,6 +135,7 @@ impl El1Mpu {
     }
 
     /// Set the memory attributes to MAIR0 and MAIR1
+    #[allow(clippy::get_first)]
     pub fn set_attributes(&mut self, memattrs: &[MemAttr]) {
         let mem_attr0 = memattrs.get(0).map(|m| m.to_bits()).unwrap_or(0) as u32;
         let mem_attr1 = memattrs.get(1).map(|m| m.to_bits()).unwrap_or(0) as u32;
@@ -299,6 +300,7 @@ impl El2Mpu {
     }
 
     /// Set the memory attributes to HMAIR0 and HMAIR1
+    #[allow(clippy::get_first)]
     pub fn set_attributes(&mut self, memattrs: &[MemAttr]) {
         let mem_attr0 = memattrs.get(0).map(|m| m.to_bits()).unwrap_or(0) as u32;
         let mem_attr1 = memattrs.get(1).map(|m| m.to_bits()).unwrap_or(0) as u32;
@@ -486,6 +488,7 @@ pub enum Cacheable {
 
 impl Cacheable {
     const fn to_bits(&self) -> u8 {
+        #[allow(clippy::identity_op)]
         match self {
             Cacheable::WriteThroughTransient(rw_alloc) => 0b0000 | (*rw_alloc as u8),
             Cacheable::WriteBackTransient(rw_alloc) => 0b0100 | (*rw_alloc as u8),
