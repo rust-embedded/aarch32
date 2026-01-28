@@ -44,7 +44,34 @@ jobs:
         run: |
           just build-tier2 ${{ matrix.target }}
 
-  # These targets need build-std, and have no atomics
+  # These targets need build-std
+  build-tier3:
+    runs-on: ubuntu-24.04
+    needs: setup
+    strategy:
+      matrix:
+        target:
+          - thumbv7r-none-eabi
+          - thumbv7r-none-eabihf
+          - thumbv7a-none-eabi
+          - thumbv7a-none-eabihf
+          - thumbv8r-none-eabihf
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Rust
+        run: |
+          rustup install nightly-2026-01-25
+          rustup component add rust-src --toolchain nightly-2026-01-25
+          rustup default nightly-2026-01-25
+      - name: Build
+        run: |
+          just build-tier3 ${{ matrix.target }}
+
+  # These targets need build-std, and have no atomics so we have to skip
+  # the 'critical-section-multi-core' feature
   build-tier3-no-atomics:
     runs-on: ubuntu-24.04
     needs: setup
@@ -62,9 +89,9 @@ jobs:
         uses: taiki-e/install-action@just
       - name: Install Rust
         run: |
-          rustup install nightly-2025-10-29
-          rustup component add rust-src --toolchain nightly-2025-10-29
-          rustup default nightly-2025-10-29
+          rustup install nightly-2026-01-25
+          rustup component add rust-src --toolchain nightly-2026-01-25
+          rustup default nightly-2026-01-25
       - name: Build
         run: |
           just build-tier3-no-atomics ${{ matrix.target }}
@@ -92,7 +119,7 @@ jobs:
   # Gather all the above build jobs together for the purposes of getting an overall pass-fail
   build-all:
     runs-on: ubuntu-24.04
-    needs: [build-tier2, build-tier3-no-atomics, build-arm-targets]
+    needs: [build-tier2, build-tier3-no-atomics, build-tier3, build-arm-targets]
     steps:
       - run: /bin/true
 

@@ -1,0 +1,27 @@
+Hello, this is semihosting! x = 1.000, y = 2.000
+Region 0: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 1: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 2: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 3: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 4: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 5: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 6: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 7: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 8: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 9: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 10: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 11: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 12: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 13: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 14: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 15: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+PANIC: PanicInfo {
+    message: I am an example panic,
+    location: Location {
+        file: "src/bin/el2_hello.rs",
+        line: 28,
+        column: 5,
+    },
+    can_unwind: true,
+    force_no_backtrace: false,
+}
