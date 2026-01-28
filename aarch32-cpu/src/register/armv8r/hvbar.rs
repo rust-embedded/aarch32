@@ -43,7 +43,7 @@ impl Hvbar {
     pub unsafe fn write(value: Self) {
         // Safety: Writing this register is atomic
         unsafe {
-            <Self as SysRegWrite>::write_raw(value.0 as u32);
+            <Self as SysRegWrite>::write_raw(value.0);
         }
     }
 }

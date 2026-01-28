@@ -81,6 +81,10 @@ pub fn irq_disable() {
 }
 
 /// Unmask IRQ
+///
+/// # Safety
+///
+/// Do not call this function inside an interrupt-based critical section
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub unsafe fn irq_enable() {
     unsafe {
