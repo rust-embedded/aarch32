@@ -1,0 +1,5 @@
+MIDR { implementer=0x41 variant=0x0 arch=0xf part_no=0xc08 rev=0x0 }
+CPSR { N=0 Z=1 C=1 V=0 Q=0 J=0 E=0 A=1 I=1 F=1 T=0 MODE=Ok(Sys) }
+Mpidr(0)
+SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=0 RR=0 V=0 I=0 Z=0 SW=0 C=0 A=0 M=0 } before setting C, I and Z
+SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=0 RR=0 V=0 I=1 Z=1 SW=0 C=1 A=0 M=0 } after

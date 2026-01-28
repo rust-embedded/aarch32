@@ -216,15 +216,21 @@ impl Arch {
             Some(Arch::Armv8MBase)
         } else if target.starts_with("thumbv8m.main-") {
             Some(Arch::Armv8MMain)
-        } else if target.starts_with("armv7r-") || target.starts_with("armebv7r") {
+        } else if target.starts_with("armv7r-")
+            || target.starts_with("armebv7r-")
+            || target.starts_with("thumbv7r-")
+        {
             Some(Arch::Armv7R)
-        } else if target.starts_with("armv8r-") {
+        } else if target.starts_with("armv8r-") || target.starts_with("thumbv8r-") {
             Some(Arch::Armv8R)
-        } else if target.starts_with("armv7a-") {
+        } else if target.starts_with("armv7a-") || target.starts_with("thumbv7a-") {
             Some(Arch::Armv7A)
         } else if target.starts_with("aarch64-") || target.starts_with("aarch64be-") {
             Some(Arch::Armv8A)
-        } else if target.starts_with("arm-") {
+        } else if target.starts_with("arm-")
+            || target.starts_with("armv6-")
+            || target.starts_with("thumbv6-")
+        {
             // If not specified, assume Armv6
             Some(Arch::Armv6)
         } else {
@@ -405,6 +411,26 @@ mod test {
     }
 
     #[test]
+    fn armv6_none_eabi() {
+        let target = "armv6-none-eabi";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv6));
+        assert_eq!(target_info.profile(), Some(Profile::Legacy));
+        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+    }
+
+    #[test]
+    fn armv6_none_eabihf() {
+        let target = "armv6-none-eabihf";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv6));
+        assert_eq!(target_info.profile(), Some(Profile::Legacy));
+        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+    }
+
+    #[test]
     fn arm_unknown_linux_gnueabi() {
         let target = "arm-unknown-linux-gnueabi";
         let target_info = process_target(target);
@@ -479,6 +505,16 @@ mod test {
         let target = "armv8r-none-eabihf";
         let target_info = process_target(target);
         assert_eq!(target_info.isa(), Some(Isa::A32));
+        assert_eq!(target_info.arch(), Some(Arch::Armv8R));
+        assert_eq!(target_info.profile(), Some(Profile::R));
+        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+    }
+
+    #[test]
+    fn thumbv8r_none_eabihf() {
+        let target = "thumbv8r-none-eabihf";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::T32));
         assert_eq!(target_info.arch(), Some(Arch::Armv8R));
         assert_eq!(target_info.profile(), Some(Profile::R));
         assert_eq!(target_info.abi(), Some(Abi::EabiHf));

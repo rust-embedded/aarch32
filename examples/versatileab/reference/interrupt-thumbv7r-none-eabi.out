@@ -1,0 +1,15 @@
+Setting up interrupts...
+Firing interrupt...
+> interrupt_handler()
+> soft_handler1()
+> interrupt_handler()
+> soft_handler2()
+< soft_handler2()
+< interrupt_handler()
+< soft_handler1()
+< interrupt_handler()
+Got interrupted :)
+> interrupt_handler()
+catchall_handler() fired
+< interrupt_handler()
+catch all works. All done!
