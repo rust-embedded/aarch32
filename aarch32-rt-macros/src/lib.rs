@@ -114,6 +114,7 @@ pub fn entry(args: TokenStream, input: TokenStream) -> TokenStream {
 enum Exception {
     Undefined,
     SupervisorCall,
+    HypervisorCall,
     PrefetchAbort,
     DataAbort,
     Irq,
@@ -124,6 +125,7 @@ impl std::fmt::Display for Exception {
         match self {
             Exception::Undefined => write!(f, "Undefined"),
             Exception::SupervisorCall => write!(f, "SupervisorCall"),
+            Exception::HypervisorCall => write!(f, "HypervisorCall"),
             Exception::PrefetchAbort => write!(f, "PrefetchAbort"),
             Exception::DataAbort => write!(f, "DataAbort"),
             Exception::Irq => write!(f, "Irq"),
@@ -163,6 +165,7 @@ impl std::fmt::Display for Exception {
 ///
 /// * Undefined (creates `_undefined_handler`)
 /// * SupervisorCall (creates `_svc_handler`)
+/// * HypervisorCall (creates `_hvc_handler`)
 /// * PrefetchAbort (creates `_prefetch_abort_handler`)
 /// * DataAbort (creates `_data_abort_handler`)
 /// * Irq (creates `_irq_handler`) - although people should prefer `#[irq]`.
@@ -265,6 +268,7 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
                     Exception::Undefined
                 }
                 "SupervisorCall" => Exception::SupervisorCall,
+                "HypervisorCall" => Exception::HypervisorCall,
                 "PrefetchAbort" => {
                     if !returns_never && f.sig.unsafety.is_none() {
                         return parse::Error::new(
@@ -400,6 +404,21 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
                     #f
 
                     #func_name(arg, frame)
+                }
+            )
+        }
+        // extern "C" fn _hvc_handler(arg: u32, args: &Frame) -> u32;
+        Exception::HypervisorCall => {
+            let tramp_ident = Ident::new("__aarch32_rt_hvc_handler", Span::call_site());
+            quote!(
+                #(#cfgs)*
+                #(#attrs)*
+                #[doc(hidden)]
+                #[export_name = "_hvc_handler"]
+                pub unsafe extern "C" fn #tramp_ident(hsr: u32, frame: &aarch32_rt::Frame) -> u32 {
+                    #f
+
+                    #func_name(hsr, frame)
                 }
             )
         }
