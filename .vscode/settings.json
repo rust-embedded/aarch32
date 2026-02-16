@@ -7,7 +7,9 @@
     "rust-analyzer.checkOnSave": true,
     "rust-analyzer.linkedProjects": [
         "./Cargo.toml",
+        "./arm-targets/Cargo.toml",
         "examples/versatileab/Cargo.toml",
-        "examples/mps3-an536/Cargo.toml"
+        "examples/mps3-an536/Cargo.toml",
+        "examples/mps3-an536-smp/Cargo.toml",
     ]
 }
