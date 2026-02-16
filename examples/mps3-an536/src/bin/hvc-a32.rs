@@ -24,11 +24,9 @@ fn main() -> ! {
 
 /// This is our HVC exception handler
 #[exception(HypervisorCall)]
-fn hvc_handler(arg: u32, frame: &aarch32_rt::Frame) -> u32 {
-    println!(
-        "In hvc_handler, with HSR=0x{:08x}, frame={:08x?}",
-        arg, frame
-    );
+fn hvc_handler(hsr: u32, frame: &aarch32_rt::Frame) -> u32 {
+    let hsr = aarch32_cpu::register::Hsr::new_with_raw_value(hsr);
+    println!("In hvc_handler, with {:08x?}, {:08x?}", hsr, frame);
     return 0x12345678;
 }
 
