@@ -201,8 +201,7 @@
 //! cannot control where execution resumes. The function is passed the literal
 //! integer argument to the `svc` instruction, which is extracted from the
 //! machine code for you by the default assembly trampoline, along with
-//! registers r0 through r7, in the form of a reference to a `Frame`
-//! structure.
+//! registers r0 through r5, in the form of a reference to a `Frame` structure.
 //!
 //! Our linker script PROVIDEs a default `_svc_handler` symbol which is an alias
 //! for the `_default_handler` function. You can override it by defining your
@@ -240,7 +239,9 @@
 //! Returning from this function will cause execution to resume at the function
 //! the triggered the exception, immediately after the HVC instruction. You
 //! cannot control where execution resumes. The function is passed contents of
-//! the HSR register.
+//! the Hypervisor Syndrome Register (HSR) register, which is fetched by the
+//! default assembly trampoline, along with registers r0 through r5, in the form
+//! of a reference to a `Frame` structure.
 //!
 //! Our linker script PROVIDEs a default `_hvc_handler` symbol which is an alias
 //! for the `_default_handler` function. You can override it by defining your
@@ -265,6 +266,12 @@
 //!     // do stuff here
 //!     todo!()
 //! }
+//! ```
+//!
+//! If you wish to inspect the HSR value, you can use the `aarch32-cpu` crate:
+//!
+//! ```rust,ignore
+//! let hsr = aarch32_cpu::register::Hsr::new_with_raw_value(hsr);
 //! ```
 //!
 //! ### Prefetch Abort Handler
