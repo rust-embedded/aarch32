@@ -53,8 +53,8 @@ impl El1Mpu {
         register::Prselr::write(register::Prselr(idx as u32));
         let prbar = register::Prbar::read();
         let prlar = register::Prlar::read();
-        let start_addr = (prbar.base().value() << 6) as *mut u8;
-        let end_addr = ((prlar.limit().value() << 6) | 0x3F) as *mut u8;
+        let start_addr = prbar.base_address();
+        let end_addr = prlar.limit_address();
         Some(El1Region {
             range: start_addr..=end_addr,
             shareability: prbar.shareability(),

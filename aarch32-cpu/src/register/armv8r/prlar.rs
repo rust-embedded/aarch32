@@ -1,6 +1,6 @@
 //! Code for managing PRLAR (*Protection Region Limit Address Register*)
 
-use arbitrary_int::{u26, u3};
+use arbitrary_int::{traits::Integer, u26, u3};
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
@@ -45,5 +45,10 @@ impl Prlar {
         unsafe {
             <Self as SysRegWrite>::write_raw(value.raw_value());
         }
+    }
+
+    /// Gets the limit address
+    pub fn limit_address(self) -> *mut u8 {
+        ((self.limit().as_usize() << 6) | 0b111_111) as *mut u8
     }
 }

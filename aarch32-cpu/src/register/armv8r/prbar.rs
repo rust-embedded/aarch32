@@ -1,6 +1,6 @@
 //! Code for managing PRBAR (*Protection Region Base Address Register*)
 
-use arbitrary_int::u26;
+use arbitrary_int::{traits::Integer, u26};
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
@@ -80,5 +80,10 @@ impl Prbar {
         unsafe {
             <Self as SysRegWrite>::write_raw(value.raw_value());
         }
+    }
+
+    /// Get the base address
+    pub fn base_address(self) -> *mut u8 {
+        (self.base().as_usize() << 6) as *mut u8
     }
 }
