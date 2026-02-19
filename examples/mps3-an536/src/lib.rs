@@ -55,11 +55,17 @@
 
 use core::sync::atomic::{AtomicBool, Ordering};
 
-/// The PPI for the virutal timer, according to the Cortex-R52 Technical Reference Manual,
+/// The PPI for the virtual timer, according to the Cortex-R52 Technical Reference Manual,
 /// Table 10-3: PPI assignments.
 ///
 /// This corresponds to Interrupt ID 27.
 pub const VIRTUAL_TIMER_PPI: arm_gic::IntId = arm_gic::IntId::ppi(11);
+
+/// The PPI for the EL2 timer, according to the Cortex-R52 Technical Reference Manual,
+/// Table 10-3: PPI assignments.
+///
+/// This corresponds to Interrupt ID 26.
+pub const HYP_TIMER_PPI: arm_gic::IntId = arm_gic::IntId::ppi(10);
 
 #[cfg(not(arm_architecture = "v8-r"))]
 compile_error!("This example is only compatible to the ARMv8-R architecture");

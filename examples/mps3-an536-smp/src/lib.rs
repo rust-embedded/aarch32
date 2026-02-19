@@ -53,7 +53,7 @@
 
 #![no_std]
 
-use aarch32_cpu::register::{Hactlr, Cpsr, cpsr::ProcessorMode};
+use aarch32_cpu::register::{Cpsr, Hactlr, cpsr::ProcessorMode};
 
 use core::sync::atomic::{AtomicBool, Ordering};
 
@@ -192,21 +192,23 @@ pub fn start_core1() {
     }
 }
 
-// Start-up code for multi-core Armv8-R, as implemented on the MPS3-AN536.
-//
-// We boot into EL2, set up a stack pointer, init .data on .bss on core0, and
-// run `kmain` in EL1 on all cores.
+/// Start-up code for multi-core Armv8-R, as implemented on the MPS3-AN536.
+///
+/// We boot into EL2, set up a stack pointer, init .data on .bss on core0, and
+/// run `kmain` in EL1 on all cores.
+///
+/// # Safety
+///
+/// This function should not be called manually. It should only be called on reset
+/// from the reset vector.
+#[unsafe(naked)]
+#[unsafe(no_mangle)]
+#[unsafe(link_section = ".text.startup")]
+#[instruction_set(arm::a32)]
 #[cfg(arm_architecture = "v8-r")]
-core::arch::global_asm!(
-    r#"
-    .pushsection .text.startup
-    .align 4
-    .arm
-
-    .global _start
-    .global core1_released
-    .type _start, %function
-    _start:
+pub unsafe extern "C" fn _start() {
+    core::arch::naked_asm!(
+        r#"
         // Read MPIDR into R0
         mrc     p15, 0, r0, c0, c0, 5
         ands    r0, r0, 0xFF
@@ -273,30 +275,29 @@ core::arch::global_asm!(
         mov     r12, 0
         // call our kmain2 for core 1
         bl      kmain2
-    .size _start, . - _start
-    .popsection
     "#,
-    hactlr_bits = const {
-        Hactlr::new_with_raw_value(0)
-            .with_cpuactlr(true)
-            .with_cdbgdci(true)
-            .with_flashifregionr(true)
-            .with_periphpregionr(true)
-            .with_qosr(true)
-            .with_bustimeoutr(true)
-            .with_intmonr(true)
-            .with_err(true)
-            .with_testr1(true)
-            .raw_value()
-    },
-    sys_mode = const {
-        Cpsr::new_with_raw_value(0)
-            .with_mode(ProcessorMode::Sys)
-            .with_i(true)
-            .with_f(true)
-            .raw_value()
-    },
-);
+        hactlr_bits = const {
+            Hactlr::new_with_raw_value(0)
+                .with_cpuactlr(true)
+                .with_cdbgdci(true)
+                .with_flashifregionr(true)
+                .with_periphpregionr(true)
+                .with_qosr(true)
+                .with_bustimeoutr(true)
+                .with_intmonr(true)
+                .with_err(true)
+                .with_testr1(true)
+                .raw_value()
+        },
+        sys_mode = const {
+            Cpsr::new_with_raw_value(0)
+                .with_mode(ProcessorMode::Sys)
+                .with_i(true)
+                .with_f(true)
+                .raw_value()
+        },
+    )
+}
 
 /// What a second core does when no `kmain2` is supplied.
 #[unsafe(no_mangle)]

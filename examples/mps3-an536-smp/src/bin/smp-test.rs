@@ -32,7 +32,10 @@ const CS_MUTEX_LOOPS: u32 = 1000;
 /// It is called by the start-up code in `aarch32-rt`.
 #[entry]
 fn main() -> ! {
-    println!("I am core 0 - {:08x?}", aarch32_cpu::register::Mpidr::read());
+    println!(
+        "I am core 0 - {:08x?}",
+        aarch32_cpu::register::Mpidr::read()
+    );
 
     mps3_an536_smp::start_core1();
 
@@ -93,7 +96,10 @@ fn main() -> ! {
 /// It is called by the start-up code below, on Core 1.
 #[unsafe(no_mangle)]
 pub extern "C" fn kmain2() {
-    println!("I am core 1 - {:08x?}", aarch32_cpu::register::Mpidr::read());
+    println!(
+        "I am core 1 - {:08x?}",
+        aarch32_cpu::register::Mpidr::read()
+    );
     CORE1_BOOTED.store(true, Ordering::SeqCst);
 
     for _ in 0..CAS_LOOPS {

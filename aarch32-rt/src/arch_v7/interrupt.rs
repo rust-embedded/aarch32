@@ -19,7 +19,7 @@ core::arch::global_asm!(
     _asm_default_irq_handler:
         sub     lr, lr, 4                 // make sure we jump back to the right place
         srsfd   sp!, #{sys_mode}          // store return state to SYS stack
-        cps     #{sys_mode}               // switch to system mode so we can handle another interrupt (because if we interrupt irq mode we trash our own shadow registers)
+        cps     #{sys_mode}               // switch to system mode (because if we interrupt in IRQ mode we trash IRQ mode's LR)
         push    {{ lr }}                  // save adjusted LR to SYS stack
         and     lr, sp, 7                 // align SP down to eight byte boundary using LR
         sub     sp, lr                    // SP now aligned - only push 64-bit values from here
