@@ -53,7 +53,7 @@
 
 #![no_std]
 
-use aarch32_cpu::register::{Hactlr, Cpsr, cpsr::ProcessorMode};
+use aarch32_cpu::register::{Cpsr, Hactlr, cpsr::ProcessorMode};
 
 use core::sync::atomic::{AtomicBool, Ordering};
 

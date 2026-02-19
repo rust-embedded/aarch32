@@ -20,7 +20,7 @@ core::arch::global_asm!(
         push    {{ lr }}                  // save adjusted LR to IRQ stack
         mrs     lr, spsr                  // The hardware has copied the interrupted task's CPSR to SPSR_irq - grab it and
         push    {{ lr }}                  //   save it to IRQ stack using LR
-        msr     cpsr_c, {sys_mode}        // switch to system mode so we can handle another interrupt (because if we interrupt irq mode we trash our own shadow registers)
+        msr     cpsr_c, {sys_mode}        // switch to system mode (because if we interrupt in IRQ mode we trash IRQ mode's LR)
         push    {{ lr }}                  // Save LR of system mode before using it for stack alignment
         mov     lr, sp                    // align SP down to eight byte boundary using LR
         and     lr, lr, 7                 //

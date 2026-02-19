@@ -406,6 +406,50 @@ jobs:
           export PATH=/opt/qemu/bin:$PATH
           just test-qemu-v8r
 
+  # Run some SMP programs in QEMU 9 for Armv8-R
+  # These tests build with nightly as pinned by the rust-toolchain.toml file, because they include Tier 3 targets
+  test-qemu-v8r-smp:
+    runs-on: ubuntu-24.04
+    needs: [build-all]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Dependencies
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64
+      - name: Install custom QEMU into /opt
+        run: |
+          curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
+      - name: Run tests in QEMU
+        run: |
+          export PATH=/opt/qemu/bin:$PATH
+          just test-qemu-v8r-smp
+
+  # Run some EL2 programs in QEMU 9 for Armv8-R
+  # These tests build with nightly as pinned by the rust-toolchain.toml file, because they include Tier 3 targets
+  test-qemu-v8r-el2:
+    runs-on: ubuntu-24.04
+    needs: [build-all]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Dependencies
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64
+      - name: Install custom QEMU into /opt
+        run: |
+          curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
+      - name: Run tests in QEMU
+        run: |
+          export PATH=/opt/qemu/bin:$PATH
+          just test-qemu-v8r-el2
+
   # Gather all the above QEMU jobs together for the purposes of getting an overall pass-fail
   test-qemu-all:
     runs-on: ubuntu-24.04
@@ -417,6 +461,8 @@ jobs:
         test-qemu-v7a,
         test-qemu-v7r,
         test-qemu-v8r,
+        test-qemu-v8r-smp,
+        test-qemu-v8r-el2,
       ]
     steps:
       - run: /bin/true

@@ -1,0 +1,19 @@
+Hello, this is semihosting! x = 1.000, y = 2.000
+SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=0 RR=0 V=0 I=0 Z=1 SW=0 C=0 A=0 M=0 }
+CPSR { N=0 Z=1 C=1 V=0 Q=0 J=0 E=0 A=1 I=1 F=1 T=0 MODE=Ok(Hyp) }
+Region 0: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 1: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 2: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 3: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 4: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 5: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 6: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 7: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 8: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 9: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 10: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 11: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 12: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 13: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 14: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }
+Region 15: El2Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL10, no_exec: false, mair: 0, enable: false }

@@ -103,10 +103,14 @@ build-versatileab-tier2 target:
 # Builds the MPS3-AN536 examples, building core from source
 build-mps3-tier3 target:
 	cd examples/mps3-an536 && cargo build --target={{target}} -Zbuild-std=core {{verbose}}
+	cd examples/mps3-an536-smp && cargo build --target={{target}} -Zbuild-std=core {{verbose}}
+	cd examples/mps3-an536-el2 && cargo build --target={{target}} -Zbuild-std=core {{verbose}}
 
 # Builds the MPS3-AN536 examples, assuming core has been prebuilt
 build-mps3-tier2 target:
 	cd examples/mps3-an536 && cargo build --target={{target}} {{verbose}}
+	cd examples/mps3-an536-smp && cargo build --target={{target}} {{verbose}}
+	cd examples/mps3-an536-el2 && cargo build --target={{target}} {{verbose}}
 
 # Formats all the code
 fmt:
@@ -117,6 +121,8 @@ fmt:
 	# The cross-compiled examples	cargo fmt
 	cd examples/versatileab && cargo fmt {{verbose}}
 	cd examples/mps3-an536 && cargo fmt {{verbose}}
+	cd examples/mps3-an536-smp && cargo fmt {{verbose}}
+	cd examples/mps3-an536-el2 && cargo fmt {{verbose}}
 
 # Checks all the code is formatted
 fmt-check:
@@ -127,6 +133,8 @@ fmt-check:
 	# The cross-compiled examples	cargo fmt
 	cd examples/versatileab && cargo fmt --check {{verbose}}
 	cd examples/mps3-an536 && cargo fmt --check {{verbose}}
+	cd examples/mps3-an536-smp && cargo fmt --check {{verbose}}
+	cd examples/mps3-an536-el2 && cargo fmt --check {{verbose}}
 
 # Checks all the cross-compiled workspace passes the clippy lints
 clippy-targets: \
@@ -144,6 +152,8 @@ clippy-target target:
 clippy-examples:
 	cd examples/versatileab && cargo clippy --target=armv7r-none-eabi {{verbose}}
 	cd examples/mps3-an536 && cargo clippy --target=armv8r-none-eabihf {{verbose}}
+	cd examples/mps3-an536-smp && cargo clippy --target=armv8r-none-eabihf {{verbose}}
+	cd examples/mps3-an536-el2 && cargo clippy --target=armv8r-none-eabihf {{verbose}}
 
 # Checks the host code passes the clippy lints
 clippy-host:
@@ -223,4 +233,13 @@ test-qemu-v8r-smp:
 	./tests.sh examples/mps3-an536-smp thumbv8r-none-eabihf -Zbuild-std=core {{verbose}} --release || FAIL=1
 	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536-smp armv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536-smp thumbv8r-none-eabihf -Zbuild-std=core --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
+	if [ "${FAIL}" == "1" ]; then exit 1; fi
+
+test-qemu-v8r-el2:
+	#!/bin/bash
+	FAIL=0
+	./tests.sh examples/mps3-an536-el2 armv8r-none-eabihf {{verbose}} --release || FAIL=1
+	./tests.sh examples/mps3-an536-el2 thumbv8r-none-eabihf -Zbuild-std=core {{verbose}} --release || FAIL=1
+	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536-el2 armv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
+	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536-el2 thumbv8r-none-eabihf -Zbuild-std=core --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi

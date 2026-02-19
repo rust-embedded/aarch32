@@ -3,6 +3,8 @@ examples/mps3-an536/target
 examples/mps3-an536/target-d32
 examples/mps3-an536-smp/target
 examples/mps3-an536-smp/target-d32
+examples/mps3-an536-el2/target
+examples/mps3-an536-el2/target-d32
 examples/versatileab/target
 examples/versatileab/target-d32
 Cargo.lock
