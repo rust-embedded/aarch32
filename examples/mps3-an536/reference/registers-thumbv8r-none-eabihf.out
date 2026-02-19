@@ -19,21 +19,53 @@ Region 12: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: Re
 Region 13: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
 Region 14: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
 Region 15: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 0: El1Region { range: 0x0..=0x3fffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
-Region 1: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 2: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 3: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 4: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 5: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 6: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 7: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 8: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 9: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 10: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 11: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 12: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 13: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 14: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
-Region 15: El1Region { range: 0x0..=0x3f, shareability: NonShareable, access: ReadWriteNoEL0, no_exec: false, mair: 0, enable: false }
+Region 0: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 1: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 2: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 3: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 4: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 5: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 6: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 7: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 8: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 9: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 10: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 11: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 12: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 13: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 14: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 15: Prbar { base: 00000000, shareability: NonShareable, access_perms: ReadWriteNoEL0, nx: false    }
+Region 0: El1Region { range: 0x0..=0xfffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 1: El1Region { range: 0x10000000..=0x1fffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 2: El1Region { range: 0x20000000..=0x2fffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 3: El1Region { range: 0x30000000..=0x3fffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 4: El1Region { range: 0x40000000..=0x4fffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 5: El1Region { range: 0x50000000..=0x5fffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 6: El1Region { range: 0x60000000..=0x6fffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 7: El1Region { range: 0x70000000..=0x7fffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 8: El1Region { range: 0x80000000..=0x8fffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 9: El1Region { range: 0x90000000..=0x9fffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 10: El1Region { range: 0xa0000000..=0xafffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 11: El1Region { range: 0xb0000000..=0xbfffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 12: El1Region { range: 0xc0000000..=0xcfffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 13: El1Region { range: 0xd0000000..=0xdfffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 14: El1Region { range: 0xe0000000..=0xefffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 15: El1Region { range: 0xf0000000..=0xffffffff, shareability: OuterShareable, access: ReadWrite, no_exec: true, mair: 0, enable: true }
+Region 0: Prbar { base: 00000000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 1: Prbar { base: 00400000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 2: Prbar { base: 00800000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 3: Prbar { base: 00c00000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 4: Prbar { base: 01000000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 5: Prbar { base: 01400000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 6: Prbar { base: 01800000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 7: Prbar { base: 01c00000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 8: Prbar { base: 02000000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 9: Prbar { base: 02400000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 10: Prbar { base: 02800000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 11: Prbar { base: 02c00000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 12: Prbar { base: 03000000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 13: Prbar { base: 03400000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 14: Prbar { base: 03800000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
+Region 15: Prbar { base: 03c00000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
 SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=1 RR=0 V=0 I=0 Z=1 SW=0 C=0 A=0 M=0 } before setting C, I and Z
 SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=1 RR=0 V=0 I=1 Z=1 SW=0 C=1 A=0 M=0 } after
