@@ -39,6 +39,8 @@
 //!
 //! ## Constants
 //!
+//! * `_num_cores` - the number of CPU core (and hence the number of copies of
+//!   each stack). Must be > 0.
 //! * `__sbss` - the start of zero-initialised data in RAM. Must be 4-byte
 //!   aligned.
 //! * `__ebss` - the end of zero-initialised data in RAM. Must be 4-byte
@@ -70,29 +72,29 @@
 //!
 //! Stacks are located in `.stacks` section which is mapped to the `STACKS`
 //! memory region. Per default, the stacks are pushed to the end of the `STACKS`
-//! by a filler section.
+//! by a filler section. We allocate stacks for each core, based on the
+//! `_num_cores` linker symbol.
 //!
 //! The stacks look like:
 //!
 //! ```text
-//! +------------------+ <----_stack_top equals ORIGIN(STACKS) + LENGTH(STACKS)
-//! |     HYP Stack    | } _hyp_stack_size bytes (Armv8-R only)
+//! +------------------+ <---- ORIGIN(STACKS) + LENGTH(STACKS)
+//! |     SYS Stack    | } _sys_stack_size * _num_cores bytes
 //! +------------------+
-//! |     UND Stack    | } _und_stack_size bytes
+//! |     FIQ Stack    | } _fiq_stack_size * _num_cores bytes
 //! +------------------+
-//! |     SVC Stack    | } _svc_stack_size bytes
+//! |     IRQ Stack    | } _irq_stack_size * _num_cores bytes
 //! +------------------+
-//! |     ABT Stack    | } _abt_stack_size bytes
+//! |     HYP Stack    | } _hyp_stack_size * _num_cores bytes (only used on Armv8-R)
 //! +------------------+
-//! |     IRQ Stack    | } _irq_stack_size bytes
+//! |     ABT Stack    | } _abt_stack_size * _num_cores bytes
 //! +------------------+
-//! |     FIQ Stack    | } _fiq_stack_size bytes
+//! |     SVC Stack    | } _svc_stack_size * _num_cores bytes
 //! +------------------+
-//! |     SYS Stack    | } _sys_stack_size bytes
+//! |     UND Stack    | } _und_stack_size * _num_cores bytes
 //! +------------------+
-//! |  filler section  | } calculated so that _stack_top equals end of STACKS
-//! +------------------+ <----either ORIGIN(STACKS) or the end of previous
-//!                           section located in STACKS or its alias.
+//! |  filler section  |
+//! +------------------+ <---- ORIGIN(STACKS)
 //! ```
 //!
 //! Our linker script PROVIDEs a symbol `_pack_stacks`. By setting this symbol
@@ -117,8 +119,9 @@
 //! You can also create a 'kmain' function by using the `#[entry]` attribute on
 //! a normal Rust function. The function will be renamed in such a way that the
 //! start-up assembly code can find it, but normal Rust code cannot. Therefore
-//! you can be assured that the function will only be called once (unless someone
-//! resorts to `unsafe` Rust to import the `kmain` symbol as an `extern "C" fn`).
+//! you can be assured that the function will only be called once (unless
+//! someone resorts to `unsafe` Rust to import the `kmain` symbol as an `extern
+//! "C" fn`).
 //!
 //! ```rust
 //! use aarch32_rt::entry;
@@ -502,26 +505,23 @@
 //!   `_irq_handler`
 //! * `_asm_default_fiq_handler` - an FIQ handler that just spins
 //! * `_default_handler` - a C compatible function that spins forever.
-//! * `_init_segments` - initialises `.bss` and `.data`
+//! * `_init_segments` - initialises `.bss` and `.data` and zeroes the stacks
 //! * `_stack_setup_preallocated` - initialises UND, SVC, ABT, IRQ, FIQ and SYS
 //!   stacks from the `.stacks` section defined in link.x, based on
-//!   _xxx_stack_size values
-//! * `_xxx_stack` and `_xxx_stack_end` where the former is the top and the latter
-//!   the bottom of the stack for each mode (`und`, `svc`, `abt`, `irq`, `fiq`, `sys`)
-//! * `_stack_top` - the address of the top of the STACKS region that contains
-//!   the reseved stacks, with eight-byte alignment.
-//!   Using this symbol is deprecated, stacks should be initialized by their
-//!   individual _xxx_stack symbols
+//!   _xxx_stack_size values, and the core number given in `r0`
+//! * `_xxx_stack_high_end` and `_xxx_stack_low_end` where the former is the top
+//!   and the latter the bottom of the stack for each mode (`und`, `svc`, `abt`,
+//!   `irq`, `fiq`, `sys`)
 //!
-//! The assembly language trampolines are required because AArch32
-//! processors do not save a great deal of state on entry to an exception
-//! handler, unlike Armv7-M (and other M-Profile) processors. We must therefore
-//! save this state to the stack using assembly language, before transferring to
-//! an `extern "C"` function. We do not change modes before entering that
-//! `extern "C"` function - that's for the handler to deal with as it wishes.
-//! Because FIQ is often performance-sensitive, we don't supply an FIQ
-//! trampoline; if you want to use FIQ, you have to write your own assembly
-//! routine, allowing you to preserve only whatever state is important to you.
+//! The assembly language trampolines are required because AArch32 processors do
+//! not save a great deal of state on entry to an exception handler, unlike
+//! Armv7-M (and other M-Profile) processors. We must therefore save this state
+//! to the stack using assembly language, before transferring to an `extern "C"`
+//! function. We do not change modes before entering that `extern "C"` function
+//! - that's for the handler to deal with as it wishes. Because FIQ is often
+//! performance-sensitive, we don't supply an FIQ trampoline; if you want to use
+//! FIQ, you have to write your own assembly routine, allowing you to preserve
+//! only whatever state is important to you.
 //!
 //! ## Examples
 //!
@@ -557,6 +557,8 @@ mod arch_v7;
     ))
 ))]
 mod arch_v4;
+
+pub mod stacks;
 
 /// Our default exception handler.
 ///
@@ -795,38 +797,58 @@ core::arch::global_asm!(
 
     // Configure a stack for every mode. Leaves you in sys mode.
     //
+    // Pass the core number in r0
     .section .text._stack_setup_preallocated
     .global _stack_setup_preallocated
+    .arm
     .type _stack_setup_preallocated, %function
     _stack_setup_preallocated:
         // Save LR from whatever mode we're currently in
-        mov     r2, lr
+        mov     r3, lr
         // (we might not be in the same mode when we return).
         // Set stack pointer and mask interrupts for UND mode (Mode 0x1B)
         msr     cpsr_c, {und_mode}
-        ldr	r13, =_und_stack
+        ldr	    r2, =_und_stack_high_end
+        ldr	    r1, =_und_stack_size
+        muls    r1, r1, r0
+        subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for SVC mode (Mode 0x13)
         msr     cpsr_c, {svc_mode}
-        ldr	r13, =_svc_stack
+        ldr	    r2, =_svc_stack_high_end
+        ldr	    r1, =_svc_stack_size
+        muls    r1, r1, r0
+        subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for ABT mode (Mode 0x17)
         msr     cpsr_c, {abt_mode}
-        ldr	r13, =_abt_stack
+        ldr	    r2, =_abt_stack_high_end
+        ldr	    r1, =_abt_stack_size
+        muls    r1, r1, r0
+        subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for IRQ mode (Mode 0x12)
         msr     cpsr_c, {irq_mode}
-        ldr	r13, =_irq_stack
+        ldr	    r2, =_irq_stack_high_end
+        ldr	    r1, =_irq_stack_size
+        muls    r1, r1, r0
+        subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for FIQ mode (Mode 0x11)
         msr     cpsr_c, {fiq_mode}
-        ldr	r13, =_fiq_stack
+        ldr	    r2, =_fiq_stack_high_end
+        ldr	    r1, =_fiq_stack_size
+        muls    r1, r1, r0
+        subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for System mode (Mode 0x1F)
         msr     cpsr_c, {sys_mode}
-        ldr	r13, =_sys_stack
+        ldr	    r2, =_sys_stack_high_end
+        ldr	    r1, =_sys_stack_size
+        muls    r1, r1, r0
+        subs    sp, r2, r1
         // Clear the Thumb Exception bit because all vector table is written in Arm assembly
         // even on Thumb targets.
         mrc     p15, 0, r1, c1, c0, 0
         bic     r1, #{te_bit}
         mcr     p15, 0, r1, c1, c0, 0
         // return to caller
-        bx      r2
+        bx      r3
     .size _stack_setup_preallocated, . - _stack_setup_preallocated
 
     // Initialises stacks, .data and .bss
@@ -835,9 +857,19 @@ core::arch::global_asm!(
     .global _init_segments
     .type _init_segments, %function
     _init_segments:
-        // Initialise .bss
+        // Zero .bss
         ldr     r0, =__sbss
         ldr     r1, =__ebss
+        mov     r2, 0
+    0:
+        cmp     r1, r0
+        beq     1f
+        stm     r0!, {{r2}}
+        b       0b
+    1:
+        // Zero the stacks
+        ldr     r0, =_stacks_low_end
+        ldr     r1, =_stacks_high_end
         mov     r2, 0
     0:
         cmp     r1, r0
@@ -923,10 +955,11 @@ core::arch::global_asm!(
     .global _default_start
     .type _default_start, %function
     _default_start:
-        // Set up stacks.
-        bl      _stack_setup_preallocated
         // Init .data and .bss
         bl      _init_segments
+        // Set up stacks.
+        mov     r0, #0
+        bl      _stack_setup_preallocated
         "#,
     fpu_enable!(),
     r#"
@@ -975,7 +1008,7 @@ core::arch::global_asm!(
         cmp     r0, {cpsr_mode_hyp}
         bne     1f
         // Set stack pointer
-        ldr     sp, =_hyp_stack
+        ldr     sp, =_hyp_stack_high_end
         // Set the HVBAR (for EL2) to _vector_table
         ldr     r1, =_vector_table
         mcr     p15, 4, r1, c12, c0, 0
@@ -993,14 +1026,15 @@ core::arch::global_asm!(
         isb
         eret
     1:
-        // Set up stacks.
-        bl      _stack_setup_preallocated
         // Set the VBAR (for EL1) to _vector_table. NB: This isn't required on
         // Armv7-R because that only supports 'low' (default) or 'high'.
         ldr     r0, =_vector_table
         mcr     p15, 0, r0, c12, c0, 0
         // Init .data and .bss
         bl      _init_segments
+        // Set up stacks.
+        mov     r0, #0
+        bl      _stack_setup_preallocated
         "#,
         fpu_enable!(),
         r#"

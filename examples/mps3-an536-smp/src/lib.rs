@@ -53,7 +53,7 @@
 
 #![no_std]
 
-use aarch32_cpu::register::{Hactlr, Sctlr, Cpsr, cpsr::ProcessorMode};
+use aarch32_cpu::register::{Hactlr, Cpsr, cpsr::ProcessorMode};
 
 use core::sync::atomic::{AtomicBool, Ordering};
 
@@ -100,83 +100,44 @@ pub fn exit(code: i32) -> ! {
 ///
 /// ```text
 /// Stack usage report:
-/// SYS Stack =    332 used of  16384 bytes (002%) @ 0x1006bf80..0x1006ff80
-/// FIQ Stack =      0 used of     64 bytes (000%) @ 0x1006ff80..0x1006ffc0
-/// IRQ Stack =      0 used of     64 bytes (000%) @ 0x1006ffc0..0x10070000
-/// ABT Stack =      0 used of  16384 bytes (000%) @ 0x10070000..0x10074000
-/// SVC Stack =      0 used of  16384 bytes (000%) @ 0x10074000..0x10078000
-/// UND Stack =    244 used of  16384 bytes (001%) @ 0x10078000..0x1007c000
-/// HYP Stack =      0 used of  16384 bytes (000%) @ 0x1007c000..0x10080000
+/// UND1 Stack =      0 used of  16384 bytes (000%) @ 0x10057f00..0x1005bf00
+/// UND0 Stack =      0 used of  16384 bytes (000%) @ 0x1005bf00..0x1005ff00
+/// SVC1 Stack =      0 used of  16384 bytes (000%) @ 0x1005ff00..0x10063f00
+/// SVC0 Stack =      0 used of  16384 bytes (000%) @ 0x10063f00..0x10067f00
+/// ABT1 Stack =      0 used of  16384 bytes (000%) @ 0x10067f00..0x1006bf00
+/// ABT0 Stack =      0 used of  16384 bytes (000%) @ 0x1006bf00..0x1006ff00
+/// HYP1 Stack =      0 used of  16384 bytes (000%) @ 0x1006ff00..0x10073f00
+/// HYP0 Stack =      0 used of  16384 bytes (000%) @ 0x10073f00..0x10077f00
+/// IRQ1 Stack =      0 used of     64 bytes (000%) @ 0x10077f00..0x10077f40
+/// IRQ0 Stack =      0 used of     64 bytes (000%) @ 0x10077f40..0x10077f80
+/// FIQ1 Stack =      0 used of     64 bytes (000%) @ 0x10077f80..0x10077fc0
+/// FIQ0 Stack =      0 used of     64 bytes (000%) @ 0x10077fc0..0x10078000
+/// SYS1 Stack =    808 used of  16384 bytes (004%) @ 0x10078000..0x1007c000
+/// SYS0 Stack =   1432 used of  16384 bytes (008%) @ 0x1007c000..0x10080000
 /// ```
 fn stack_dump() {
     use aarch32_cpu::stacks::stack_used_bytes;
-    use core::ptr::addr_of;
-
-    unsafe extern "C" {
-        static _sys_stack_end: u32;
-        static _sys_stack: u32;
-        static _fiq_stack_end: u32;
-        static _fiq_stack: u32;
-        static _irq_stack_end: u32;
-        static _irq_stack: u32;
-        static _abt_stack_end: u32;
-        static _abt_stack: u32;
-        static _svc_stack_end: u32;
-        static _svc_stack: u32;
-        static _und_stack_end: u32;
-        static _und_stack: u32;
-        static _hyp_stack_end: u32;
-        static _hyp_stack: u32;
-
-        static _core1_sys_stack_end: u32;
-        static _core1_sys_stack: u32;
-        static _core1_fiq_stack_end: u32;
-        static _core1_fiq_stack: u32;
-        static _core1_irq_stack_end: u32;
-        static _core1_irq_stack: u32;
-        static _core1_abt_stack_end: u32;
-        static _core1_abt_stack: u32;
-        static _core1_svc_stack_end: u32;
-        static _core1_svc_stack: u32;
-        static _core1_und_stack_end: u32;
-        static _core1_und_stack: u32;
-        static _core1_hyp_stack_end: u32;
-        static _core1_hyp_stack: u32;
-    }
-
-    // these are placed in the order they are in aarch32-rt/link.x
-    let stacks = [
-        ("SYS0", addr_of!(_sys_stack_end)..addr_of!(_sys_stack)),
-        ("FIQ0", addr_of!(_fiq_stack_end)..addr_of!(_fiq_stack)),
-        ("IRQ0", addr_of!(_irq_stack_end)..addr_of!(_irq_stack)),
-        ("ABT0", addr_of!(_abt_stack_end)..addr_of!(_abt_stack)),
-        ("SVC0", addr_of!(_svc_stack_end)..addr_of!(_svc_stack)),
-        ("UND0", addr_of!(_und_stack_end)..addr_of!(_und_stack)),
-        ("HYP0", addr_of!(_hyp_stack_end)..addr_of!(_hyp_stack)),
-        ("SYS1", addr_of!(_core1_sys_stack_end)..addr_of!(_core1_sys_stack)),
-        ("FIQ1", addr_of!(_core1_fiq_stack_end)..addr_of!(_core1_fiq_stack)),
-        ("IRQ1", addr_of!(_core1_irq_stack_end)..addr_of!(_core1_irq_stack)),
-        ("ABT1", addr_of!(_core1_abt_stack_end)..addr_of!(_core1_abt_stack)),
-        ("SVC1", addr_of!(_core1_svc_stack_end)..addr_of!(_core1_svc_stack)),
-        ("UND1", addr_of!(_core1_und_stack_end)..addr_of!(_core1_und_stack)),
-        ("HYP1", addr_of!(_core1_hyp_stack_end)..addr_of!(_core1_hyp_stack)),
-    ];
+    use aarch32_rt::stacks::Stack;
 
     semihosting::eprintln!("Stack usage report:");
 
     unsafe {
-        for (name, range) in stacks {
-            let (total, used) = stack_used_bytes(range.clone());
-            let percent = used * 100 / total;
-            // Send to stderr, so it doesn't mix with expected output on stdout
-            semihosting::eprintln!(
-                "{} Stack = {:6} used of {:6} bytes ({:03}%) @ {:08x?}",
-                name,
-                used,
-                total,
-                percent,
-                range
-            );
+        for stack in Stack::iter() {
+            for core in (0..Stack::num_cores()).rev() {
+                let core_range = stack.range(core).unwrap();
+                let (total, used) = stack_used_bytes(core_range.clone());
+                let percent = used * 100 / total;
+                // Send to stderr, so it doesn't mix with expected output on stdout
+                semihosting::eprintln!(
+                    "{}{} Stack = {:6} used of {:6} bytes ({:03}%) @ {:08x?}",
+                    stack,
+                    core,
+                    used,
+                    total,
+                    percent,
+                    core_range
+                );
+            }
         }
     }
 }
@@ -294,7 +255,8 @@ core::arch::global_asm!(
         ldr     r0, =_vector_table
         mcr     p15, 0, r0, c12, c0, 0
         // set up our stacks - also switches to SYS mode
-        bl      _core1_stack_setup_preallocated
+        movs    r0, #1
+        bl      _stack_setup_preallocated
         // Zero all registers before calling kmain2
         mov     r0, 0
         mov     r1, 0
@@ -333,95 +295,6 @@ core::arch::global_asm!(
             .with_f(true)
             .raw_value()
     },
-);
-
-// Initialise the stack for Core 1 for each mode
-#[cfg(target_arch = "arm")]
-core::arch::global_asm!(
-    r#"
-    // Work around https://github.com/rust-lang/rust/issues/127269
-    .fpu vfp2
-
-    // Configure a stack for every mode. Leaves you in sys mode.
-    //
-    .section .text._core1_stack_setup_preallocated
-    .arm
-    .global _core1_stack_setup_preallocated
-    .type _core1_stack_setup_preallocated, %function
-    _core1_stack_setup_preallocated:
-        // Save LR from whatever mode we're currently in
-        mov     r2, lr
-        // (we might not be in the same mode when we return).
-        // Set stack pointer and mask interrupts for UND mode (Mode 0x1B)
-        msr     cpsr_c, {und_mode}
-        ldr	r13, =_core1_und_stack
-        // Set stack pointer (right after) and mask interrupts for SVC mode (Mode 0x13)
-        msr     cpsr_c, {svc_mode}
-        ldr	r13, =_core1_svc_stack
-        // Set stack pointer (right after) and mask interrupts for ABT mode (Mode 0x17)
-        msr     cpsr_c, {abt_mode}
-        ldr	r13, =_core1_abt_stack
-        // Set stack pointer (right after) and mask interrupts for IRQ mode (Mode 0x12)
-        msr     cpsr_c, {irq_mode}
-        ldr	r13, =_core1_irq_stack
-        // Set stack pointer (right after) and mask interrupts for FIQ mode (Mode 0x11)
-        msr     cpsr_c, {fiq_mode}
-        ldr	r13, =_core1_fiq_stack
-        // Set stack pointer (right after) and mask interrupts for System mode (Mode 0x1F)
-        msr     cpsr_c, {sys_mode}
-        ldr	r13, =_core1_sys_stack
-        // Clear the Thumb Exception bit because all vector table is written in Arm assembly
-        // even on Thumb targets.
-        mrc     p15, 0, r1, c1, c0, 0
-        bic     r1, #{te_bit}
-        mcr     p15, 0, r1, c1, c0, 0
-        // return to caller
-        bx      r2
-    .size _core1_stack_setup_preallocated, . - _core1_stack_setup_preallocated
-    "#,
-    und_mode = const {
-        Cpsr::new_with_raw_value(0)
-            .with_mode(ProcessorMode::Und)
-            .with_i(true)
-            .with_f(true)
-            .raw_value()
-    },
-    svc_mode = const {
-        Cpsr::new_with_raw_value(0)
-            .with_mode(ProcessorMode::Svc)
-            .with_i(true)
-            .with_f(true)
-            .raw_value()
-    },
-    abt_mode = const {
-        Cpsr::new_with_raw_value(0)
-            .with_mode(ProcessorMode::Abt)
-            .with_i(true)
-            .with_f(true)
-            .raw_value()
-    },
-    fiq_mode = const {
-        Cpsr::new_with_raw_value(0)
-            .with_mode(ProcessorMode::Fiq)
-            .with_i(true)
-            .with_f(true)
-            .raw_value()
-    },
-    irq_mode = const {
-        Cpsr::new_with_raw_value(0)
-            .with_mode(ProcessorMode::Irq)
-            .with_i(true)
-            .with_f(true)
-            .raw_value()
-    },
-    sys_mode = const {
-        Cpsr::new_with_raw_value(0)
-            .with_mode(ProcessorMode::Sys)
-            .with_i(true)
-            .with_f(true)
-            .raw_value()
-    },
-    te_bit = const { Sctlr::new_with_raw_value(0).with_te(true).raw_value() }
 );
 
 /// What a second core does when no `kmain2` is supplied.
