@@ -25,6 +25,7 @@ pub mod dccsw;
 pub mod dcimvac;
 pub mod dcisw;
 pub mod dfar;
+#[cfg(all(target_arch = "arm", not(arm_architecture = "v4t")))]
 pub mod dfsr;
 pub mod dlr;
 pub mod dracr;
@@ -50,6 +51,7 @@ pub mod id_mmfr4;
 pub mod id_pfr0;
 pub mod id_pfr1;
 pub mod ifar;
+#[cfg(all(target_arch = "arm", not(arm_architecture = "v4t")))]
 pub mod ifsr;
 pub mod imp;
 pub mod iracr;
@@ -125,6 +127,7 @@ pub use dccsw::Dccsw;
 pub use dcimvac::Dcimvac;
 pub use dcisw::Dcisw;
 pub use dfar::Dfar;
+#[cfg(all(target_arch = "arm", not(arm_architecture = "v4t")))]
 pub use dfsr::Dfsr;
 pub use dlr::Dlr;
 pub use dracr::Dracr;
@@ -150,6 +153,7 @@ pub use id_mmfr4::IdMmfr4;
 pub use id_pfr0::IdPfr0;
 pub use id_pfr1::IdPfr1;
 pub use ifar::Ifar;
+#[cfg(all(target_arch = "arm", not(arm_architecture = "v4t")))]
 pub use ifsr::Ifsr;
 pub use iracr::Iracr;
 pub use irbar::Irbar;

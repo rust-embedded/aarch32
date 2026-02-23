@@ -59,7 +59,6 @@ unsafe fn prefetch_abort_handler(addr: usize) -> usize {
     println!("prefetch abort occurred");
     let ifsr = Ifsr::read();
     println!("IFSR (Fault Status Register): {:?}", ifsr);
-    println!("IFSR Status: {:?}", ifsr.status());
     let ifar = Ifar::read();
     println!("IFAR (Faulting Address Register): {:?}", ifar);
 

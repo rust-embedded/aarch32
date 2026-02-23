@@ -1,13 +1,11 @@
 Hello, this is a prefetch abort exception example
 prefetch abort occurred
-IFSR (Fault Status Register): IFSR { ext=false Domain=0b0010 Status=0b00010 }
-IFSR Status: Ok(DebugEvent)
+IFSR (Fault Status Register): Ifsr { fnv: false, ext: false, status: Ok(Debug) }
 IFAR (Faulting Address Register): Ifar(0)
 caught bkpt_from_t32
 Doing it again
 prefetch abort occurred
-IFSR (Fault Status Register): IFSR { ext=false Domain=0b0010 Status=0b00010 }
-IFSR Status: Ok(DebugEvent)
+IFSR (Fault Status Register): Ifsr { fnv: false, ext: false, status: Ok(Debug) }
 IFAR (Faulting Address Register): Ifar(0)
 caught bkpt_from_t32
 Skipping instruction
