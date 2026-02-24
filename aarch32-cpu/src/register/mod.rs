@@ -158,7 +158,7 @@ pub use ifsr::Ifsr;
 pub use iracr::Iracr;
 pub use irbar::Irbar;
 pub use irsr::Irsr;
-pub use mair0::Mair0;
+pub use mair0::{Mair, Mair0};
 pub use mair1::Mair1;
 pub use midr::Midr;
 pub use mpidr::Mpidr;
