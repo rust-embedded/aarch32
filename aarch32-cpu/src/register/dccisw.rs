@@ -1,4 +1,4 @@
-//! DCCISW (*Clean and Invalidate Data or Unified cache line by Set/Way.*)
+//! Code for managing DCCISW (*Clean and Invalidate Data or Unified cache line by Set/Way.*)
 
 use arbitrary_int::u3;
 
