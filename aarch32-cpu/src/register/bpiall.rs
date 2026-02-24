@@ -1,8 +1,8 @@
-//! BPIALL: Invalidate all entries from branch predictors
+//! Code for managing BPIALL (*Branch Predictor Invalidate All*)
 
 use crate::register::SysReg;
 
-/// BPIALL: Invalidate all entries from branch predictors
+/// BPIALL (*Branch Predictor Invalidate All*)
 pub struct BpIAll;
 
 impl SysReg for BpIAll {
