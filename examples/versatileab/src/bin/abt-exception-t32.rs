@@ -88,7 +88,7 @@ unsafe fn data_abort_handler(addr: usize) -> usize {
     if addr == expect_fault_at {
         println!("caught unaligned_from_t32");
     } else {
-        println!(
+        panic!(
             "Bad fault address {:08x} is not {:08x}",
             addr, expect_fault_at
         );
@@ -99,7 +99,7 @@ unsafe fn data_abort_handler(addr: usize) -> usize {
     if dfar.0 as usize == expect_fault_from {
         println!("caught fault on COUNTER");
     } else {
-        println!(
+        panic!(
             "Bad DFAR address {:08x} is not {:08x}",
             dfar.0, expect_fault_from
         );

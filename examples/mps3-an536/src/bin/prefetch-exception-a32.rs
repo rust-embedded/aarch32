@@ -58,7 +58,7 @@ unsafe fn prefetch_abort_handler(addr: usize) -> usize {
     if addr == bkpt_from_a32 as extern "C" fn() as usize {
         println!("caught bkpt_from_a32");
     } else {
-        println!(
+        panic!(
             "Bad fault address {:08x} is not {:08x}",
             addr, bkpt_from_a32 as extern "C" fn() as usize
         );
