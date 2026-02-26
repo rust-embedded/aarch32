@@ -22,33 +22,25 @@ fn main() -> ! {
 
     // A BKPT instruction triggers a Prefetch Abort except when Halting debug-mode is enabled.
     // See p. 2038 of ARMv7-M Architecture Reference Manual
-    unsafe {
-        // trigger an prefetch abort exception, from A32 (Arm) mode
-        bkpt_from_a32();
-    }
+
+    // trigger an prefetch abort exception, from A32 (Arm) mode
+    bkpt_from_a32();
 
     println!("Recovered from fault OK!");
 
     versatileab::exit(0);
 }
 
-// These functions are written in assembly
-unsafe extern "C" {
-    fn bkpt_from_a32();
-}
-
-core::arch::global_asm!(
-    r#"
-    // fn bkpt_from_a32();
-    .arm
-    .global bkpt_from_a32
-    .type bkpt_from_a32, %function
-    bkpt_from_a32:
+#[unsafe(naked)]
+#[instruction_set(arm::a32)]
+extern "C" fn bkpt_from_a32() {
+    core::arch::naked_asm!(
+        r#"
         bkpt    #0
         bx      lr
-    .size bkpt_from_a32, . - bkpt_from_a32
-"#
-);
+        "#
+    );
+}
 
 #[exception(Undefined)]
 fn undefined_handler(addr: usize) -> ! {
@@ -70,12 +62,12 @@ unsafe fn prefetch_abort_handler(addr: usize) -> usize {
         let ifar = Ifar::read();
         println!("IFAR (Faulting Address Register): {:?}", ifar);
 
-        if addr == bkpt_from_a32 as unsafe extern "C" fn() as usize {
+        if addr == bkpt_from_a32 as extern "C" fn() as usize {
             println!("caught bkpt_from_a32");
         } else {
             println!(
                 "Bad fault address {:08x} is not {:08x}",
-                addr, bkpt_from_a32 as unsafe extern "C" fn() as usize
+                addr, bkpt_from_a32 as extern "C" fn() as usize
             );
         }
     }

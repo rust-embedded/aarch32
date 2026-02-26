@@ -11,7 +11,7 @@ export RUSTC_BOOTSTRAP := "1"
 # If you run with `just --set v 1` then we make cargo run in verbose mode
 v := "0"
 verbose := if v == "1" { "--verbose" } else { "" }
-nightly := "nightly-2026-01-26"
+nightly := "nightly-2026-02-26"
 
 # Our default target. It does everything that you might want to do pre-checkin.
 check: build-all build-all-examples fmt-check clippy-examples clippy-targets clippy-host test
