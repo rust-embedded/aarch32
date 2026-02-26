@@ -53,7 +53,7 @@ unsafe fn undefined_handler(addr: usize) -> usize {
         // machine code.
         println!("caught udf_from_t32");
     } else {
-        println!(
+        panic!(
             "Bad fault address {:08x} is not {:08x}",
             addr, udf_from_t32 as extern "C" fn() as usize
         );

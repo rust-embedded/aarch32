@@ -86,11 +86,10 @@ unsafe fn data_abort_handler(addr: usize) -> usize {
     if addr == expect_fault_at {
         println!("caught unaligned_from_a32");
     } else {
-        println!(
+        panic!(
             "Bad fault address {:08x} is not {:08x}",
             addr, expect_fault_at
         );
-        semihosting::process::abort();
     }
 
     let expect_fault_from = core::ptr::addr_of!(COUNTER) as usize + 1;
@@ -98,11 +97,10 @@ unsafe fn data_abort_handler(addr: usize) -> usize {
     if dfar.0 as usize == expect_fault_from {
         println!("caught fault on COUNTER");
     } else {
-        println!(
+        panic!(
             "Bad DFAR address {:08x} is not {:08x}",
             dfar.0, expect_fault_from
         );
-        semihosting::process::abort();
     }
 
     match COUNTER.fetch_add(1, Ordering::Relaxed) {
