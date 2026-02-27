@@ -11,7 +11,7 @@ export RUSTC_BOOTSTRAP := "1"
 # If you run with `just --set v 1` then we make cargo run in verbose mode
 v := "0"
 verbose := if v == "1" { "--verbose" } else { "" }
-nightly := "nightly-2026-01-26"
+nightly := "nightly-2026-02-21"
 
 # Our default target. It does everything that you might want to do pre-checkin.
 check: build-all build-all-examples fmt-check clippy-examples clippy-targets clippy-host test
@@ -182,8 +182,7 @@ test-qemu-v6:
 	FAIL=0
 	./tests.sh examples/versatileab armv6-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
 	./tests.sh examples/versatileab armv6-none-eabihf -Zbuild-std=core {{verbose}} --release || FAIL=1
-	# Waiting on compiler-builtins to be updated
-	# ./tests.sh examples/versatileab thumbv6-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
+	./tests.sh examples/versatileab thumbv6-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
 test-qemu-v7a:
