@@ -1,0 +1,8 @@
+Hello, this is a prefetch abort exception example
+prefetch abort occurred Hsr { ec: Ok(PrefetchAbortFromCurrent), il: ThirtyTwoBit, iss: 00000022 }, Some(PrefetchAbortFromCurrent(IssPrefetchAbort { fnv: false, ea: false, ifsc: 22 }))
+caught bkpt_from_a32
+Doing it again
+prefetch abort occurred Hsr { ec: Ok(PrefetchAbortFromCurrent), il: ThirtyTwoBit, iss: 00000022 }, Some(PrefetchAbortFromCurrent(IssPrefetchAbort { fnv: false, ea: false, ifsc: 22 }))
+caught bkpt_from_a32
+Skipping instruction
+Recovered from fault OK!

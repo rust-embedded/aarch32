@@ -1,0 +1,8 @@
+Hello, this is a undef exception example
+undefined abort occurred Hsr { ec: Ok(Unknown), il: ThirtyTwoBit, iss: 00000000 }, Some(Unknown(IssUnknown(0)))
+caught udf_from_t32
+Doing it again
+undefined abort occurred Hsr { ec: Ok(Unknown), il: ThirtyTwoBit, iss: 00000000 }, Some(Unknown(IssUnknown(0)))
+caught udf_from_t32
+Skipping instruction
+Recovered from fault OK!

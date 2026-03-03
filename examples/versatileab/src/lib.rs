@@ -69,61 +69,37 @@ pub fn exit(code: i32) -> ! {
 ///
 /// ```text
 /// Stack usage report:
-/// SYS Stack =    332 used of  16384 bytes (002%) @ 0x1006bf80..0x1006ff80
-/// FIQ Stack =      0 used of     64 bytes (000%) @ 0x1006ff80..0x1006ffc0
-/// IRQ Stack =      0 used of     64 bytes (000%) @ 0x1006ffc0..0x10070000
-/// ABT Stack =      0 used of  16384 bytes (000%) @ 0x10070000..0x10074000
-/// SVC Stack =      0 used of  16384 bytes (000%) @ 0x10074000..0x10078000
-/// UND Stack =    244 used of  16384 bytes (001%) @ 0x10078000..0x1007c000
-/// HYP Stack =      0 used of  16384 bytes (000%) @ 0x1007c000..0x10080000
+/// UND0 Stack =      0 used of  16384 bytes (000%) @ 0x1006bf80..0x1006ff80
+/// SVC0 Stack =      0 used of  16384 bytes (000%) @ 0x1006ff80..0x10073f80
+/// ABT0 Stack =      0 used of  16384 bytes (000%) @ 0x10073f80..0x10077f80
+/// HYP0 Stack =      0 used of  16384 bytes (000%) @ 0x10077f80..0x1007bf80
+/// IRQ0 Stack =      0 used of     64 bytes (000%) @ 0x1007bf80..0x1007bfc0
+/// FIQ0 Stack =      0 used of     64 bytes (000%) @ 0x1007bfc0..0x1007c000
+/// SYS0 Stack =   2416 used of  16384 bytes (014%) @ 0x1007c000..0x10080000
 /// ```
 fn stack_dump() {
     use aarch32_cpu::stacks::stack_used_bytes;
-    use core::ptr::addr_of;
-
-    unsafe extern "C" {
-        static _sys_stack_end: u32;
-        static _sys_stack: u32;
-        static _fiq_stack_end: u32;
-        static _fiq_stack: u32;
-        static _irq_stack_end: u32;
-        static _irq_stack: u32;
-        static _abt_stack_end: u32;
-        static _abt_stack: u32;
-        static _svc_stack_end: u32;
-        static _svc_stack: u32;
-        static _und_stack_end: u32;
-        static _und_stack: u32;
-        static _hyp_stack_end: u32;
-        static _hyp_stack: u32;
-    }
-
-    // these are placed in the order they are in aarch32-rt/link.x
-    let stacks = [
-        ("SYS", addr_of!(_sys_stack_end)..addr_of!(_sys_stack)),
-        ("FIQ", addr_of!(_fiq_stack_end)..addr_of!(_fiq_stack)),
-        ("IRQ", addr_of!(_irq_stack_end)..addr_of!(_irq_stack)),
-        ("ABT", addr_of!(_abt_stack_end)..addr_of!(_abt_stack)),
-        ("SVC", addr_of!(_svc_stack_end)..addr_of!(_svc_stack)),
-        ("UND", addr_of!(_und_stack_end)..addr_of!(_und_stack)),
-        ("HYP", addr_of!(_hyp_stack_end)..addr_of!(_hyp_stack)),
-    ];
+    use aarch32_rt::stacks::Stack;
 
     semihosting::eprintln!("Stack usage report:");
 
     unsafe {
-        for (name, range) in stacks {
-            let (total, used) = stack_used_bytes(range.clone());
-            let percent = (used * 100).checked_div(total).unwrap_or(999);
-            // Send to stderr, so it doesn't mix with expected output on stdout
-            semihosting::eprintln!(
-                "{} Stack = {:6} used of {:6} bytes ({:03}%) @ {:08x?}",
-                name,
-                used,
-                total,
-                percent,
-                range
-            );
+        for stack in Stack::iter() {
+            for core in (0..Stack::num_cores()).rev() {
+                let core_range = stack.range(core).unwrap();
+                let (total, used) = stack_used_bytes(core_range.clone());
+                let percent = used * 100 / total;
+                // Send to stderr, so it doesn't mix with expected output on stdout
+                semihosting::eprintln!(
+                    "{}{} Stack = {:6} used of {:6} bytes ({:03}%) @ {:08x?}",
+                    stack,
+                    core,
+                    used,
+                    total,
+                    percent,
+                    core_range
+                );
+            }
         }
     }
 }

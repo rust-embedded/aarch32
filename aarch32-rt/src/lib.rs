@@ -39,6 +39,8 @@
 //!
 //! ## Constants
 //!
+//! * `_num_cores` - the number of CPU core (and hence the number of copies of
+//!   each stack). Must be > 0.
 //! * `__sbss` - the start of zero-initialised data in RAM. Must be 4-byte
 //!   aligned.
 //! * `__ebss` - the end of zero-initialised data in RAM. Must be 4-byte
@@ -70,29 +72,29 @@
 //!
 //! Stacks are located in `.stacks` section which is mapped to the `STACKS`
 //! memory region. Per default, the stacks are pushed to the end of the `STACKS`
-//! by a filler section.
+//! by a filler section. We allocate stacks for each core, based on the
+//! `_num_cores` linker symbol.
 //!
 //! The stacks look like:
 //!
 //! ```text
-//! +------------------+ <----_stack_top equals ORIGIN(STACKS) + LENGTH(STACKS)
-//! |     HYP Stack    | } _hyp_stack_size bytes (Armv8-R only)
+//! +------------------+ <---- ORIGIN(STACKS) + LENGTH(STACKS)
+//! |     SYS Stack    | } _sys_stack_size * _num_cores bytes
 //! +------------------+
-//! |     UND Stack    | } _und_stack_size bytes
+//! |     FIQ Stack    | } _fiq_stack_size * _num_cores bytes
 //! +------------------+
-//! |     SVC Stack    | } _svc_stack_size bytes
+//! |     IRQ Stack    | } _irq_stack_size * _num_cores bytes
 //! +------------------+
-//! |     ABT Stack    | } _abt_stack_size bytes
+//! |     HYP Stack    | } _hyp_stack_size * _num_cores bytes (only used on Armv8-R)
 //! +------------------+
-//! |     IRQ Stack    | } _irq_stack_size bytes
+//! |     ABT Stack    | } _abt_stack_size * _num_cores bytes
 //! +------------------+
-//! |     FIQ Stack    | } _fiq_stack_size bytes
+//! |     SVC Stack    | } _svc_stack_size * _num_cores bytes
 //! +------------------+
-//! |     SYS Stack    | } _sys_stack_size bytes
+//! |     UND Stack    | } _und_stack_size * _num_cores bytes
 //! +------------------+
-//! |  filler section  | } calculated so that _stack_top equals end of STACKS
-//! +------------------+ <----either ORIGIN(STACKS) or the end of previous
-//!                           section located in STACKS or its alias.
+//! |  filler section  |
+//! +------------------+ <---- ORIGIN(STACKS)
 //! ```
 //!
 //! Our linker script PROVIDEs a symbol `_pack_stacks`. By setting this symbol
@@ -117,8 +119,9 @@
 //! You can also create a 'kmain' function by using the `#[entry]` attribute on
 //! a normal Rust function. The function will be renamed in such a way that the
 //! start-up assembly code can find it, but normal Rust code cannot. Therefore
-//! you can be assured that the function will only be called once (unless someone
-//! resorts to `unsafe` Rust to import the `kmain` symbol as an `extern "C" fn`).
+//! you can be assured that the function will only be called once (unless
+//! someone resorts to `unsafe` Rust to import the `kmain` symbol as an `extern
+//! "C" fn`).
 //!
 //! ```rust
 //! use aarch32_rt::entry;
@@ -201,8 +204,7 @@
 //! cannot control where execution resumes. The function is passed the literal
 //! integer argument to the `svc` instruction, which is extracted from the
 //! machine code for you by the default assembly trampoline, along with
-//! registers r0 through r7, in the form of a reference to a `Frame`
-//! structure.
+//! registers r0 through r5, in the form of a reference to a `Frame` structure.
 //!
 //! Our linker script PROVIDEs a default `_svc_handler` symbol which is an alias
 //! for the `_default_handler` function. You can override it by defining your
@@ -227,6 +229,52 @@
 //!     // do stuff here
 //!     todo!()
 //! }
+//! ```
+//!
+//! ### Hypervisor Call Handler
+//!
+//! The symbol `_hvc_handler` should be an `extern "C"` function. It is called
+//! in HYP mode when an [Hypervisor Call Exception] occurs.
+//!
+//! [Hypervisor Call Exception]:
+//!     https://developer.arm.com/documentation/ddi0406/c/System-Level-Architecture/The-System-Level-Programmers--Model/Exception-descriptions/Hypervisor-Call--HVC--exception?lang=en
+//!
+//! Returning from this function will cause execution to resume at the function
+//! the triggered the exception, immediately after the HVC instruction. You
+//! cannot control where execution resumes. The function is passed contents of
+//! the Hypervisor Syndrome Register (HSR) register, which is fetched by the
+//! default assembly trampoline, along with registers r0 through r5, in the form
+//! of a reference to a `Frame` structure.
+//!
+//! Our linker script PROVIDEs a default `_hvc_handler` symbol which is an alias
+//! for the `_default_handler` function. You can override it by defining your
+//! own `_hvc_handler` function, like:
+//!
+//! ```rust
+//! #[unsafe(no_mangle)]
+//! extern "C" fn _hvc_handler(hsr: u32, frame: &aarch32_rt::Frame) -> u32 {
+//!     // do stuff here
+//!     todo!()
+//! }
+//! ```
+//!
+//! You can also create a `_hvc_handler` function by using the
+//! `#[exception(HypervisorCall)]` attribute on a normal Rust function.
+//!
+//! ```rust
+//! use aarch32_rt::exception;
+//!
+//! #[exception(HypervisorCall)]
+//! fn my_hvc_handler(hsr: u32, frame: &aarch32_rt::Frame) -> u32 {
+//!     // do stuff here
+//!     todo!()
+//! }
+//! ```
+//!
+//! If you wish to inspect the HSR value, you can use the `aarch32-cpu` crate:
+//!
+//! ```rust,ignore
+//! let hsr = aarch32_cpu::register::Hsr::new_with_raw_value(hsr);
 //! ```
 //!
 //! ### Prefetch Abort Handler
@@ -457,26 +505,23 @@
 //!   `_irq_handler`
 //! * `_asm_default_fiq_handler` - an FIQ handler that just spins
 //! * `_default_handler` - a C compatible function that spins forever.
-//! * `_init_segments` - initialises `.bss` and `.data`
+//! * `_init_segments` - initialises `.bss` and `.data` and zeroes the stacks
 //! * `_stack_setup_preallocated` - initialises UND, SVC, ABT, IRQ, FIQ and SYS
 //!   stacks from the `.stacks` section defined in link.x, based on
-//!   _xxx_stack_size values
-//! * `_xxx_stack` and `_xxx_stack_end` where the former is the top and the latter
-//!   the bottom of the stack for each mode (`und`, `svc`, `abt`, `irq`, `fiq`, `sys`)
-//! * `_stack_top` - the address of the top of the STACKS region that contains
-//!   the reseved stacks, with eight-byte alignment.
-//!   Using this symbol is deprecated, stacks should be initialized by their
-//!   individual _xxx_stack symbols
+//!   _xxx_stack_size values, and the core number given in `r0`
+//! * `_xxx_stack_high_end` and `_xxx_stack_low_end` where the former is the top
+//!   and the latter the bottom of the stack for each mode (`und`, `svc`, `abt`,
+//!   `irq`, `fiq`, `sys`)
 //!
-//! The assembly language trampolines are required because AArch32
-//! processors do not save a great deal of state on entry to an exception
-//! handler, unlike Armv7-M (and other M-Profile) processors. We must therefore
-//! save this state to the stack using assembly language, before transferring to
-//! an `extern "C"` function. We do not change modes before entering that
-//! `extern "C"` function - that's for the handler to deal with as it wishes.
-//! Because FIQ is often performance-sensitive, we don't supply an FIQ
-//! trampoline; if you want to use FIQ, you have to write your own assembly
-//! routine, allowing you to preserve only whatever state is important to you.
+//! The assembly language trampolines are required because AArch32 processors do
+//! not save a great deal of state on entry to an exception handler, unlike
+//! Armv7-M (and other M-Profile) processors. We must therefore save this state
+//! to the stack using assembly language, before transferring to an `extern "C"`
+//! function. We do not change modes before entering that `extern "C"` function
+//! — that's for the handler to deal with as it wishes. Because FIQ is often
+//! performance-sensitive, we don't supply an FIQ trampoline; if you want to use
+//! FIQ, you have to write your own assembly routine, allowing you to preserve
+//! only whatever state is important to you.
 //!
 //! ## Examples
 //!
@@ -488,18 +533,21 @@
 #[cfg(target_arch = "arm")]
 use aarch32_cpu::register::{cpsr::ProcessorMode, Cpsr};
 
-#[cfg(arm_architecture = "v8-r")]
+#[cfg(all(arm_architecture = "v8-r", not(feature = "el2-mode")))]
 use aarch32_cpu::register::Hactlr;
 
 pub use aarch32_rt_macros::{entry, exception, irq};
+
+#[cfg(all(target_arch = "arm", arm_architecture = "v8-r", feature = "el2-mode"))]
+mod arch_v8_hyp;
 
 #[cfg(all(
     target_arch = "arm",
     any(
         arm_architecture = "v7-a",
         arm_architecture = "v7-r",
-        arm_architecture = "v8-r"
-    )
+        all(arm_architecture = "v8-r", not(feature = "el2-mode"))
+    ),
 ))]
 mod arch_v7;
 
@@ -512,6 +560,8 @@ mod arch_v7;
     ))
 ))]
 mod arch_v4;
+
+pub mod stacks;
 
 /// Our default exception handler.
 ///
@@ -543,7 +593,7 @@ core::arch::global_asm!(
         ldr     pc, =_asm_svc_handler
         ldr     pc, =_asm_prefetch_abort_handler
         ldr     pc, =_asm_data_abort_handler
-        nop
+        ldr     pc, =_asm_hvc_handler
         ldr     pc, =_asm_irq_handler
         ldr     pc, =_asm_fiq_handler
     .size _vector_table, . - _vector_table
@@ -750,38 +800,58 @@ core::arch::global_asm!(
 
     // Configure a stack for every mode. Leaves you in sys mode.
     //
+    // Pass the core number in r0
     .section .text._stack_setup_preallocated
     .global _stack_setup_preallocated
+    .arm
     .type _stack_setup_preallocated, %function
     _stack_setup_preallocated:
         // Save LR from whatever mode we're currently in
-        mov     r2, lr
+        mov     r3, lr
         // (we might not be in the same mode when we return).
         // Set stack pointer and mask interrupts for UND mode (Mode 0x1B)
         msr     cpsr_c, {und_mode}
-        ldr	r13, =_und_stack
+        ldr	    r2, =_und_stack_high_end
+        ldr	    r1, =_und_stack_size
+        muls    r1, r1, r0
+        subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for SVC mode (Mode 0x13)
         msr     cpsr_c, {svc_mode}
-        ldr	r13, =_svc_stack
+        ldr	    r2, =_svc_stack_high_end
+        ldr	    r1, =_svc_stack_size
+        muls    r1, r1, r0
+        subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for ABT mode (Mode 0x17)
         msr     cpsr_c, {abt_mode}
-        ldr	r13, =_abt_stack
+        ldr	    r2, =_abt_stack_high_end
+        ldr	    r1, =_abt_stack_size
+        muls    r1, r1, r0
+        subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for IRQ mode (Mode 0x12)
         msr     cpsr_c, {irq_mode}
-        ldr	r13, =_irq_stack
+        ldr	    r2, =_irq_stack_high_end
+        ldr	    r1, =_irq_stack_size
+        muls    r1, r1, r0
+        subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for FIQ mode (Mode 0x11)
         msr     cpsr_c, {fiq_mode}
-        ldr	r13, =_fiq_stack
+        ldr	    r2, =_fiq_stack_high_end
+        ldr	    r1, =_fiq_stack_size
+        muls    r1, r1, r0
+        subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for System mode (Mode 0x1F)
         msr     cpsr_c, {sys_mode}
-        ldr	r13, =_sys_stack
+        ldr	    r2, =_sys_stack_high_end
+        ldr	    r1, =_sys_stack_size
+        muls    r1, r1, r0
+        subs    sp, r2, r1
         // Clear the Thumb Exception bit because all vector table is written in Arm assembly
         // even on Thumb targets.
         mrc     p15, 0, r1, c1, c0, 0
         bic     r1, #{te_bit}
         mcr     p15, 0, r1, c1, c0, 0
         // return to caller
-        bx      r2
+        bx      r3
     .size _stack_setup_preallocated, . - _stack_setup_preallocated
 
     // Initialises stacks, .data and .bss
@@ -790,9 +860,19 @@ core::arch::global_asm!(
     .global _init_segments
     .type _init_segments, %function
     _init_segments:
-        // Initialise .bss
+        // Zero .bss
         ldr     r0, =__sbss
         ldr     r1, =__ebss
+        mov     r2, 0
+    0:
+        cmp     r1, r0
+        beq     1f
+        stm     r0!, {{r2}}
+        b       0b
+    1:
+        // Zero the stacks
+        ldr     r0, =_stacks_low_end
+        ldr     r1, =_stacks_high_end
         mov     r2, 0
     0:
         cmp     r1, r0
@@ -878,11 +958,12 @@ core::arch::global_asm!(
     .global _default_start
     .type _default_start, %function
     _default_start:
-        // Set up stacks.
-        bl      _stack_setup_preallocated
         // Init .data and .bss
         bl      _init_segments
-        "#,
+        // Set up stacks.
+        mov     r0, #0
+        bl      _stack_setup_preallocated
+    "#,
     fpu_enable!(),
     r#"
         // Zero all registers before calling kmain
@@ -907,13 +988,13 @@ core::arch::global_asm!(
     "#
 );
 
-// Start-up code for Armv8-R.
+// Start-up code for Armv8-R to switch to EL1.
 //
 // There's only one Armv8-R CPU (the Cortex-R52) and the FPU is mandatory, so we
 // always enable it.
 //
 // We boot into EL2, set up a stack pointer, and run `kmain` in EL1.
-#[cfg(arm_architecture = "v8-r")]
+#[cfg(all(arm_architecture = "v8-r", not(feature = "el2-mode")))]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
@@ -930,7 +1011,7 @@ core::arch::global_asm!(
         cmp     r0, {cpsr_mode_hyp}
         bne     1f
         // Set stack pointer
-        ldr     sp, =_hyp_stack
+        ldr     sp, =_hyp_stack_high_end
         // Set the HVBAR (for EL2) to _vector_table
         ldr     r1, =_vector_table
         mcr     p15, 4, r1, c12, c0, 0
@@ -948,14 +1029,15 @@ core::arch::global_asm!(
         isb
         eret
     1:
-        // Set up stacks.
-        bl      _stack_setup_preallocated
         // Set the VBAR (for EL1) to _vector_table. NB: This isn't required on
         // Armv7-R because that only supports 'low' (default) or 'high'.
         ldr     r0, =_vector_table
         mcr     p15, 0, r0, c12, c0, 0
         // Init .data and .bss
         bl      _init_segments
+        // Set up stacks.
+        mov     r0, #0
+        bl      _stack_setup_preallocated
         "#,
         fpu_enable!(),
         r#"
@@ -1000,4 +1082,57 @@ core::arch::global_asm!(
             .with_f(true)
             .raw_value()
     }
+);
+
+// Start-up code for Armv8-R to stay in EL2.
+//
+// There's only one Armv8-R CPU (the Cortex-R52) and the FPU is mandatory, so we
+// always enable it.
+//
+// We boot into EL2, set up a HYP stack pointer, and run `kmain` in EL2.
+#[cfg(all(arm_architecture = "v8-r", feature = "el2-mode"))]
+core::arch::global_asm!(
+    r#"
+    // Work around https://github.com/rust-lang/rust/issues/127269
+    .fpu vfp3
+
+    .section .text.default_start
+    .global _default_start
+    .type _default_start, %function
+    _default_start:
+        // Init .data and .bss
+        bl      _init_segments
+        // Set stack pointer
+        ldr     sp, =_hyp_stack_high_end
+        // Set the HVBAR (for EL2) to _vector_table
+        ldr     r1, =_vector_table
+        mcr     p15, 4, r1, c12, c0, 0
+        // Mask IRQ and FIQ
+        mrs     r0, CPSR
+        orr     r0, {irq_fiq}
+        msr     CPSR, r0
+    "#,
+    fpu_enable!(),
+    r#"
+        // Zero all registers before calling kmain
+        mov     r0, 0
+        mov     r1, 0
+        mov     r2, 0
+        mov     r3, 0
+        mov     r4, 0
+        mov     r5, 0
+        mov     r6, 0
+        mov     r7, 0
+        mov     r8, 0
+        mov     r9, 0
+        mov     r10, 0
+        mov     r11, 0
+        mov     r12, 0
+        // Jump to application
+        bl      kmain
+        // In case the application returns, loop forever
+        b       .
+    .size _default_start, . - _default_start
+    "#,
+    irq_fiq = const aarch32_cpu::register::Cpsr::new_with_raw_value(0).with_i(true).with_f(true).raw_value()
 );

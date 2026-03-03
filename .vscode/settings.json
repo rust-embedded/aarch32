@@ -8,6 +8,8 @@
     "rust-analyzer.linkedProjects": [
         "./Cargo.toml",
         "examples/versatileab/Cargo.toml",
-        "examples/mps3-an536/Cargo.toml"
+        "examples/mps3-an536/Cargo.toml",
+        "examples/mps3-an536-smp/Cargo.toml",
+        "examples/mps3-an536-el2/Cargo.toml"
     ]
 }

@@ -8,7 +8,7 @@ use super::{El1PhysicalTimer, El1VirtualTimer, GenericTimer};
 pub struct El2PhysicalTimer(El1PhysicalTimer);
 
 impl El2PhysicalTimer {
-    /// Create an EL1 Generic Timer handle
+    /// Create an EL2 Physical Timer handle
     ///
     /// # Safety
     ///
@@ -79,7 +79,7 @@ impl GenericTimer for El2PhysicalTimer {
 pub struct El2VirtualTimer(El1VirtualTimer);
 
 impl El2VirtualTimer {
-    /// Create an EL1 Generic Timer handle
+    /// Create an EL2 Generic Timer handle
     ///
     /// # Safety
     ///

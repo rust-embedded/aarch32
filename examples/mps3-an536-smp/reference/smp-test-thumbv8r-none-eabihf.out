@@ -1,0 +1,4 @@
+I am core 0 - Mpidr(80000000)
+I am core 1 - Mpidr(80000001)
+CAS test passed
+CS Mutex test passed

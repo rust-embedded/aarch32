@@ -1,0 +1,40 @@
+Found PERIPHBASE 0xf0000000
+Creating GIC driver @ 0xf0000000 / 0xf0100000
+Calling git.setup(0)
+Hcr { tcpac: false, trvm: false, hcd: false, tge: false, tvm: false, tpu: false, tpc: false, tsw: false, tac: false, tidcp: false, tid3: false, tid2: false, tid1: false, tid0: false, twe: false, twi: false, dc: false, bsu: NoEffect, fb: false, va: false, vi: false, vf: false, amo: false, imo: false, fmo: false, swio: false, vm: false }
+Configure Timer Interrupt...
+Timer Hz = 62500000
+Enabling interrupts...
+SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=0 RR=0 V=0 I=0 Z=1 SW=0 C=0 A=0 M=0 }
+SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=0 RR=0 V=0 I=0 Z=1 SW=0 C=0 A=0 M=0 }
+> IRQ
+Hyp timer tick!
+< IRQ
+> IRQ
+Hyp timer tick!
+< IRQ
+> IRQ
+Hyp timer tick!
+< IRQ
+> IRQ
+Hyp timer tick!
+< IRQ
+> IRQ
+Hyp timer tick!
+< IRQ
+> IRQ
+Hyp timer tick!
+< IRQ
+> IRQ
+Hyp timer tick!
+< IRQ
+> IRQ
+Hyp timer tick!
+< IRQ
+> IRQ
+Hyp timer tick!
+< IRQ
+> IRQ
+Hyp timer tick!
+< IRQ
+EL2 timer test completed OK
