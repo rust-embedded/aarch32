@@ -87,7 +87,6 @@ unsafe fn data_abort_handler(addr: usize) -> usize {
     disable_alignment_check();
     let dfsr = Dfsr::read();
     println!("DFSR (Fault Status Register): {:?}", dfsr);
-    println!("DFSR Status: {:?}", dfsr.status());
     let dfar = Dfar::read();
     enable_alignment_check();
 

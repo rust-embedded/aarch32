@@ -1,29 +1,151 @@
 //! Code for managing IFSR (*Instruction Fault Status Register*)
 
-use arbitrary_int::{prelude::*, u4, u5};
+#[allow(unused)]
+use arbitrary_int::u4;
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// IFSR (*Instruction Fault Status Register*)
-#[bitbybit::bitfield(u32, defmt_bitfields(feature = "defmt"))]
+#[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg(arm_architecture = "v5te")]
 pub struct Ifsr {
-    /// External abort qualifier
-    #[bit(12, rw)]
-    ext: bool,
+    /// Which domain was being accessed
+    #[bits(4..=7, rw)]
+    domain: u4,
+    /// Status
+    #[bits([0..=3], rw)]
+    status: Option<IfsrStatus>,
+}
+
+/// IFSR (*Instruction Fault Status Register*)
+#[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg(arm_architecture = "v6")]
+pub struct Ifsr {
+    /// Which domain was being accessed
+    #[bits(4..=7, rw)]
+    domain: u4,
+    /// Status bitfield.
+    #[bits([0..=3], rw)]
+    status: Option<IfsrStatus>,
+}
+
+/// IFSR (*Instruction Fault Status Register*)
+#[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg(arm_architecture = "v7-r")]
+pub struct Ifsr {
+    /// AXI Decode or Slave
+    #[bit(12, r)]
+    sd: bool,
+    /// Which domain was being accessed
     #[bits(4..=7, rw)]
     domain: u4,
     /// Status bitfield.
     #[bits([0..=3, 10], rw)]
-    status_raw: u5,
+    status: Option<IfsrStatus>,
 }
 
-/// Fault status register enumeration for IFSR, which is also part of the DFSR
-#[derive(Debug, Copy, Clone, PartialEq, Eq, num_enum::TryFromPrimitive)]
+/// IFSR (*Instruction Fault Status Register*)
+#[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg(arm_architecture = "v7-a")]
+pub struct Ifsr {
+    /// FAR not Valid
+    #[bit(16, rw)]
+    fnv: bool,
+    /// External Abort type
+    #[bit(12, rw)]
+    ext: bool,
+    /// Status bitfield.
+    #[bits([0..=3, 10], rw)]
+    status: Option<IfsrStatus>,
+}
+
+/// IFSR (*Instruction Fault Status Register*)
+#[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg(arm_architecture = "v8-r")]
+pub struct Ifsr {
+    /// FAR not Valid
+    #[bit(16, rw)]
+    fnv: bool,
+    /// External Abort type
+    #[bit(12, rw)]
+    ext: bool,
+    /// Status bitfield.
+    #[bits([0..=5], rw)]
+    status: Option<IfsrStatus>,
+}
+
+/// Fault status register enumeration for IFSR
+#[bitbybit::bitenum(u4, exhaustive = false)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[repr(u8)]
-pub enum FsrStatus {
+#[derive(Debug, PartialEq, Eq)]
+#[cfg(arm_architecture = "v5te")]
+pub enum IfsrStatus {
+    Alignment = 1,
+    DebugEvent = 2,
+    AlignmentAlt = 3,
+    TranslationFaultFirstLevel = 5,
+    TranslationFaultSecondLevel = 7,
+    SyncExtAbort = 8,
+    DomainFaultFirstLevel = 9,
+    SyncExtAbortAlt = 10,
+    DomainFaultSecondLevel = 11,
+    SyncExtAbortOnTranslationTableWalkFirstLevel = 12,
+    PermissionFaultFirstLevel = 13,
+    SyncExtAbortOnTranslationTableWalkSecondLevel = 14,
+    PermissionFaultSecondLevel = 15,
+}
+
+/// Fault status register enumeration for IFSR
+#[bitbybit::bitenum(u4, exhaustive = false)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, PartialEq, Eq)]
+#[cfg(arm_architecture = "v6")]
+pub enum IfsrStatus {
+    Alignment = 1,
+    DebugEvent = 2,
+    AccessFlagFaultFirstLevel = 3,
+    TranslationFaultFirstLevel = 5,
+    AccessFlagFaultSecondLevel = 6,
+    TranslationFaultSecondLevel = 7,
+    SyncExtAbort = 8,
+    DomainFaultFirstLevel = 9,
+    DomainFaultSecondLevel = 11,
+    SyncExtAbortOnTranslationTableWalkFirstLevel = 12,
+    PermissionFaultFirstLevel = 13,
+    SyncExtAbortOnTranslationTableWalkSecondLevel = 14,
+    PermissionFaultSecondLevel = 15,
+}
+
+/// Fault status register enumeration for IFSR
+#[bitbybit::bitenum(u5, exhaustive = false)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, PartialEq, Eq)]
+#[cfg(arm_architecture = "v7-r")]
+pub enum IfsrStatus {
+    Alignment = 1,
+    DebugEvent = 2,
+    SyncExtAbort = 8,
+    PermissionFaultFirstLevel = 13,
+    AsyncExtAbort = 21,
+    SyncParityEccError = 25,
+    AsyncParityEccError = 24,
+}
+
+/// Fault status register enumeration for IFSR
+#[bitbybit::bitenum(u5, exhaustive = false)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, PartialEq, Eq)]
+#[cfg(arm_architecture = "v7-a")]
+pub enum IfsrStatus {
     SyncExtAbortOnTranslationTableWalkFirstLevel = 0b01100,
     SyncExtAbortOnTranslationTableWalkSecondLevel = 0b01110,
     SyncParErrorOnTranslationTableWalkFirstLevel = 0b11100,
@@ -44,11 +166,19 @@ pub enum FsrStatus {
     SyncParErrorOnMemAccess = 0b11001,
 }
 
-impl Ifsr {
-    pub fn status(&self) -> Result<FsrStatus, u8> {
-        let status = self.status_raw().as_u8();
-        FsrStatus::try_from(status).map_err(|_| status)
-    }
+/// Fault status register enumeration for IFSR
+#[bitbybit::bitenum(u6, exhaustive = false)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, PartialEq, Eq)]
+#[cfg(arm_architecture = "v8-r")]
+pub enum IfsrStatus {
+    Translation = 4,
+    Permission = 12,
+    SyncExtAbort = 16,
+    SyncParityEccError = 24,
+    PcAlignment = 33,
+    Debug = 34,
 }
 
 impl SysReg for Ifsr {
@@ -82,17 +212,5 @@ impl Ifsr {
         unsafe {
             <Self as SysRegWrite>::write_raw(value.raw_value());
         }
-    }
-}
-
-impl core::fmt::Debug for Ifsr {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(
-            f,
-            "IFSR {{ ext={} Domain={:#06b} Status={:#07b} }}",
-            self.ext(),
-            self.domain(),
-            self.status_raw()
-        )
     }
 }

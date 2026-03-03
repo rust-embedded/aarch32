@@ -5,7 +5,10 @@
 
 use portable_atomic::{AtomicU32, Ordering};
 
-use aarch32_cpu::register::{Ifar, Ifsr};
+#[cfg(not(any(arm_architecture = "v4t", arm_architecture = "v5te")))]
+use aarch32_cpu::register::Ifar;
+#[cfg(not(arm_architecture = "v4t"))]
+use aarch32_cpu::register::Ifsr;
 use aarch32_rt::{entry, exception};
 use semihosting::println;
 use versatileab as _;
@@ -58,15 +61,14 @@ fn undefined_handler(addr: usize) -> ! {
 #[exception(PrefetchAbort)]
 unsafe fn prefetch_abort_handler(addr: usize) -> usize {
     println!("prefetch abort occurred");
-    let ifsr = Ifsr::read();
-    println!("IFSR (Fault Status Register): {:?}", ifsr);
-    println!("IFSR Status: {:?}", ifsr.status());
 
-    if cfg!(not(any(
-        arm_architecture = "v4t",
-        arm_architecture = "v5te",
-        arm_architecture = "v6"
-    ))) {
+    #[cfg(not(arm_architecture = "v4t"))]
+    {
+        let ifsr = Ifsr::read();
+        println!("IFSR (Fault Status Register): {:?}", ifsr);
+    }
+    #[cfg(not(any(arm_architecture = "v4t", arm_architecture = "v5te")))]
+    {
         let ifar = Ifar::read();
         println!("IFAR (Faulting Address Register): {:?}", ifar);
     }

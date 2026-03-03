@@ -5,7 +5,9 @@
 
 use portable_atomic::{AtomicU32, Ordering};
 
-use aarch32_cpu::register::{Dfar, Dfsr, Sctlr};
+use aarch32_cpu::register::Sctlr;
+#[cfg(not(arm_architecture = "v4t"))]
+use aarch32_cpu::register::{Dfar, Dfsr};
 use aarch32_rt::{entry, exception};
 use semihosting::println;
 use versatileab as _;
@@ -83,14 +85,28 @@ fn prefetch_abort_handler(_addr: usize) -> ! {
 #[exception(DataAbort)]
 unsafe fn data_abort_handler(addr: usize) -> usize {
     println!("data abort occurred");
-    // If this is not disabled, reading DFAR will trigger an alignment fault on Armv8-R, leading
-    // to a loop.
-    disable_alignment_check();
-    let dfsr = Dfsr::read();
-    println!("DFSR (Fault Status Register): {:?}", dfsr);
-    println!("DFSR Status: {:?}", dfsr.status());
-    let dfar = Dfar::read();
-    enable_alignment_check();
+
+    #[cfg(not(arm_architecture = "v4t"))]
+    {
+        // If this is not disabled, reading DFAR will trigger an alignment fault on Armv8-R, leading
+        // to a loop.
+        disable_alignment_check();
+        let dfsr = Dfsr::read();
+        println!("DFSR (Fault Status Register): {:?}", dfsr);
+        let dfar = Dfar::read();
+        enable_alignment_check();
+
+        let expect_fault_from = core::ptr::addr_of!(COUNTER) as usize + 1;
+
+        if dfar.0 as usize == expect_fault_from {
+            println!("caught fault on COUNTER");
+        } else {
+            println!(
+                "Bad DFAR address {:08x} is not {:08x}",
+                dfar.0, expect_fault_from
+            );
+        }
+    }
 
     // note the fault isn't at the start of the function
     let expect_fault_at = unaligned_from_t32 as unsafe extern "C" fn() as usize + 3;
@@ -101,17 +117,6 @@ unsafe fn data_abort_handler(addr: usize) -> usize {
         println!(
             "Bad fault address {:08x} is not {:08x}",
             addr, expect_fault_at
-        );
-    }
-
-    let expect_fault_from = core::ptr::addr_of!(COUNTER) as usize + 1;
-
-    if dfar.0 as usize == expect_fault_from {
-        println!("caught fault on COUNTER");
-    } else {
-        println!(
-            "Bad DFAR address {:08x} is not {:08x}",
-            dfar.0, expect_fault_from
         );
     }
 
