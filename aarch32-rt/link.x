@@ -140,6 +140,7 @@ PROVIDE(_pack_stacks = 0); /* set this to 1 to remove the filler section pushing
 PROVIDE(_start                      = _default_start);
 PROVIDE(_asm_undefined_handler      = _asm_default_undefined_handler);
 PROVIDE(_asm_svc_handler            = _asm_default_svc_handler);
+PROVIDE(_asm_hvc_handler            = _asm_default_hvc_handler);
 PROVIDE(_asm_prefetch_abort_handler = _asm_default_prefetch_abort_handler);
 PROVIDE(_asm_data_abort_handler     = _asm_default_data_abort_handler);
 PROVIDE(_asm_irq_handler            = _asm_default_irq_handler);
@@ -148,6 +149,7 @@ PROVIDE(_asm_fiq_handler            = _asm_default_fiq_handler);
 /* Weak aliases for C default handlers */
 PROVIDE(_undefined_handler      = _default_handler);
 PROVIDE(_svc_handler            = _default_handler);
+PROVIDE(_hvc_handler            = _default_handler);
 PROVIDE(_prefetch_abort_handler = _default_handler);
 PROVIDE(_data_abort_handler     = _default_handler);
 PROVIDE(_irq_handler            = _default_handler);

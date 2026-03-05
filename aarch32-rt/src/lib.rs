@@ -201,8 +201,7 @@
 //! cannot control where execution resumes. The function is passed the literal
 //! integer argument to the `svc` instruction, which is extracted from the
 //! machine code for you by the default assembly trampoline, along with
-//! registers r0 through r7, in the form of a reference to a `Frame`
-//! structure.
+//! registers r0 through r5, in the form of a reference to a `Frame` structure.
 //!
 //! Our linker script PROVIDEs a default `_svc_handler` symbol which is an alias
 //! for the `_default_handler` function. You can override it by defining your
@@ -227,6 +226,52 @@
 //!     // do stuff here
 //!     todo!()
 //! }
+//! ```
+//!
+//! ### Hypervisor Call Handler
+//!
+//! The symbol `_hvc_handler` should be an `extern "C"` function. It is called
+//! in HYP mode when an [Hypervisor Call Exception] occurs.
+//!
+//! [Hypervisor Call Exception]:
+//!     https://developer.arm.com/documentation/ddi0406/c/System-Level-Architecture/The-System-Level-Programmers--Model/Exception-descriptions/Hypervisor-Call--HVC--exception?lang=en
+//!
+//! Returning from this function will cause execution to resume at the function
+//! the triggered the exception, immediately after the HVC instruction. You
+//! cannot control where execution resumes. The function is passed contents of
+//! the Hypervisor Syndrome Register (HSR) register, which is fetched by the
+//! default assembly trampoline, along with registers r0 through r5, in the form
+//! of a reference to a `Frame` structure.
+//!
+//! Our linker script PROVIDEs a default `_hvc_handler` symbol which is an alias
+//! for the `_default_handler` function. You can override it by defining your
+//! own `_hvc_handler` function, like:
+//!
+//! ```rust
+//! #[unsafe(no_mangle)]
+//! extern "C" fn _hvc_handler(hsr: u32, frame: &aarch32_rt::Frame) -> u32 {
+//!     // do stuff here
+//!     todo!()
+//! }
+//! ```
+//!
+//! You can also create a `_hvc_handler` function by using the
+//! `#[exception(HypervisorCall)]` attribute on a normal Rust function.
+//!
+//! ```rust
+//! use aarch32_rt::exception;
+//!
+//! #[exception(HypervisorCall)]
+//! fn my_hvc_handler(hsr: u32, frame: &aarch32_rt::Frame) -> u32 {
+//!     // do stuff here
+//!     todo!()
+//! }
+//! ```
+//!
+//! If you wish to inspect the HSR value, you can use the `aarch32-cpu` crate:
+//!
+//! ```rust,ignore
+//! let hsr = aarch32_cpu::register::Hsr::new_with_raw_value(hsr);
 //! ```
 //!
 //! ### Prefetch Abort Handler
@@ -543,7 +588,7 @@ core::arch::global_asm!(
         ldr     pc, =_asm_svc_handler
         ldr     pc, =_asm_prefetch_abort_handler
         ldr     pc, =_asm_data_abort_handler
-        nop
+        ldr     pc, =_asm_hvc_handler
         ldr     pc, =_asm_irq_handler
         ldr     pc, =_asm_fiq_handler
     .size _vector_table, . - _vector_table
