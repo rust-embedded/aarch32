@@ -11,6 +11,9 @@ core::arch::global_asm!(
     // Called from the vector table when we have an interrupt.
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _irq_handler();`
+    //
+    // See https://developer.arm.com/documentation/dui0203/j/handling-processor-exceptions/armv6-and-earlier--armv7-a-and-armv7-r-profiles/interrupt-handlers
+    // for details on how we need to save LR_irq, SPSR_irq and LR_sys.
     .global _asm_default_irq_handler
     .type _asm_default_irq_handler, %function
     _asm_default_irq_handler:
