@@ -1,4 +1,4 @@
-//! Code and types for use with MMU programming on a VMSA (Virtual Memory System Architecture) platform
+//! Support for the VMSAv7 MMU
 
 use arbitrary_int::{u12, u2, u3, u4};
 
