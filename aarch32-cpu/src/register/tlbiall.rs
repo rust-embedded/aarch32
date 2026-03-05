@@ -1,4 +1,4 @@
-//! TLBIALL (*TLB Invalidate All Register*)
+//! Code for managing TLBIALL (*TLB Invalidate All Register*)
 
 use crate::register::SysReg;
 

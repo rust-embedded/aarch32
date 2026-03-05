@@ -1,12 +1,13 @@
 //! Code for managing MAIR1 (*Memory Attribute Indirection Register 1*)
 
+use super::Mair;
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// MAIR1 (*Memory Attribute Indirection Register 1*)
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Mair1(pub u32);
+pub struct Mair1;
 
 impl SysReg for Mair1 {
     const CP: u32 = 15;
@@ -21,8 +22,8 @@ impl crate::register::SysRegRead for Mair1 {}
 impl Mair1 {
     #[inline]
     /// Reads MAIR1 (*Memory Attribute Indirection Register 1*)
-    pub fn read() -> Mair1 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+    pub fn read() -> Mair {
+        unsafe { Mair::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
 
@@ -35,9 +36,9 @@ impl Mair1 {
     /// # Safety
     ///
     /// Ensure that this value is appropriate for this register
-    pub unsafe fn write(value: Self) {
+    pub unsafe fn write(value: Mair) {
         unsafe {
-            <Self as SysRegWrite>::write_raw(value.0);
+            <Self as SysRegWrite>::write_raw(value.raw_value());
         }
     }
 }

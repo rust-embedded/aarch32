@@ -1,4 +1,4 @@
-//! ICIALLU (*Invalidate all instruction caches to PoU.*)
+//! Code for managing ICIALLU (*Invalidate all instruction caches to PoU.*)
 //!
 //! Starting with ARMv6, the type of cache can be determined from the System Coprocessor register 0,
 //! and controlled through registers 1, 7 and 9. In earlier architecture variants, it is

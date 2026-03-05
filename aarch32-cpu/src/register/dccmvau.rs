@@ -1,4 +1,5 @@
-//! DCCMVAU (*Clean Data Cache Or Unified Cache Line by MVA to Point of Unification.*)
+//! Code for managing DCCMVAU (*Clean Data Cache Or Unified Cache Line by MVA to Point of Unification.*)
+
 use crate::register::{SysReg, SysRegWrite};
 
 #[derive(Debug, Copy, Clone)]

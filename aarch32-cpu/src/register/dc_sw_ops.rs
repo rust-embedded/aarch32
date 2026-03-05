@@ -1,3 +1,7 @@
+//! Code for managing Data Cache Set/Way Operations
+//!
+//! Used by DCCISW, DCCSW and DCISW registers.
+
 use arbitrary_int::u3;
 
 /// Create input data register value for cache maintenance operations by set and way.

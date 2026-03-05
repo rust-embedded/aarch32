@@ -137,21 +137,27 @@ impl El1Mpu {
     /// Set the memory attributes to MAIR0 and MAIR1
     #[allow(clippy::get_first)]
     pub fn set_attributes(&mut self, memattrs: &[MemAttr]) {
-        let mem_attr0 = memattrs.get(0).map(|m| m.to_bits()).unwrap_or(0) as u32;
-        let mem_attr1 = memattrs.get(1).map(|m| m.to_bits()).unwrap_or(0) as u32;
-        let mem_attr2 = memattrs.get(2).map(|m| m.to_bits()).unwrap_or(0) as u32;
-        let mem_attr3 = memattrs.get(3).map(|m| m.to_bits()).unwrap_or(0) as u32;
-        let mair0 = mem_attr3 << 24 | mem_attr2 << 16 | mem_attr1 << 8 | mem_attr0;
+        let mair0 = register::Mair::builder()
+            .with_attrs([
+                memattrs.get(0).map(|m| m.to_bits()).unwrap_or(0),
+                memattrs.get(1).map(|m| m.to_bits()).unwrap_or(0),
+                memattrs.get(2).map(|m| m.to_bits()).unwrap_or(0),
+                memattrs.get(3).map(|m| m.to_bits()).unwrap_or(0),
+            ])
+            .build();
         unsafe {
-            register::Mair0::write(register::Mair0(mair0));
+            register::Mair0::write(mair0);
         }
-        let mem_attr0 = memattrs.get(4).map(|m| m.to_bits()).unwrap_or(0) as u32;
-        let mem_attr1 = memattrs.get(5).map(|m| m.to_bits()).unwrap_or(0) as u32;
-        let mem_attr2 = memattrs.get(6).map(|m| m.to_bits()).unwrap_or(0) as u32;
-        let mem_attr3 = memattrs.get(7).map(|m| m.to_bits()).unwrap_or(0) as u32;
-        let mair1 = mem_attr3 << 24 | mem_attr2 << 16 | mem_attr1 << 8 | mem_attr0;
+        let mair1 = register::Mair::builder()
+            .with_attrs([
+                memattrs.get(4).map(|m| m.to_bits()).unwrap_or(0),
+                memattrs.get(5).map(|m| m.to_bits()).unwrap_or(0),
+                memattrs.get(6).map(|m| m.to_bits()).unwrap_or(0),
+                memattrs.get(7).map(|m| m.to_bits()).unwrap_or(0),
+            ])
+            .build();
         unsafe {
-            register::Mair1::write(register::Mair1(mair1));
+            register::Mair1::write(mair1);
         }
     }
 

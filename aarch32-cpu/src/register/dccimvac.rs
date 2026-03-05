@@ -1,4 +1,5 @@
-//! DCCIMVAC (*Clean And Invalidate Data Cache Or Unified Cache Line by MVA to Point of Coherence.*)
+//! Code for managing DCCIMVAC (*Clean And Invalidate Data Cache Or Unified Cache Line by MVA to Point of Coherence.*)
+
 use crate::register::{SysReg, SysRegWrite};
 
 #[derive(Debug, Copy, Clone)]
