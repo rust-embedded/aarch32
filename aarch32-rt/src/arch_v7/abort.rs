@@ -5,19 +5,19 @@ core::arch::global_asm!(
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3
 
-    .section .text._asm_default_data_abort_handler
 
     // Called from the vector table when we have an undefined exception.
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _data_abort_handler(addr: usize);`
+    .section .text._asm_default_data_abort_handler
+    .arm
     .global _asm_default_data_abort_handler
     .type _asm_default_data_abort_handler, %function
     _asm_default_data_abort_handler:
         sub     lr, lr, #8                // Subtract 8 from LR, see p.1214 of the ARMv7-A architecture manual.
         srsfd   sp!, #{abt_mode}          // store return state to ABT stack
         push    {{ r12 }}                 // Save preserved register R12 - can now use it
-        mov     r12, sp                   // align SP down to eight byte boundary using R12
-        and     r12, r12, 7               //
+        and     r12, sp, 7               // align SP down to eight byte boundary using R12
         sub     sp, r12                   // SP now aligned - only push 64-bit values from here
         push    {{ r0-r4, r12 }}          // push alignment amount, and preserved registers - can now use R0-R3 (R4 is just padding)
     "#,
@@ -43,20 +43,19 @@ core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3
-    .section .text._asm_default_prefetch_abort_handler
-
+  
     // Called from the vector table when we have a prefetch abort.
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _prefetch_abort_handler(addr: usize);`
-    .global _asm_default_prefetch_abort_handler
+    .section .text._asm_default_prefetch_abort_handler
     .arm
+    .global _asm_default_prefetch_abort_handler
     .type _asm_default_prefetch_abort_handler, %function
     _asm_default_prefetch_abort_handler:
         sub     lr, lr, #4                // Subtract 8 from LR, see p.1212 of the ARMv7-A architecture manual.
         srsfd   sp!, #{abt_mode}          // store return state to ABT stack
         push    {{ r12 }}                 // save R12 - can now use it
-        mov     r12, sp                   // align SP down to eight byte boundary using R12
-        and     r12, r12, 7               //
+        and     r12, sp, 7                // align SP down to eight byte boundary using R12
         sub     sp, r12                   // SP now aligned - only push 64-bit values from here
         push    {{ r0-r4, r12 }}          // push alignment amount, and preserved registers - can now use R0-R3 (R4 is just padding)
     "#,

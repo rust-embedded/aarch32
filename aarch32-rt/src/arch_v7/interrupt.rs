@@ -6,14 +6,14 @@ core::arch::global_asm!(
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3
 
-    .section .text._asm_default_irq_handler
-
     // Called from the vector table when we have an interrupt.
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _irq_handler();`
     //
     // See https://developer.arm.com/documentation/dui0203/j/handling-processor-exceptions/armv6-and-earlier--armv7-a-and-armv7-r-profiles/interrupt-handlers
     // for details on how we need to save LR_irq, SPSR_irq and LR_sys.
+    .section .text._asm_default_irq_handler
+    .arm
     .global _asm_default_irq_handler
     .type _asm_default_irq_handler, %function
     _asm_default_irq_handler:
@@ -21,8 +21,7 @@ core::arch::global_asm!(
         srsfd   sp!, #{sys_mode}          // store return state to SYS stack
         cps     #{sys_mode}               // switch to system mode so we can handle another interrupt (because if we interrupt irq mode we trash our own shadow registers)
         push    {{ lr }}                  // save adjusted LR to SYS stack
-        mov     lr, sp                    // align SP down to eight byte boundary using LR
-        and     lr, lr, 7                 //
+        and     lr, sp, 7                 // align SP down to eight byte boundary using LR
         sub     sp, lr                    // SP now aligned - only push 64-bit values from here
         push    {{ r0-r3, r12, lr }}      // push alignment amount (in LR) and preserved registers
      "#,

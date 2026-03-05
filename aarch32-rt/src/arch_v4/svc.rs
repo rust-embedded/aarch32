@@ -6,7 +6,6 @@ core::arch::global_asm!(
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
 
-
     // Called from the vector table when we have an software interrupt.
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _svc_handler(arg: u32, frame: &Frame) -> u32;`
@@ -18,8 +17,7 @@ core::arch::global_asm!(
         push    {{ r12, lr }}             // save LR and R12 - can now use R12 (but leave LR alone for SVC code lookup)
         mrs     r12, spsr                 // grab SPSR using R12
         push    {{ r12 }}                 // save SPSR value
-        mov     r12, sp                   // align SP down to eight byte boundary using R12
-        and     r12, r12, 7               //
+        and     r12, sp, 7                // align SP down to eight byte boundary using R12
         sub     sp, r12                   // SP now aligned - only push 64-bit values from here
         push    {{ r0-r6, r12 }}          // push alignment amount, and stacked SVC argument registers (must be even number of regs for alignment)
         mov     r12, sp                   // save SP for integer frame
