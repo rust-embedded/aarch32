@@ -1,3 +1,5 @@
+//! Helper functions for cache operations
+
 use arbitrary_int::u3;
 
 use crate::register::{Dccimvac, Dccisw, Dccmvac, Dccsw, Dcimvac, Dcisw, SysRegWrite};
