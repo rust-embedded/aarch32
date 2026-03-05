@@ -21,6 +21,7 @@ core::arch::global_asm!(
         mrs     lr, spsr                  // The hardware has copied the interrupted task's CPSR to SPSR_irq - grab it and
         push    {{ lr }}                  //   save it to IRQ stack using LR
         msr     cpsr_c, {sys_mode}        // switch to system mode so we can handle another interrupt (because if we interrupt irq mode we trash our own shadow registers)
+        push    {{ lr }}                  // Save LR of system mode before using it for stack alignment
         mov     lr, sp                    // align SP down to eight byte boundary using LR
         and     lr, lr, 7                 //
         sub     sp, lr                    // SP now aligned - only push 64-bit values from here
@@ -34,6 +35,7 @@ core::arch::global_asm!(
     r#"
         pop     {{ r0-r3, r12, lr }}      // restore alignment amount (in LR) and preserved registers
         add     sp, lr                    // restore SP alignment using LR
+        pop     {{ lr }}                  // Restore the actual link register of system mode.
         msr     cpsr_c, {irq_mode}        // switch back to IRQ mode (with IRQ masked)
         pop     {{ lr }}                  // load and restore SPSR using LR
         msr     spsr, lr                  //
