@@ -209,6 +209,11 @@ pub mod armv8r;
 #[cfg(any(test, doc, arm_architecture = "v8-r"))]
 pub use armv8r::*;
 
+#[cfg(any(test, doc, arm_architecture = "v7-a", arm_architecture = "v8-r"))]
+pub mod generic_timer;
+#[cfg(any(test, doc, arm_architecture = "v7-a", arm_architecture = "v8-r"))]
+pub use generic_timer::*;
+
 pub use imp::*;
 
 /// Describes a 32-bit System Register
