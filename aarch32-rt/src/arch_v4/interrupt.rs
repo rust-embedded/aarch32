@@ -25,8 +25,7 @@ core::arch::global_asm!(
         push    {{ lr }}                  //   save it to IRQ stack using LR
         msr     cpsr_c, {sys_mode}        // switch to system mode so we can handle another interrupt (because if we interrupt irq mode we trash our own shadow registers)
         push    {{ lr }}                  // Save LR of system mode before using it for stack alignment
-        mov     lr, sp                    // align SP down to eight byte boundary using LR
-        and     lr, lr, 7                 //
+        and     lr, sp, 7                 // align SP down to eight byte boundary using LR
         sub     sp, lr                    // SP now aligned - only push 64-bit values from here
         push    {{ r0-r3, r12, lr }}      // push alignment amount (in LR) and preserved registers
      "#,
