@@ -8,7 +8,7 @@ core::arch::global_asm!(
     // Called from the vector table when we have an undefined exception.
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _data_abort_handler(addr: usize);`
-    .section .text._asm_default_data_abort_handler
+    .pushsection .text._asm_default_data_abort_handler
     .arm
     .global _asm_default_data_abort_handler
     .type _asm_default_data_abort_handler, %function
@@ -36,6 +36,7 @@ core::arch::global_asm!(
         pop     {{ r12 }}                 // restore R12
         movs    pc, lr                    // return from exception
     .size _asm_default_data_abort_handler, . - _asm_default_data_abort_handler
+    .popsection
     "#
 );
 
@@ -47,7 +48,7 @@ core::arch::global_asm!(
     // Called from the vector table when we have a prefetch abort.
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _prefetch_abort_handler(addr: usize);`
-    .section .text._asm_default_prefetch_abort_handler
+    .pushsection .text._asm_default_prefetch_abort_handler
     .arm
     .global _asm_default_prefetch_abort_handler
     .type _asm_default_prefetch_abort_handler, %function
@@ -75,5 +76,6 @@ core::arch::global_asm!(
         pop     {{ r12 }}                 // restore R12
         movs    pc, lr                    // return from exception
     .size _asm_default_prefetch_abort_handler, . - _asm_default_prefetch_abort_handler
+    .popsection
     "#,
 );

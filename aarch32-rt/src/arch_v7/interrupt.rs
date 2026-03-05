@@ -12,7 +12,7 @@ core::arch::global_asm!(
     //
     // See https://developer.arm.com/documentation/dui0203/j/handling-processor-exceptions/armv6-and-earlier--armv7-a-and-armv7-r-profiles/interrupt-handlers
     // for details on how we need to save LR_irq, SPSR_irq and LR_sys.
-    .section .text._asm_default_irq_handler
+    .pushsection .text._asm_default_irq_handler
     .arm
     .global _asm_default_irq_handler
     .type _asm_default_irq_handler, %function
@@ -36,6 +36,7 @@ core::arch::global_asm!(
         pop     {{ lr }}                  // restore adjusted LR
         rfefd   sp!                       // return from exception
     .size _asm_default_irq_handler, . - _asm_default_irq_handler
+    .popsection
     "#,
     sys_mode = const crate::ProcessorMode::Sys as u8,
 );

@@ -9,7 +9,7 @@ core::arch::global_asm!(
     // Called from the vector table when we have an undefined exception.
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _data_abort_handler(addr: usize);`
-    .section .text._asm_default_data_abort_handler
+    .pushsection .text._asm_default_data_abort_handler
     .arm
     .global _asm_default_data_abort_handler
     .type _asm_default_data_abort_handler, %function
@@ -35,6 +35,7 @@ core::arch::global_asm!(
         str     lr, [sp]                  // overwrite the saved LR with the one from the C handler
         rfefd   sp!                       // return from exception
     .size _asm_default_data_abort_handler, . - _asm_default_data_abort_handler
+    .popsection
     "#,
     abt_mode = const crate::ProcessorMode::Abt as u8,
 );
@@ -47,7 +48,7 @@ core::arch::global_asm!(
     // Called from the vector table when we have a prefetch abort.
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _prefetch_abort_handler(addr: usize);`
-    .section .text._asm_default_prefetch_abort_handler
+    .pushsection .text._asm_default_prefetch_abort_handler
     .arm
     .global _asm_default_prefetch_abort_handler
     .type _asm_default_prefetch_abort_handler, %function
@@ -73,6 +74,7 @@ core::arch::global_asm!(
         str     lr, [sp]                  // overwrite the saved LR with the one from the C handler
         rfefd   sp!                       // return from exception
     .size _asm_default_prefetch_abort_handler, . - _asm_default_prefetch_abort_handler
+    .popsection
    "#,
     abt_mode = const crate::ProcessorMode::Abt as u8,
 );

@@ -11,7 +11,7 @@ core::arch::global_asm!(
     // `extern "C" fn _undefined_handler(addr: usize) -> usize;`
     // or
     // `extern "C" fn _undefined_handler(addr: usize) -> !;`
-    .section .text._asm_default_undefined_handler
+    .pushsection .text._asm_default_undefined_handler
     .arm
     .global _asm_default_undefined_handler
     .type _asm_default_undefined_handler, %function
@@ -41,6 +41,7 @@ core::arch::global_asm!(
         str     lr, [sp]                  // overwrite the saved LR with the one from the C handler
         rfefd   sp!                       // return from exception
     .size _asm_default_undefined_handler, . - _asm_default_undefined_handler
+    .popsection
     "#,
     und_mode = const crate::ProcessorMode::Und as u8,
     t_bit = const { crate::Cpsr::new_with_raw_value(0).with_t(true).raw_value() },

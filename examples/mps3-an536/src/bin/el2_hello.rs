@@ -38,8 +38,7 @@ core::arch::global_asm!(
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3-d16
 
-    .section .text.start
-
+    .pushsection .text.start
     .global _start
     .type _start, %function
     _start:
@@ -81,6 +80,7 @@ core::arch::global_asm!(
         // In case the application returns, loop forever
         b       .
     .size _start, . - _start
+    .popsection
     "#,
     hactlr_bits = const {
         Hactlr::new_with_raw_value(0)

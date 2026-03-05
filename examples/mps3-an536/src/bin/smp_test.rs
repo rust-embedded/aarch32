@@ -158,14 +158,14 @@ pub extern "C" fn kmain2() {
 #[cfg(arm_architecture = "v8-r")]
 core::arch::global_asm!(
     r#"
-    .section .bss
+    .pushsection .bss
     .align 4
     _core1_stack_pointer:
         .word 0
+    .popsection
 
-    .section .text.startup
+    .pushsection .text.startup
     .align 4
-
     .global _start
     .global core1_released
     .type _start, %function
@@ -230,6 +230,7 @@ core::arch::global_asm!(
         // call our kmain2 for core 1
         bl      kmain2
     .size _start, . - _start
+    .popsection
     "#,
     hactlr_bits = const {
         Hactlr::new_with_raw_value(0)
@@ -263,7 +264,7 @@ core::arch::global_asm!(
     // Configure a stack for every mode. Leaves you in sys mode.
     //
     // Pass in stack top in r0.
-    .section .text._stack_setup
+    .pushsection .text._stack_setup
     .arm
     .global _stack_setup
     .type _stack_setup, %function
@@ -307,6 +308,7 @@ core::arch::global_asm!(
         // return to caller
         bx      r2
     .size _stack_setup, . - _stack_setup
+    .popsection
     "#,
     und_mode = const {
         Cpsr::new_with_raw_value(0)
