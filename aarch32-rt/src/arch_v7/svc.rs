@@ -9,7 +9,7 @@ core::arch::global_asm!(
     // Called from the vector table when we have an software interrupt.
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _svc_handler(arg: u32, frame: &Frame) -> u32;`
-    .section .text._asm_default_svc_handler
+    .pushsection .text._asm_default_svc_handler
     .arm
     .global _asm_default_svc_handler
     .type _asm_default_svc_handler, %function
@@ -40,6 +40,7 @@ core::arch::global_asm!(
         pop     {{ r12, lr }}             // restore R12 and LR
         rfefd   sp!                       // return from exception
     .size _asm_default_svc_handler, . - _asm_default_svc_handler
+    .popsection
     "#,
     svc_mode = const crate::ProcessorMode::Svc as u8,
     t_bit = const { crate::Cpsr::new_with_raw_value(0).with_t(true).raw_value() },

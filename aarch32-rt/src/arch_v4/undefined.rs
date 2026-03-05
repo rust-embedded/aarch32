@@ -11,7 +11,7 @@ core::arch::global_asm!(
     // `extern "C" fn _undefined_handler(addr: usize) -> usize;`
     // or
     // `extern "C" fn _undefined_handler(addr: usize) -> !;`
-    .section .text._asm_default_undefined_handler
+    .pushsection .text._asm_default_undefined_handler
     .arm
     .global _asm_default_undefined_handler
     .type _asm_default_undefined_handler, %function
@@ -42,6 +42,7 @@ core::arch::global_asm!(
         pop     {{ r12 }}                 // restore R12
         movs    pc, lr                    // return from exception (movs => restore SPSR to CPSR)
     .size _asm_default_undefined_handler, . - _asm_default_undefined_handler
+    .popsection
     "#,
     t_bit = const { crate::Cpsr::new_with_raw_value(0).with_t(true).raw_value() },
 );

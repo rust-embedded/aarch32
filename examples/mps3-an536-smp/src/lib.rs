@@ -199,7 +199,7 @@ pub fn start_core1() {
 #[cfg(arm_architecture = "v8-r")]
 core::arch::global_asm!(
     r#"
-    .section .text.startup
+    .pushsection .text.startup
     .align 4
     .arm
 
@@ -274,6 +274,7 @@ core::arch::global_asm!(
         // call our kmain2 for core 1
         bl      kmain2
     .size _start, . - _start
+    .popsection
     "#,
     hactlr_bits = const {
         Hactlr::new_with_raw_value(0)

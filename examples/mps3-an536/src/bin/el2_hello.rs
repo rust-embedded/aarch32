@@ -28,12 +28,12 @@ fn main() -> ! {
     panic!("I am an example panic");
 }
 
-// Provide a custom `_start` function that sets us up in EL2 mode, with a
-// stack.
-//
-// Unlike the default routine, it does not initialise any other stacks, or
-// switch to EL1 mode.
-//
+/// Provide a custom `_start` function that sets us up in EL2 mode, with a
+/// stack.
+///
+/// Unlike the default routine, it does not initialise any other stacks, or
+/// switch to EL1 mode.
+///
 /// # Safety
 ///
 /// This function should not be called manually. It should only be called on reset
