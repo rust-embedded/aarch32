@@ -533,7 +533,7 @@
 #[cfg(target_arch = "arm")]
 use aarch32_cpu::register::{cpsr::ProcessorMode, Cpsr};
 
-#[cfg(arm_architecture = "v8-r")]
+#[cfg(any(arm_architecture = "v8-r", arm_architecture = "v7-a"))]
 use aarch32_cpu::register::Hactlr;
 
 pub use aarch32_rt_macros::{entry, exception, irq};
@@ -944,7 +944,10 @@ core::arch::global_asm!(
 // Start-up code for CPUs that boot into EL1
 //
 // Go straight to our default routine
-#[cfg(all(target_arch = "arm", not(arm_architecture = "v8-r")))]
+#[cfg(all(
+    target_arch = "arm",
+    not(any(arm_architecture = "v8-r", arm_architecture = "v7-a"))
+))]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
@@ -991,11 +994,12 @@ core::arch::global_asm!(
 // always enable it.
 //
 // We boot into EL2, set up a stack pointer, and run `kmain` in EL1.
-#[cfg(arm_architecture = "v8-r")]
+#[cfg(any(arm_architecture = "v8-r", arm_architecture = "v7-a"))]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
+    .cpu cortex-r52
 
     .section .text.default_start
     .arm
