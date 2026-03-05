@@ -22,17 +22,22 @@ pub mod asm;
 pub mod asm;
 
 pub mod cache;
+
+#[cfg(any(test, doc, arm_architecture = "v8-r", arm_architecture = "v7-a"))]
+pub mod generic_timer;
+
 pub mod interrupt;
+
+#[cfg(any(test, doc, arm_architecture = "v7-a"))]
 pub mod mmu;
+
 pub mod register;
+
 #[cfg(target_arch = "arm")]
 pub mod stacks;
 
 #[cfg(any(test, doc, arm_architecture = "v7-r"))]
 pub mod pmsav7;
-
-#[cfg(any(test, doc, arm_architecture = "v8-r"))]
-pub mod generic_timer;
 
 #[cfg(any(test, doc, arm_architecture = "v8-r"))]
 pub mod pmsav8;
