@@ -32,8 +32,7 @@ SECTIONS {
         /* We put this in the header */
         __irq_entries_end = .;
     } > CODE
-} INSERT AFTER .text;
-
+} INSERT AFTER .rodata;
 
 PROVIDE(_hyp_stack_size = 16K);
 PROVIDE(_und_stack_size = 16K);
@@ -42,3 +41,6 @@ PROVIDE(_abt_stack_size = 16K);
 PROVIDE(_irq_stack_size = 64);
 PROVIDE(_fiq_stack_size = 64);
 PROVIDE(_sys_stack_size = 16K);
+PROVIDE(_stack_alignment = 64);
+PROVIDE(_inter_stack_padding = 64);
+PROVIDE(_region_alignment = 64K);

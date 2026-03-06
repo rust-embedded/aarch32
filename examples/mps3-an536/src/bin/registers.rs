@@ -63,7 +63,7 @@ fn mpu_pmsa_v7() {
     mpu.configure(&Config {
         background_config: true,
         dregions: &[Region {
-            base: 0x2000_0000 as *mut u8,
+            base: 0x2000_0000 as *const u8,
             size: RegionSize::_16M,
             subregion_mask: 0x00,
             enabled: true,
@@ -132,7 +132,7 @@ fn mpu_pmsa_v8() {
         background_config: true,
         regions: &[
             El1Region {
-                range: 0x0000_0000 as *mut u8..=0x0FFF_FFFF as *mut u8,
+                range: 0x0000_0000 as *const u8..=0x0FFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -140,7 +140,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0x1000_0000 as *mut u8..=0x1FFF_FFFF as *mut u8,
+                range: 0x1000_0000 as *const u8..=0x1FFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -148,7 +148,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0x2000_0000 as *mut u8..=0x2FFF_FFFF as *mut u8,
+                range: 0x2000_0000 as *const u8..=0x2FFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -156,7 +156,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0x3000_0000 as *mut u8..=0x3FFF_FFFF as *mut u8,
+                range: 0x3000_0000 as *const u8..=0x3FFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -164,7 +164,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0x4000_0000 as *mut u8..=0x4FFF_FFFF as *mut u8,
+                range: 0x4000_0000 as *const u8..=0x4FFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -172,7 +172,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0x5000_0000 as *mut u8..=0x5FFF_FFFF as *mut u8,
+                range: 0x5000_0000 as *const u8..=0x5FFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -180,7 +180,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0x6000_0000 as *mut u8..=0x6FFF_FFFF as *mut u8,
+                range: 0x6000_0000 as *const u8..=0x6FFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -188,7 +188,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0x7000_0000 as *mut u8..=0x7FFF_FFFF as *mut u8,
+                range: 0x7000_0000 as *const u8..=0x7FFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -196,7 +196,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0x8000_0000 as *mut u8..=0x8FFF_FFFF as *mut u8,
+                range: 0x8000_0000 as *const u8..=0x8FFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -204,7 +204,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0x9000_0000 as *mut u8..=0x9FFF_FFFF as *mut u8,
+                range: 0x9000_0000 as *const u8..=0x9FFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -212,7 +212,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0xA000_0000 as *mut u8..=0xAFFF_FFFF as *mut u8,
+                range: 0xA000_0000 as *const u8..=0xAFFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -220,7 +220,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0xB000_0000 as *mut u8..=0xBFFF_FFFF as *mut u8,
+                range: 0xB000_0000 as *const u8..=0xBFFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -228,7 +228,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0xC000_0000 as *mut u8..=0xCFFF_FFFF as *mut u8,
+                range: 0xC000_0000 as *const u8..=0xCFFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -236,7 +236,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0xD000_0000 as *mut u8..=0xDFFF_FFFF as *mut u8,
+                range: 0xD000_0000 as *const u8..=0xDFFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -244,7 +244,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0xE000_0000 as *mut u8..=0xEFFF_FFFF as *mut u8,
+                range: 0xE000_0000 as *const u8..=0xEFFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,
@@ -252,7 +252,7 @@ fn mpu_pmsa_v8() {
                 enable: true,
             },
             El1Region {
-                range: 0xF000_0000 as *mut u8..=0xFFFF_FFFF as *mut u8,
+                range: 0xF000_0000 as *const u8..=0xFFFF_FFFF as *const u8,
                 shareability: El1Shareability::OuterShareable,
                 access: El1AccessPerms::ReadWrite,
                 no_exec: true,

@@ -48,7 +48,7 @@ impl Prlar {
     }
 
     /// Gets the limit address
-    pub fn limit_address(self) -> *mut u8 {
-        ((self.limit().as_usize() << 6) | 0b111_111) as *mut u8
+    pub fn limit_address(self) -> *const u8 {
+        ((self.limit().as_usize() << 6) | 0b111_111) as *const u8
     }
 }

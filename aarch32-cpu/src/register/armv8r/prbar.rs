@@ -83,7 +83,7 @@ impl Prbar {
     }
 
     /// Get the base address
-    pub fn base_address(self) -> *mut u8 {
-        (self.base().as_usize() << 6) as *mut u8
+    pub fn base_address(self) -> *const u8 {
+        (self.base().as_usize() << 6) as *const u8
     }
 }
