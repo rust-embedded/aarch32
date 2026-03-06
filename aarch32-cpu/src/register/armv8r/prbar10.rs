@@ -1,6 +1,6 @@
 //! Code for managing PRBAR10 (*Protection Region Base Address Register 10*)
 
-use crate::register::{SysReg, SysRegRead, SysRegWrite};
+use crate::register::{Prbar, SysReg, SysRegRead, SysRegWrite};
 
 /// PRBAR10 (*Protection Region Base Address Register 10*)
 #[derive(Debug, Clone, Copy)]
@@ -21,8 +21,8 @@ impl crate::register::SysRegRead for Prbar10 {}
 impl Prbar10 {
     #[inline]
     /// Reads PRBAR10 (*Protection Region Base Address Register 10*)
-    pub fn read() -> Prbar10 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+    pub fn read() -> Prbar {
+        unsafe { Prbar::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
 
@@ -35,9 +35,9 @@ impl Prbar10 {
     /// # Safety
     ///
     /// Ensure that this value is appropriate for this register
-    pub unsafe fn write(value: Self) {
+    pub unsafe fn write(value: Prbar) {
         unsafe {
-            <Self as SysRegWrite>::write_raw(value.0);
+            <Self as SysRegWrite>::write_raw(value.raw_value());
         }
     }
 }

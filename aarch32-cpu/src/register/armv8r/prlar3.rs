@@ -1,6 +1,6 @@
 //! Code for managing PRLAR3 (*Protection Region Limit Address Register 3*)
 
-use crate::register::{SysReg, SysRegRead, SysRegWrite};
+use crate::register::{Prlar, SysReg, SysRegRead, SysRegWrite};
 
 /// PRLAR3 (*Protection Region Limit Address Register 3*)
 #[derive(Debug, Clone, Copy)]
@@ -21,8 +21,8 @@ impl crate::register::SysRegRead for Prlar3 {}
 impl Prlar3 {
     #[inline]
     /// Reads PRLAR3 (*Protection Region Limit Address Register 3*)
-    pub fn read() -> Prlar3 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+    pub fn read() -> Prlar {
+        unsafe { Prlar::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
 
@@ -35,9 +35,9 @@ impl Prlar3 {
     /// # Safety
     ///
     /// Ensure that this value is appropriate for this register
-    pub unsafe fn write(value: Self) {
+    pub unsafe fn write(value: Prlar) {
         unsafe {
-            <Self as SysRegWrite>::write_raw(value.0);
+            <Self as SysRegWrite>::write_raw(value.raw_value());
         }
     }
 }
