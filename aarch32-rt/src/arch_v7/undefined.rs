@@ -11,7 +11,8 @@ core::arch::global_asm!(
     // `extern "C" fn _undefined_handler(addr: usize) -> usize;`
     // or
     // `extern "C" fn _undefined_handler(addr: usize) -> !;`
-    .section .text._asm_default_undefined_handler
+    .pushsection .text._asm_default_undefined_handler
+    .arm
     .global _asm_default_undefined_handler
     .type _asm_default_undefined_handler, %function
     _asm_default_undefined_handler:
@@ -22,8 +23,7 @@ core::arch::global_asm!(
         ite     eq                        // Adjust LR to point to faulting instruction - see p.1206 of the ARMv7-A architecture manual.
         subeq   lr, lr, #4                // Subtract 4 in Arm Mode
         subne   lr, lr, #2                // Subtract 2 in Thumb Mode
-        mov     r12, sp                   // align SP down to eight byte boundary using R12
-        and     r12, r12, 7               //
+        and     r12, sp, 7                // align SP down to eight byte boundary using R12
         sub     sp, r12                   // SP now aligned - only push 64-bit values from here
         push    {{ r0-r4, r12 }}          // push alignment amount, and preserved registers - can now use R0-R3 (R4 is just padding)
     "#,
@@ -41,6 +41,7 @@ core::arch::global_asm!(
         str     lr, [sp]                  // overwrite the saved LR with the one from the C handler
         rfefd   sp!                       // return from exception
     .size _asm_default_undefined_handler, . - _asm_default_undefined_handler
+    .popsection
     "#,
     und_mode = const crate::ProcessorMode::Und as u8,
     t_bit = const { crate::Cpsr::new_with_raw_value(0).with_t(true).raw_value() },

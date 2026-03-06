@@ -577,7 +577,7 @@ pub extern "C" fn _default_handler() {
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
-    .section .vector_table,"ax",%progbits
+    .pushsection .vector_table,"ax",%progbits
     .arm
     .global _vector_table
     .type _vector_table, %function
@@ -592,6 +592,7 @@ core::arch::global_asm!(
         ldr     pc, =_asm_irq_handler
         ldr     pc, =_asm_fiq_handler
     .size _vector_table, . - _vector_table
+    .popsection
     "#
 );
 
@@ -744,7 +745,7 @@ macro_rules! restore_fpu_context {
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
-    .section .text._asm_default_fiq_handler
+    .pushsection .text._asm_default_fiq_handler
 
     // Our default FIQ handler
     .global _asm_default_fiq_handler
@@ -752,6 +753,7 @@ core::arch::global_asm!(
     _asm_default_fiq_handler:
         b       _asm_default_fiq_handler
     .size    _asm_default_fiq_handler, . - _asm_default_fiq_handler
+    .popsection
     "#,
 );
 
@@ -795,7 +797,7 @@ core::arch::global_asm!(
 
     // Configure a stack for every mode. Leaves you in sys mode.
     //
-    .section .text._stack_setup_preallocated
+    .pushsection .text._stack_setup_preallocated
     .global _stack_setup_preallocated
     .type _stack_setup_preallocated, %function
     _stack_setup_preallocated:
@@ -828,9 +830,10 @@ core::arch::global_asm!(
         // return to caller
         bx      r2
     .size _stack_setup_preallocated, . - _stack_setup_preallocated
+    .popsection
 
     // Initialises stacks, .data and .bss
-    .section .text._init_segments
+    .pushsection .text._init_segments
     .arm
     .global _init_segments
     .type _init_segments, %function
@@ -859,6 +862,7 @@ core::arch::global_asm!(
     	// return to caller
         bx      lr
     .size _init_segments, . - _init_segments
+    .popsection
     "#,
     und_mode = const {
         Cpsr::new_with_raw_value(0)
@@ -918,7 +922,7 @@ core::arch::global_asm!(
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
 
-    .section .text.default_start
+    .pushsection .text.default_start
     .arm
     .global _default_start
     .type _default_start, %function
@@ -949,6 +953,7 @@ core::arch::global_asm!(
         // In case the application returns, loop forever
         b       .
     .size _default_start, . - _default_start
+    .popsection
     "#
 );
 
@@ -964,7 +969,7 @@ core::arch::global_asm!(
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
 
-    .section .text.default_start
+    .pushsection .text.default_start
     .arm
     .global _default_start
     .type _default_start, %function
@@ -1023,6 +1028,7 @@ core::arch::global_asm!(
         // In case the application returns, loop forever
         b       .
     .size _default_start, . - _default_start
+    .popsection
     "#,
     cpsr_mode_hyp = const ProcessorMode::Hyp as u8,
     hactlr_bits = const {
