@@ -1,2 +1,10 @@
+[target.armv8r-none-eabihf]
+# Note, this requires QEMU 9 or higher
+runner = "qemu-system-arm -machine mps3-an536 -cpu cortex-r52 -semihosting -nographic -audio none -kernel"
+
+[target.thumbv8r-none-eabihf]
+# Note, this requires QEMU 9 or higher
+runner = "qemu-system-arm -machine mps3-an536 -cpu cortex-r52 -semihosting -nographic -audio none -kernel"
+
 [build]
 target = "armv8r-none-eabihf"
