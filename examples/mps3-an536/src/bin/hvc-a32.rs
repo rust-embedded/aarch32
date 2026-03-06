@@ -27,7 +27,7 @@ fn main() -> ! {
 fn hvc_handler(hsr: u32, frame: &aarch32_rt::Frame) -> u32 {
     let hsr = aarch32_cpu::register::Hsr::new_with_raw_value(hsr);
     println!("In hvc_handler, with {:08x?}, {:08x?}", hsr, frame);
-    return 0x12345678;
+    0x12345678
 }
 
 #[instruction_set(arm::a32)]
