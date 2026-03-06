@@ -23,7 +23,7 @@ pub enum Error {
     /// Found an invalid MAIR selector (only 0..=7 is valid)
     InvalidMair(u8),
     /// Found a region with invalid alignment
-    UnalignedRegion(core::ops::RangeInclusive<*mut u8>),
+    UnalignedRegion(core::ops::RangeInclusive<*const u8>),
 }
 
 /// Represents our PMSAv8-32 EL1 MPU
@@ -224,8 +224,8 @@ impl El2Mpu {
         register::Hprselr::write(register::Hprselr(idx as u32));
         let hprbar = register::Hprbar::read();
         let hprlar = register::Hprlar::read();
-        let start_addr = (hprbar.base().value() << 6) as *mut u8;
-        let end_addr = ((hprlar.limit().value() << 6) | 0x3F) as *mut u8;
+        let start_addr = (hprbar.base().value() << 6) as *const u8;
+        let end_addr = ((hprlar.limit().value() << 6) | 0x3F) as *const u8;
         Some(El2Region {
             range: start_addr..=end_addr,
             shareability: hprbar.shareability(),
@@ -385,7 +385,7 @@ pub struct El1Region {
     ///
     /// * The first address must be a multiple of 32.
     /// * The length must be a multiple of 32.
-    pub range: core::ops::RangeInclusive<*mut u8>,
+    pub range: core::ops::RangeInclusive<*const u8>,
     /// Shareability of the region
     pub shareability: El1Shareability,
     /// Access for the region
@@ -430,7 +430,7 @@ pub struct El2Region {
     ///
     /// * The first address must be a multiple of 32.
     /// * The length must be a multiple of 32.
-    pub range: core::ops::RangeInclusive<*mut u8>,
+    pub range: core::ops::RangeInclusive<*const u8>,
     /// Shareability of the region
     pub shareability: El2Shareability,
     /// Access for the region

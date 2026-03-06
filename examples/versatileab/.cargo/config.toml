@@ -1,2 +1,51 @@
+[target.armv7r-none-eabihf]
+runner = "qemu-system-arm -machine versatileab -cpu cortex-r5f -semihosting -nographic -audio none -kernel"
+
+[target.thumbv7r-none-eabihf]
+runner = "qemu-system-arm -machine versatileab -cpu cortex-r5f -semihosting -nographic -audio none -kernel"
+
+[target.armv7r-none-eabi]
+# change '-mcpu=cortex-r5' to '-mcpu=cortex-r5f' if you use eabi-fpu feature, otherwise
+# qemu-system-arm will lock up
+runner = "qemu-system-arm -machine versatileab -cpu cortex-r5 -semihosting -nographic -audio none -kernel"
+
+[target.thumbv7r-none-eabi]
+# change '-mcpu=cortex-r5' to '-mcpu=cortex-r5f' if you use eabi-fpu feature, otherwise
+# qemu-system-arm will lock up
+runner = "qemu-system-arm -machine versatileab -cpu cortex-r5 -semihosting -nographic -audio none -kernel"
+
+[target.armv7a-none-eabihf]
+runner = "qemu-system-arm -machine versatileab -cpu cortex-a8 -semihosting -nographic -audio none -kernel"
+
+[target.thumbv7a-none-eabihf]
+runner = "qemu-system-arm -machine versatileab -cpu cortex-a8 -semihosting -nographic -audio none -kernel"
+
+[target.armv7a-none-eabi]
+runner = "qemu-system-arm -machine versatileab -cpu cortex-a8 -semihosting -nographic -audio none -kernel"
+
+[target.thumbv7a-none-eabi]
+runner = "qemu-system-arm -machine versatileab -cpu cortex-a8 -semihosting -nographic -audio none -kernel"
+
+[target.armv6-none-eabihf]
+runner = "qemu-system-arm -machine versatileab -cpu arm1176 -semihosting -nographic -audio none -kernel"
+
+[target.armv6-none-eabi]
+runner = "qemu-system-arm -machine versatileab -cpu arm1176 -semihosting -nographic -audio none -kernel"
+
+[target.thumbv6-none-eabi]
+runner = "qemu-system-arm -machine versatileab -cpu arm1176 -semihosting -nographic -audio none -kernel"
+
+[target.armv5te-none-eabi]
+runner = "qemu-system-arm -machine versatileab -cpu arm926 -semihosting -nographic -audio none -kernel"
+
+[target.thumbv5te-none-eabi]
+runner = "qemu-system-arm -machine versatileab -cpu arm926 -semihosting -nographic -audio none -kernel"
+
+[target.armv4t-none-eabi]
+runner = "qemu-system-arm -machine versatileab -cpu arm926 -semihosting -nographic -audio none -kernel"
+
+[target.thumbv4t-none-eabi]
+runner = "qemu-system-arm -machine versatileab -cpu arm926 -semihosting -nographic -audio none -kernel"
+
 [build]
 target = "armv7r-none-eabihf"
