@@ -52,14 +52,14 @@ fn main() -> ! {
     gic.set_group(SGI_INTID, Some(1), Group::Group1NS).unwrap();
     gic.enable_interrupt(SGI_INTID, Some(1), true).unwrap();
 
-    unsafe {
-        aarch32_cpu::interrupt::enable();
-    }
-
     critical_section::with(|cs| {
         let mut global_gic = GLOBAL_GIC.borrow_ref_mut(cs);
         global_gic.replace(gic);
     });
+
+    unsafe {
+        aarch32_cpu::interrupt::enable();
+    }
 
     mps3_an536_smp::start_core1();
 
@@ -106,16 +106,11 @@ fn main() -> ! {
 /// It is called by the start-up code below, on Core 1.
 #[unsafe(no_mangle)]
 pub extern "C" fn kmain2() {
-    println!(
-        "I am core 1 - {:08x?}",
-        aarch32_cpu::register::Mpidr::read()
-    );
-
-    unsafe {
-        aarch32_cpu::interrupt::enable();
-    }
-
     critical_section::with(|cs| {
+        println!(
+            "I am core 1 - {:08x?}",
+            aarch32_cpu::register::Mpidr::read()
+        );
         let mut global_gic = GLOBAL_GIC.borrow_ref_mut(cs);
         let global_gic = global_gic.as_mut().unwrap();
         semihosting::println!("Calling git.init_cpu(1)");
@@ -123,6 +118,9 @@ pub extern "C" fn kmain2() {
     });
     GicCpuInterface::enable_group1(true);
     GicCpuInterface::set_priority_mask(0xFF);
+    unsafe {
+        aarch32_cpu::interrupt::enable();
+    }
 
     CORE1_BOOTED.store(true, Ordering::SeqCst);
 
@@ -138,13 +136,10 @@ pub extern "C" fn kmain2() {
 #[aarch32_rt::irq]
 fn irq_handler() {
     let id = aarch32_cpu::register::Mpidr::read();
-    println!("> IRQ on {:08x?}", id);
     while let Some(next_int_id) =
         GicCpuInterface::get_and_acknowledge_interrupt(InterruptGroup::Group1)
     {
         // handle the interrupt
-        println!("- handle_interrupt_with_id({:?})", next_int_id);
-
         if id.0 == 0x8000_0001 {
             println!("- send SGI back to first core");
             GicCpuInterface::send_sgi(
@@ -159,10 +154,10 @@ fn irq_handler() {
             )
             .unwrap();
         } else {
+            println!("- ping-pong complete");
             PING_PONG_COMPLETE.store(true, Ordering::Relaxed);
         }
 
         GicCpuInterface::end_interrupt(next_int_id, InterruptGroup::Group1);
     }
-    println!("< IRQ on {:08x?}", id);
 }

@@ -6,11 +6,6 @@ Configure SGI on both cores...
 I am core 1 - Mpidr(80000001)
 Calling git.init_cpu(1)
 Send SGI to other core
-> IRQ on Mpidr(80000001)
-- handle_interrupt_with_id(SGI 3)
 - send SGI back to first core
-> IRQ on Mpidr(80000000)
-- handle_interrupt_with_id(SGI 3)
-< IRQ on Mpidr(80000001)
-< IRQ on Mpidr(80000000)
+- ping-pong complete
 Got pong
