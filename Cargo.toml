@@ -3,6 +3,7 @@ exclude = [
   "arm-targets",
   "examples/versatileab",
   "examples/mps3-an536",
+  "examples/mps3-an536-smp",
 ]
 members = [
   "aarch32-cpu",

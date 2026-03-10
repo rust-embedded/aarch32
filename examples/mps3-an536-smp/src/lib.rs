@@ -53,6 +53,8 @@
 
 #![no_std]
 
+use aarch32_cpu::register::{Hactlr, Cpsr, cpsr::ProcessorMode};
+
 use core::sync::atomic::{AtomicBool, Ordering};
 
 /// The PPI for the virutal timer, according to the Cortex-R52 Technical Reference Manual,
@@ -65,11 +67,6 @@ pub const VIRTUAL_TIMER_PPI: arm_gic::IntId = arm_gic::IntId::ppi(11);
 compile_error!("This example is only compatible to the ARMv8-R architecture");
 
 static WANT_PANIC: AtomicBool = AtomicBool::new(false);
-
-/// Track if we're already in the exit routine.
-///
-/// Stops us doing infinite recursion if we panic whilst doing the stack reporting.
-static IN_EXIT: AtomicBool = AtomicBool::new(false);
 
 /// Called when the application raises an unrecoverable `panic!`.
 ///
@@ -93,9 +90,7 @@ pub fn want_panic() {
 
 /// Exit from QEMU with code
 pub fn exit(code: i32) -> ! {
-    if !IN_EXIT.swap(true, Ordering::Relaxed) {
-        stack_dump();
-    }
+    stack_dump();
     semihosting::process::exit(code)
 }
 
@@ -105,13 +100,20 @@ pub fn exit(code: i32) -> ! {
 ///
 /// ```text
 /// Stack usage report:
-/// UND0 Stack =      0 used of  16384 bytes (000%) @ 0x1006bf80..0x1006ff80
-/// SVC0 Stack =      0 used of  16384 bytes (000%) @ 0x1006ff80..0x10073f80
-/// ABT0 Stack =      0 used of  16384 bytes (000%) @ 0x10073f80..0x10077f80
-/// HYP0 Stack =      0 used of  16384 bytes (000%) @ 0x10077f80..0x1007bf80
-/// IRQ0 Stack =      0 used of     64 bytes (000%) @ 0x1007bf80..0x1007bfc0
-/// FIQ0 Stack =      0 used of     64 bytes (000%) @ 0x1007bfc0..0x1007c000
-/// SYS0 Stack =   2416 used of  16384 bytes (014%) @ 0x1007c000..0x10080000
+/// UND1 Stack =      0 used of  16384 bytes (000%) @ 0x10057f00..0x1005bf00
+/// UND0 Stack =      0 used of  16384 bytes (000%) @ 0x1005bf00..0x1005ff00
+/// SVC1 Stack =      0 used of  16384 bytes (000%) @ 0x1005ff00..0x10063f00
+/// SVC0 Stack =      0 used of  16384 bytes (000%) @ 0x10063f00..0x10067f00
+/// ABT1 Stack =      0 used of  16384 bytes (000%) @ 0x10067f00..0x1006bf00
+/// ABT0 Stack =      0 used of  16384 bytes (000%) @ 0x1006bf00..0x1006ff00
+/// HYP1 Stack =      0 used of  16384 bytes (000%) @ 0x1006ff00..0x10073f00
+/// HYP0 Stack =      0 used of  16384 bytes (000%) @ 0x10073f00..0x10077f00
+/// IRQ1 Stack =      0 used of     64 bytes (000%) @ 0x10077f00..0x10077f40
+/// IRQ0 Stack =      0 used of     64 bytes (000%) @ 0x10077f40..0x10077f80
+/// FIQ1 Stack =      0 used of     64 bytes (000%) @ 0x10077f80..0x10077fc0
+/// FIQ0 Stack =      0 used of     64 bytes (000%) @ 0x10077fc0..0x10078000
+/// SYS1 Stack =    808 used of  16384 bytes (004%) @ 0x10078000..0x1007c000
+/// SYS0 Stack =   1432 used of  16384 bytes (008%) @ 0x1007c000..0x10080000
 /// ```
 fn stack_dump() {
     use aarch32_cpu::stacks::stack_used_bytes;
@@ -140,79 +142,12 @@ fn stack_dump() {
     }
 }
 
-#[derive(Clone, Debug)]
-/// Represents a handler for an interrupt
-pub struct InterruptHandler {
-    int_id: arm_gic::IntId,
-    function: fn(arm_gic::IntId),
-}
-
-impl InterruptHandler {
-    /// Create a new `InterruptHandler`, associating an `IntId` with a function to call
-    pub const fn new(int_id: arm_gic::IntId, function: fn(arm_gic::IntId)) -> InterruptHandler {
-        InterruptHandler { int_id, function }
-    }
-
-    /// Get the [`arm_gic::IntId`] this handler is for
-    pub const fn int_id(&self) -> arm_gic::IntId {
-        self.int_id
-    }
-
-    /// Is this handler for this [`arm_gic::IntId`]?
-    pub fn matches(&self, int_id: arm_gic::IntId) -> bool {
-        self.int_id == int_id
-    }
-
-    /// Execute the handler
-    pub fn execute(&self) {
-        (self.function)(self.int_id);
-    }
-}
-
-/// Represents all the hardware we support in our MPS3-AN536 system
-pub struct Board {
-    /// The Arm Generic Interrupt Controller (v3)
-    pub gic: arm_gic::gicv3::GicV3<'static>,
-    /// The Arm Virtual Generic Timer
-    pub virtual_timer: aarch32_cpu::generic_timer::El1VirtualTimer,
-    /// The Arm Physical Generic Timer
-    pub physical_timer: aarch32_cpu::generic_timer::El1PhysicalTimer,
-}
-
-impl Board {
-    /// Create a new board structure.
-    ///
-    /// Returns `Some(board)` the first time you call it, and None thereafter,
-    /// so you cannot have two copies of the [`Board`] structure.
-    pub fn new() -> Option<Board> {
-        static TAKEN: AtomicBool = AtomicBool::new(false);
-        if TAKEN
-            .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
-            .is_ok()
-        {
-            Some(Board {
-                // SAFETY: This is the first and only call to `make_gic()` as guaranteed by
-                // the atomic flag check above, ensuring no aliasing of GIC register access.
-                gic: unsafe { make_gic() },
-                // SAFETY: This is the first and only time we create the virtual timer instance
-                // as guaranteed by the atomic flag check above, ensuring exclusive access.
-                virtual_timer: unsafe { aarch32_cpu::generic_timer::El1VirtualTimer::new() },
-                // SAFETY: This is the first and only time we create the physical timer instance
-                // as guaranteed by the atomic flag check above, ensuring exclusive access.
-                physical_timer: unsafe { aarch32_cpu::generic_timer::El1PhysicalTimer::new() },
-            })
-        } else {
-            None
-        }
-    }
-}
-
 /// Create the ARM GIC driver
 ///
 /// # Safety
 ///
-/// Only call this function once.
-unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
+/// Only call this function once, from Core 0.
+pub unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
     /// Offset from PERIPHBASE for GIC Distributor
     const GICD_BASE_OFFSET: usize = 0x0000_0000usize;
 
@@ -240,9 +175,132 @@ unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
     // SAFETY: The GICD and GICR base addresses point to valid GICv3 MMIO regions as
     // obtained from the hardware CBAR register. This function is only called once
     // (via Board::new()'s atomic guard), ensuring exclusive ownership of the GIC.
-    let mut gic = unsafe { arm_gic::gicv3::GicV3::new(gicd, gicr_base, 1, false) };
+    let mut gic = unsafe { arm_gic::gicv3::GicV3::new(gicd, gicr_base, 2, false) };
     semihosting::println!("Calling git.setup(0)");
     gic.setup(0);
-    arm_gic::gicv3::GicCpuInterface::set_priority_mask(0x80);
+    arm_gic::gicv3::GicCpuInterface::set_priority_mask(0xFF);
     gic
+}
+
+/// Release core1 from spin loop
+pub fn start_core1() {
+    let fpga_led = 0xE020_2000 as *mut u32;
+    unsafe {
+        // Activate second core by writing to FPGA LEDs.
+        // We needed a shared register that wasn't in RAM, and this will do.
+        fpga_led.write_volatile(1);
+    }
+}
+
+// Start-up code for multi-core Armv8-R, as implemented on the MPS3-AN536.
+//
+// We boot into EL2, set up a stack pointer, init .data on .bss on core0, and
+// run `kmain` in EL1 on all cores.
+#[cfg(arm_architecture = "v8-r")]
+core::arch::global_asm!(
+    r#"
+    .section .text.startup
+    .align 4
+    .arm
+
+    .global _start
+    .global core1_released
+    .type _start, %function
+    _start:
+        // Read MPIDR into R0
+        mrc     p15, 0, r0, c0, c0, 5
+        ands    r0, r0, 0xFF
+        bne     core1
+    core0:
+        ldr     pc, =_default_start
+    core1:
+        // LED GPIO register base address
+        ldr     r0, =0xE0202000
+        mov     r1, #0
+    core1_spin:
+        wfe
+        // spin until an LED0 is on. We use the LED because unlike RAM this register resets to a known value.
+        ldr     r2, [r0]  
+        cmp     r1, r2
+        beq     core1_spin
+    core1_released:
+        // now an LED is on, we assume _core1_stack_pointer contains our stack pointer
+        // First we must exit EL2...
+        // Set the HVBAR (for EL2) to _vector_table
+        ldr     r0, =_vector_table
+        mcr     p15, 4, r0, c12, c0, 0
+        // Configure HACTLR to let us enter EL1
+        mrc     p15, 4, r0, c1, c0, 1
+        mov     r1, {hactlr_bits}
+        orr     r0, r0, r1
+        mcr     p15, 4, r0, c1, c0, 1
+        // Program the SPSR - enter system mode (0x1F) in Arm mode with IRQ, FIQ masked
+        mov		r0, {sys_mode}
+        msr		spsr_hyp, r0
+        adr		r0, 1f
+        msr		elr_hyp, r0
+        dsb
+        isb
+        eret
+    1:
+        // Allow VFP coprocessor access
+        mrc     p15, 0, r0, c1, c0, 2
+        orr     r0, r0, #0xF00000
+        mcr     p15, 0, r0, c1, c0, 2
+        // Enable VFP
+        mov     r0, #0x40000000
+        vmsr    fpexc, r0
+        // Set the VBAR (for EL1) to _vector_table. NB: This isn't required on
+        // Armv7-R because that only supports 'low' (default) or 'high'.
+        ldr     r0, =_vector_table
+        mcr     p15, 0, r0, c12, c0, 0
+        // set up our stacks - also switches to SYS mode
+        movs    r0, #1
+        bl      _stack_setup_preallocated
+        // Zero all registers before calling kmain2
+        mov     r0, 0
+        mov     r1, 0
+        mov     r2, 0
+        mov     r3, 0
+        mov     r4, 0
+        mov     r5, 0
+        mov     r6, 0
+        mov     r7, 0
+        mov     r8, 0
+        mov     r9, 0
+        mov     r10, 0
+        mov     r11, 0
+        mov     r12, 0
+        // call our kmain2 for core 1
+        bl      kmain2
+    .size _start, . - _start
+    "#,
+    hactlr_bits = const {
+        Hactlr::new_with_raw_value(0)
+            .with_cpuactlr(true)
+            .with_cdbgdci(true)
+            .with_flashifregionr(true)
+            .with_periphpregionr(true)
+            .with_qosr(true)
+            .with_bustimeoutr(true)
+            .with_intmonr(true)
+            .with_err(true)
+            .with_testr1(true)
+            .raw_value()
+    },
+    sys_mode = const {
+        Cpsr::new_with_raw_value(0)
+            .with_mode(ProcessorMode::Sys)
+            .with_i(true)
+            .with_f(true)
+            .raw_value()
+    },
+);
+
+/// What a second core does when no `kmain2` is supplied.
+#[unsafe(no_mangle)]
+pub extern "C" fn default_kmain2() {
+    loop {
+        aarch32_cpu::asm::wfe();
+    }
 }

@@ -1,0 +1,11 @@
+I am core 0 - Mpidr(80000000)
+Found PERIPHBASE 0xf0000000
+Creating GIC driver @ 0xf0000000 / 0xf0100000
+Calling git.setup(0)
+Configure SGI on both cores...
+I am core 1 - Mpidr(80000001)
+Calling git.init_cpu(1)
+Send SGI to other core
+- send SGI back to first core
+- ping-pong complete
+Got pong

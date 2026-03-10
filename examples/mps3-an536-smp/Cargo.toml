@@ -1,0 +1,31 @@
+[package]
+authors = [
+	"Jonathan Pallant <jonathan.pallant@ferrous-systems.com>",
+	"The Embedded Devices Working Group Arm Team <arm@teams.rust-embedded.org>"
+]
+default-run = "smp-test"
+description = "Examples for SMP MPS3-AN536 device (2x Arm Cortex-R52)"
+edition = "2024"
+homepage = "https://github.com/rust-embedded/aarch32"
+license = "MIT OR Apache-2.0"
+name = "mps3-an536-smp"
+publish = false
+readme = "README.md"
+repository = "https://github.com/rust-embedded/aarch32.git"
+version = "0.0.0"
+
+[dependencies]
+aarch32-cpu = { path = "../../aarch32-cpu", features = ["critical-section-multi-core"] }
+aarch32-rt = { path = "../../aarch32-rt" }
+arm-gic = { version = "0.7.1" }
+critical-section = "1.2.0"
+heapless = "0.9.1"
+libm = "0.2.15"
+semihosting = { version = "0.1.18", features = ["stdio"] }
+
+[build-dependencies]
+arm-targets = {version = "0.4.0", path = "../../arm-targets"}
+
+[features]
+eabi-fpu = ["aarch32-rt/eabi-fpu"]
+fpu-d32 = ["aarch32-rt/fpu-d32"]

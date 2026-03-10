@@ -27,6 +27,8 @@ clean:
 	rm -rf examples/versatileab/target-d32
 	cd examples/mps3-an536 && cargo clean
 	rm -rf examples/mps3-an536/target-d32
+	cd examples/mps3-an536-smp && cargo clean
+	rm -rf examples/mps3-an536-smp/target-d32
 
 # Builds our workspace for all targets
 build-all: \
@@ -151,7 +153,7 @@ clippy-host:
 	cd arm-targets && cargo clippy {{verbose}}
 
 # Run all the tests
-test: test-cargo test-qemu test-smp
+test: test-cargo test-qemu
 
 # Run the unit tests with cargo
 test-cargo:
@@ -161,7 +163,7 @@ test-cargo:
 	cd arm-targets && cargo test {{verbose}}
 
 # Run the integration tests in QEMU
-test-qemu: test-qemu-v4t test-qemu-v5te test-qemu-v6 test-qemu-v7a test-qemu-v7r test-qemu-v8r
+test-qemu: test-qemu-v4t test-qemu-v5te test-qemu-v6 test-qemu-v7a test-qemu-v7r test-qemu-v8r test-qemu-v8r-smp
 
 test-qemu-v4t:
 	#!/bin/bash
@@ -214,9 +216,11 @@ test-qemu-v8r:
 	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536 thumbv8r-none-eabihf -Zbuild-std=core --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
-# Run the special SMP test
-#
-# You can't run the normal examples with two CPUs because nothing stops the second CPU from running :/. So we have
-# a special test for SMP mode on the MPS3-AN536
-test-smp:
-	cd examples/mps3-an536 && cargo run --target=armv8r-none-eabihf --bin smp_test {{verbose}} -- --smp 2
+test-qemu-v8r-smp:
+	#!/bin/bash
+	FAIL=0
+	./tests.sh examples/mps3-an536-smp armv8r-none-eabihf {{verbose}} --release || FAIL=1
+	./tests.sh examples/mps3-an536-smp thumbv8r-none-eabihf -Zbuild-std=core {{verbose}} --release || FAIL=1
+	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536-smp armv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
+	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536-smp thumbv8r-none-eabihf -Zbuild-std=core --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
+	if [ "${FAIL}" == "1" ]; then exit 1; fi
