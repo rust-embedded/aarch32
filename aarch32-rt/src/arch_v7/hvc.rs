@@ -15,7 +15,7 @@ core::arch::global_asm!(
     .global _asm_default_hvc_handler
     .type _asm_default_hvc_handler, %function
     _asm_default_hvc_handler:
-        push    {{ r12, lr }}             // push state to stack
+        push    {{ r12, lr }}             // give us R12 and LR to work with
         push    {{ r0-r5 }}               // push frame to stack
         mov     r12, sp                   // r12 = pointer to Frame
     "#,
