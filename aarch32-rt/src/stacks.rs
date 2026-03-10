@@ -21,19 +21,15 @@ pub enum Stack {
 
 impl core::fmt::Display for Stack {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Stack::Und => "UND",
-                Stack::Svc => "SVC",
-                Stack::Abt => "ABT",
-                Stack::Hyp => "HYP",
-                Stack::Irq => "IRQ",
-                Stack::Fiq => "FIQ",
-                Stack::Sys => "SYS",
-            }
-        )
+        f.pad(match self {
+            Stack::Und => "UND",
+            Stack::Svc => "SVC",
+            Stack::Abt => "ABT",
+            Stack::Hyp => "HYP",
+            Stack::Irq => "IRQ",
+            Stack::Fiq => "FIQ",
+            Stack::Sys => "SYS",
+        })
     }
 }
 
@@ -74,6 +70,20 @@ impl Stack {
     pub fn range(&self, core: usize) -> Option<core::ops::Range<*const u32>> {
         if let (Some(bottom), Some(top)) = (self.bottom(core), self.top(core)) {
             Some(bottom..top)
+        } else {
+            None
+        }
+    }
+
+    /// Get the inclusive range of this stack, for the given core
+    ///
+    /// This is the range you need to give to the PMSAv8 MPU code.
+    pub fn mpu_range(&self, core: usize) -> Option<core::ops::RangeInclusive<*const u8>> {
+        if let (Some(bottom), Some(top)) = (self.bottom(core), self.top(core)) {
+            let top = top as *const u8;
+            let bottom = bottom as *const u8;
+            let top_under = unsafe { top.offset(-1) };
+            Some(bottom..=top_under)
         } else {
             None
         }
