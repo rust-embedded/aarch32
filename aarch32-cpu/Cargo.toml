@@ -51,4 +51,11 @@ serde = ["dep:serde", "arbitrary-int/serde"]
 check-asm = []
 
 [package.metadata.docs.rs]
-targets = ["armv7r-none-eabihf", "armv7r-none-eabi", "armv7a-none-eabihf"]
+# This is a list of supported Tier 2 targets, as of latest stable
+targets = [
+    "armv7r-none-eabihf",
+    "armv7r-none-eabi",
+    "armv7a-none-eabihf",
+    "armv7a-none-eabi",
+    "armv8r-none-eabihf"
+]
