@@ -40,4 +40,11 @@ fpu-d32 = []
 arm-targets = { version = "0.4.0", path = "../arm-targets" }
 
 [package.metadata.docs.rs]
-targets = ["armv7r-none-eabihf", "armv7r-none-eabihf", "armv7a-none-eabi"]
+# This is a list of supported Tier 2 targets, as of latest stable
+targets = [
+    "armv7r-none-eabihf",
+    "armv7r-none-eabi",
+    "armv7a-none-eabihf",
+    "armv7a-none-eabi",
+    "armv8r-none-eabihf"
+]
