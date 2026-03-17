@@ -26,10 +26,9 @@ core::arch::global_asm!(
     r#"
         mrs     r0, spsr                  // Load processor status that was banked on entry
         tst     r0, {t_bit}               // SVC occurred from Thumb state?
-        ldrhne  r0, [lr,#-2]              // Yes: Load halfword and...
-        bicne   r0, r0, #0xFF00           // ...extract comment field
+        ldrbne  r0, [lr,#-2]              // Yes: Load 1-byte immediate
         ldreq   r0, [lr,#-4]              // No: Load word and...
-        biceq   r0, r0, #0xFF000000       // ...extract comment field
+        biceq   r0, r0, #0xFF000000       // ...extract 3-byte immediate
         mov     r1, r12                   // pass the stacked integer registers in r1
         bl      _svc_handler
         mov     lr, r0                    // move r0 out of the way - restore_fpu_context will trash it
