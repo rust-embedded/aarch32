@@ -29,12 +29,11 @@ core::arch::global_asm!(
         mrs     r0, spsr                  // Load processor status that was banked on entry
         tst     r0, {t_bit}               // SVC occurred from Thumb state?
         beq     1f
-        ldrh    r0, [lr,#-2]              // Yes: Load halfword and...
-        bic     r0, r0, #0xFF00           // ...r0 now contains SVC number
+        ldrb    r0, [lr,#-2]              // Yes: Load 1-byte immediate
         b       2f
     1:
         ldr     r0, [lr,#-4]              // No: Load word and...
-        bic     r0, r0, #0xFF000000       // ...r0 now contains SVC number
+        bic     r0, r0, #0xFF000000       // ...extract 3-byte immediate
     2:
         mov     r1, r12                   // pass the stacked integer registers in r1
         bl      _svc_handler
