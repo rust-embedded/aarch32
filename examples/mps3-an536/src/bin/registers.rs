@@ -36,7 +36,7 @@ fn chip_info() {
 #[cfg(arm_architecture = "v7-r")]
 fn mpu_pmsa_v7() {
     use aarch32_cpu::{
-        pmsav7::{CacheablePolicy, Config, MemAttr, Mpu, Region, RegionSize},
+        pmsav7::{Cacheable, Config, MemAttr, Mpu, Region, RegionSize},
         register::Mpuir,
     };
 
@@ -69,8 +69,8 @@ fn mpu_pmsa_v7() {
             enabled: true,
             no_exec: false,
             mem_attr: MemAttr::Cacheable {
-                inner: CacheablePolicy::WriteThroughNoWriteAllocate,
-                outer: CacheablePolicy::NonCacheable,
+                inner: Cacheable::WriteThroughNoWriteAlloc,
+                outer: Cacheable::NonCacheable,
                 shareable: true,
             },
         }],
@@ -90,10 +90,10 @@ fn mpu_pmsa_v7() {
 fn mpu_pmsa_v8() {
     use aarch32_cpu::{
         pmsav8::{
-            Cacheable, El1AccessPerms, El1Config, El1Mpu, El1Region, El1Shareability, MemAttr,
+            CachePolicy, El1AccessPerms, El1Config, El1Mpu, El1Region, El1Shareability, MemAttr,
             RwAllocPolicy,
         },
-        register::{Mpuir, armv8r::*},
+        register::*,
     };
 
     // How many regions?
@@ -261,8 +261,8 @@ fn mpu_pmsa_v8() {
             },
         ],
         memory_attributes: &[MemAttr::NormalMemory {
-            outer: Cacheable::WriteThroughNonTransient(RwAllocPolicy::RW),
-            inner: Cacheable::WriteThroughNonTransient(RwAllocPolicy::RW),
+            outer: CachePolicy::WriteThroughNonTransient(RwAllocPolicy::RW),
+            inner: CachePolicy::WriteThroughNonTransient(RwAllocPolicy::RW),
         }],
     })
     .unwrap();

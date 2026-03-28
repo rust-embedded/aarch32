@@ -44,7 +44,7 @@ fn main() -> ! {
     hyp_timer.countdown_set(hyp_timer.frequency_hz() / 5);
     hyp_timer.enable(true);
     // used in interrupt handler
-    drop(hyp_timer);
+    let _ = hyp_timer;
 
     println!("Enabling interrupts...");
     dump_sctlr();
@@ -111,5 +111,5 @@ fn hvc_handler(hsr: u32, frame: &aarch32_rt::Frame) -> u32 {
         hsr.get_iss(),
         frame
     );
-    return frame.r0;
+    frame.r0
 }

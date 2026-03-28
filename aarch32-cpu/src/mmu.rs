@@ -9,7 +9,11 @@ pub const NUM_L1_PAGE_TABLE_ENTRIES: usize = 4096;
 ///
 /// You should create a static variable of this type, to represent your page table.
 #[repr(C, align(1048576))]
+#[derive(Debug)]
 pub struct L1Table {
+    /// Our mutable list of MMU table entries
+    ///
+    /// This table is read by the hardware.
     pub entries: core::cell::UnsafeCell<[L1Section; NUM_L1_PAGE_TABLE_ENTRIES]>,
 }
 
@@ -24,25 +28,39 @@ unsafe impl Sync for L1Table {}
 pub struct InvalidL1EntryType(pub L1EntryType);
 
 /// Access permissions for a region of memory
-#[bitbybit::bitenum(u3, exhaustive = true)]
+#[bitbybit::bitenum(u3)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialEq, Eq)]
 pub enum AccessPermissions {
+    /// All accesses generate Permission faults
     PermissionFault = 0b000,
+    /// Privileged access only
     PrivilegedOnly = 0b001,
+    /// Writes in User mode generate Permission faults
     NoUserWrite = 0b010,
+    /// Full access
     FullAccess = 0b011,
-    _Reserved1 = 0b100,
+    /// Privileged read-only
     PrivilegedReadOnly = 0b101,
-    ReadOnly = 0b110,
-    _Reserved2 = 0b111,
+    /// Privileged and User read-only (deprecated in VMSAv7)
+    ReadOnlyv6 = 0b110,
+    /// Privileged and User read-only
+    ReadOnly = 0b111,
 }
 
 impl AccessPermissions {
+    /// Create a new [`AccessPermissions`] value from the APX bit at the AP bit
+    /// pair
+    ///
+    /// Will panic if you select an invalid value.
     #[inline]
     pub const fn new(apx: bool, ap: u2) -> Self {
-        Self::new_with_raw_value(u3::new(((apx as u8) << 2) | ap.value()))
+        let x = u3::new(((apx as u8) << 2) | ap.value());
+        let Ok(ap) = Self::new_with_raw_value(x) else {
+            panic!("Invalid access permissions");
+        };
+        ap
     }
 
     /// AP bit for the given access permission.
@@ -65,21 +83,25 @@ impl AccessPermissions {
 #[derive(Debug, PartialEq, Eq)]
 #[repr(u8)]
 pub enum L1EntryType {
-    /// Access generates an abort exception. Indicates an unmapped virtual address.
+    /// Access generates an abort exception. Indicates an unmapped virtual
+    /// address.
     Fault = 0b00,
-    /// Entry points to a L2 translation table, allowing 1 MB of memory to be further divided
+    /// Entry points to a L2 translation table, allowing 1 MB of memory to be
+    /// further divided
     PageTable = 0b01,
     /// Maps a 1 MB region to a physical address.
     Section = 0b10,
-    /// Special 1MB section entry which requires 16 entries in the translation table.
+    /// Special 1MB section entry which requires 16 entries in the translation
+    /// table.
     Supersection = 0b11,
 }
 
-/// The ARM Cortex-A architecture reference manual p.1363 specifies these attributes in more detail.
+/// The ARM Cortex-A architecture reference manual p.1363 specifies these
+/// attributes in more detail.
 ///
-/// The B (Bufferable), C (Cacheable), and TEX (Type extension) bit names are inherited from
-/// earlier versions of the architecture. These names no longer adequately describe the function
-/// of the B, C, and TEX bits.
+/// The B (Bufferable), C (Cacheable), and TEX (Type extension) bit names are
+/// inherited from earlier versions of the architecture. These names no longer
+/// adequately describe the function of the B, C, and TEX bits.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -91,6 +113,7 @@ pub struct MemoryRegionAttributesRaw {
 }
 
 impl MemoryRegionAttributesRaw {
+    /// Create a new [`MemoryRegionAttributesRaw`] from constituent parts
     #[inline]
     pub const fn new(type_extensions: u3, c: bool, b: bool) -> Self {
         Self {
@@ -105,11 +128,15 @@ impl MemoryRegionAttributesRaw {
 #[bitbybit::bitenum(u2, exhaustive = true)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug)]
-pub enum CacheableMemoryAttribute {
+#[derive(Debug, PartialEq, Eq)]
+pub enum CachePolicy {
+    /// Non-cacheable
     NonCacheable = 0b00,
+    /// Write-Back Cacheable, Write-Allocate
     WriteBackWriteAlloc = 0b01,
+    /// Write-Through Cacheable
     WriteThroughNoWriteAlloc = 0b10,
+    /// Write-Back Cacheable, no Write-Allocate
     WriteBackNoWriteAlloc = 0b11,
 }
 
@@ -118,20 +145,43 @@ pub enum CacheableMemoryAttribute {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum MemoryRegionAttributes {
+    /// Strongly- ordered
+    ///
+    /// All memory accesses to Strongly-ordered memory occur in program order.
+    /// All Strongly-ordered regions are assumed to be Shareable.
     StronglyOrdered,
+    /// Device Shareable
+    ///
+    /// Intended to handle memory-mapped peripherals that are shared by several
+    /// processors.
     ShareableDevice,
+    /// Normal Memory, Write-Through Cacheable for both Inner and Outer Cache
     OuterAndInnerWriteThroughNoWriteAlloc,
+    /// Normal Memory, Write-Back no Write-Allocate Cacheable for both Inner and
+    /// Outer Cache
     OuterAndInnerWriteBackNoWriteAlloc,
+    /// Normal Memory, Non-cacheable for both Inner and Outer Cache
     OuterAndInnerNonCacheable,
+    /// Normal Memory, Write-Back Write-Allocate Cacheable for both Inner and
+    /// Outer Cache
     OuterAndInnerWriteBackWriteAlloc,
+    /// Device Non-Shareable
+    ///
+    /// Intended to handle memory-mapped peripherals that are used only by a
+    /// single processor.
     NonShareableDevice,
+    /// Normal Memory, where Inner and Outer cache have different settings
     CacheableMemory {
-        inner: CacheableMemoryAttribute,
-        outer: CacheableMemoryAttribute,
+        /// Settings for the Inner Cache
+        inner: CachePolicy,
+        /// Settings for the Outer Cache
+        outer: CachePolicy,
     },
 }
 
 impl MemoryRegionAttributes {
+    /// Convert the Rust enum type [`MemoryRegionAttributes`] into a raw
+    /// [`MemoryRegionAttributesRaw`] value for the hardware
     pub const fn as_raw(&self) -> MemoryRegionAttributesRaw {
         match self {
             MemoryRegionAttributes::StronglyOrdered => {
@@ -175,10 +225,13 @@ pub struct SectionAttributes {
     pub non_global: bool,
     /// Implementation defined bit.
     pub p_bit: bool,
+    /// Is memory shareable across multiple CPUs
     pub shareable: bool,
-    /// AP bits
+    /// Access permissions
     pub access: AccessPermissions,
+    /// Raw memory attributes
     pub memory_attrs: MemoryRegionAttributesRaw,
+    /// Domain value for this section
     pub domain: u4,
     /// xN bit.
     pub execute_never: bool,
@@ -195,7 +248,8 @@ impl SectionAttributes {
         Ok(Self::from_raw_unchecked(raw))
     }
 
-    /// Retrieves the corresponding L1 section part without the section base address being set.
+    /// Retrieves the corresponding L1 section part without the section base
+    /// address being set.
     const fn l1_section_part(&self) -> L1Section {
         L1Section::builder()
             .with_base_addr_upper_bits(u12::new(0))
@@ -231,8 +285,9 @@ impl SectionAttributes {
 
 /// 1 MB section translation entry, mapping a 1 MB region to a physical address.
 ///
-/// The ARM Cortex-A architecture programmers manual chapter 9.4 (p.163) or the ARMv7-A and ArmV7-R
-/// architecture reference manual p.1323 specify these attributes in more detail.
+/// The ARM Cortex-A architecture programmers manual chapter 9.4 (p.163) or the
+/// ARMv7-A and ArmV7-R architecture reference manual p.1323 specify these
+/// attributes in more detail.
 #[bitbybit::bitfield(u32, default = 0, defmt_fields(feature = "defmt"))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(PartialEq, Eq)]
@@ -246,23 +301,31 @@ pub struct L1Section {
     /// Shareable bit.
     #[bit(16, rw)]
     s: bool,
+    /// Part of the access permissions field
     #[bit(15, rw)]
     apx: bool,
-    /// Type extension bits.
+    /// Memory Region Attribute bit
     #[bits(12..=14, rw)]
     tex: u3,
+    /// Part of the access permissions field
     #[bits(10..=11, rw)]
     ap: u2,
+    /// Implementation defined bit
     #[bit(9, rw)]
     p_bit: bool,
+    /// Domain field
     #[bits(5..=8, rw)]
     domain: u4,
+    /// Execute-never bit
     #[bit(4, rw)]
     xn: bool,
+    /// Memory Region Attribute bit
     #[bit(3, rw)]
     c: bool,
+    /// Memory Region Attribute bit
     #[bit(2, rw)]
     b: bool,
+    /// Entry Type
     #[bits(0..=1, rw)]
     entry_type: L1EntryType,
 }
@@ -287,11 +350,12 @@ impl core::fmt::Debug for L1Section {
 }
 
 impl L1Section {
-    /// Generates a new L1 section from a physical address and section attributes.
+    /// Generates a new L1 section from a physical address and section
+    /// attributes.
     ///
-    /// The uppermost 12 bits of the physical address define which 1 MB of virtual address space
-    /// are being accessed. They will be stored in the L1 section table. This address MUST be
-    /// aligned to 1 MB.
+    /// The uppermost 12 bits of the physical address define which 1 MB of
+    /// virtual address space are being accessed. They will be stored in the L1
+    /// section table. This address MUST be aligned to 1 MB.
     ///
     /// # Panics
     ///
@@ -316,7 +380,8 @@ impl L1Section {
         *self = Self::new_with_addr_upper_bits_and_attrs(self.base_addr_upper_bits(), section_attrs)
     }
 
-    /// Create a new L1 section with the given upper 12 bits of the address and section attributes.
+    /// Create a new L1 section with the given upper 12 bits of the address and
+    /// section attributes.
     #[inline]
     pub const fn new_with_addr_upper_bits_and_attrs(
         addr_upper_twelve_bits: u12,
@@ -368,8 +433,8 @@ mod tests {
         access: AccessPermissions::FullAccess,
         // TEX 0b101, c false, b true
         memory_attrs: MemoryRegionAttributes::CacheableMemory {
-            inner: CacheableMemoryAttribute::WriteBackWriteAlloc,
-            outer: CacheableMemoryAttribute::WriteBackWriteAlloc,
+            inner: CachePolicy::WriteBackWriteAlloc,
+            outer: CachePolicy::WriteBackWriteAlloc,
         }
         .as_raw(),
         domain: u4::new(0b1010),
@@ -431,7 +496,7 @@ mod tests {
             p_bit: true,
             shareable: false,
             // APX true, AP 0b10
-            access: AccessPermissions::ReadOnly,
+            access: AccessPermissions::ReadOnlyv6,
             // TEX 0b000, c false, b false
             memory_attrs: MemoryRegionAttributes::StronglyOrdered.as_raw(),
             domain: u4::new(0b1001),

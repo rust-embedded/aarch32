@@ -6,7 +6,7 @@
 #![no_main]
 
 use aarch32_cpu::pmsav8::{
-    Cacheable, El1AccessPerms, El1Mpu, El1Region, El1Shareability, MemAttr, RwAllocPolicy,
+    CachePolicy, El1AccessPerms, El1Mpu, El1Region, El1Shareability, MemAttr, RwAllocPolicy,
 };
 use aarch32_rt::{entry, sections::Section, stacks::Stack};
 use semihosting::println;
@@ -31,13 +31,13 @@ const MAIR_DEVICE: u8 = 2;
 static MEM_ATTRS: [MemAttr; 8] = [
     // Read-only Code RAM
     MemAttr::NormalMemory {
-        outer: Cacheable::WriteThroughNonTransient(RwAllocPolicy::R),
-        inner: Cacheable::WriteThroughNonTransient(RwAllocPolicy::R),
+        outer: CachePolicy::WriteThroughNonTransient(RwAllocPolicy::R),
+        inner: CachePolicy::WriteThroughNonTransient(RwAllocPolicy::R),
     },
     // Read-write RAM
     MemAttr::NormalMemory {
-        outer: Cacheable::WriteBackNonTransient(RwAllocPolicy::W),
-        inner: Cacheable::WriteBackNonTransient(RwAllocPolicy::W),
+        outer: CachePolicy::WriteBackNonTransient(RwAllocPolicy::W),
+        inner: CachePolicy::WriteBackNonTransient(RwAllocPolicy::W),
     },
     // Device Memory
     MemAttr::DeviceMemory,

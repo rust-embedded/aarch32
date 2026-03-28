@@ -67,6 +67,7 @@ impl Hprbar {
     #[inline]
     /// Reads HPRBAR (*Hyp Protection Region Base Address Register*)
     pub fn read() -> Hprbar {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }

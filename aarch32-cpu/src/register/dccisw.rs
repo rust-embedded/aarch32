@@ -1,4 +1,4 @@
-//! Code for managing DCCISW (*Clean and Invalidate Data or Unified cache line by Set/Way.*)
+//! Code for managing DCCISW (*Data Cache line Clean and Invalidate by Set/Way Register*)
 
 use arbitrary_int::u3;
 
@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegWrite};
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+/// DCCISW (*Data Cache line Clean and Invalidate by Set/Way Register*)
 pub struct Dccisw(pub u32);
 
 impl Dccisw {
@@ -52,7 +53,7 @@ impl crate::register::SysRegWrite for Dccisw {}
 
 impl Dccisw {
     #[inline]
-    /// Writes DCCISW (*Clean and Invalidate data or unified cache line by set/way.*)
+    /// Writes DCCISW (*Data Cache line Clean and Invalidate by Set/Way Register*)
     ///
     /// # Safety
     ///

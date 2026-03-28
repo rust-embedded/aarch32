@@ -1,4 +1,4 @@
-//! Code for HVBAR (*Hyp Vector Base Address Register*)
+//! Code for managing HVBAR (*Hyp Vector Base Address Register*)
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 

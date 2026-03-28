@@ -18,7 +18,7 @@
 //! all the hardware either on the real board or emulated by QEMU.
 
 use aarch32_cpu::mmu::{
-    AccessPermissions, CacheableMemoryAttribute, L1Section, L1Table, MemoryRegionAttributes,
+    AccessPermissions, CachePolicy, L1Section, L1Table, MemoryRegionAttributes,
     NUM_L1_PAGE_TABLE_ENTRIES, SectionAttributes,
 };
 use arbitrary_int::u4;
@@ -32,8 +32,8 @@ const SDRAM_ATTRS: SectionAttributes = SectionAttributes {
     shareable: true,
     access: AccessPermissions::FullAccess,
     memory_attrs: MemoryRegionAttributes::CacheableMemory {
-        inner: CacheableMemoryAttribute::WriteBackWriteAlloc,
-        outer: CacheableMemoryAttribute::WriteBackWriteAlloc,
+        inner: CachePolicy::WriteBackWriteAlloc,
+        outer: CachePolicy::WriteBackWriteAlloc,
     }
     .as_raw(),
     domain: u4::new(0b0),
@@ -84,7 +84,7 @@ pub fn set_mmu() {
         .with_address(core::ptr::addr_of!(MMU_L1_PAGE_TABLE) as usize)
         .with_irgn(false)
         .with_nos(false)
-        .with_rgn(aarch32_cpu::register::ttbr0::Region::WriteBackWriteAllocateCacheable)
+        .with_rgn(aarch32_cpu::register::ttbr0::Region::WriteBackWriteAllocCacheable)
         .with_s(true)
         .with_c(true);
     unsafe { aarch32_cpu::register::Ttbr0::write(ttbr0) }
