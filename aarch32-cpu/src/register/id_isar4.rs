@@ -22,6 +22,6 @@ impl IdIsar4 {
     #[inline]
     /// Reads ID_ISAR4 (*Instruction Set Attribute Register 4*)
     pub fn read() -> IdIsar4 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

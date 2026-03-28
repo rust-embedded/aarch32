@@ -22,7 +22,7 @@ impl Pmccntr {
     #[inline]
     /// Reads PMCCNTR (*Performance Monitors Cycle Count Register*)
     pub fn read() -> Pmccntr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

@@ -22,7 +22,7 @@ impl Hcr2 {
     #[inline]
     /// Reads HCR2 (*Hyp Configuration Register 2*)
     pub fn read() -> Hcr2 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

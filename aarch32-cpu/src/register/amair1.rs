@@ -22,7 +22,7 @@ impl Amair1 {
     #[inline]
     /// Reads AMAIR1 (*Auxiliary Memory Attribute Indirection Register 1*)
     pub fn read() -> Amair1 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

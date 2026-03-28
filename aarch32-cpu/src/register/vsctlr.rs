@@ -22,7 +22,7 @@ impl Vsctlr {
     #[inline]
     /// Reads VSCTLR (*Virtualization System Control Register*)
     pub fn read() -> Vsctlr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

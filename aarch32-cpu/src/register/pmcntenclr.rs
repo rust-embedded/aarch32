@@ -22,7 +22,7 @@ impl Pmcntenclr {
     #[inline]
     /// Reads PMCNTENCLR (*Performance Monitors Count Enable Clear Register*)
     pub fn read() -> Pmcntenclr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

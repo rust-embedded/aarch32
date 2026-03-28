@@ -22,7 +22,7 @@ impl CntvTval {
     #[inline]
     /// Reads CNTV_TVAL (*Virtual Counter-timer TimerValue Register*)
     pub fn read() -> CntvTval {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

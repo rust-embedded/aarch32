@@ -22,7 +22,7 @@ impl ImpFlashifregionr {
     #[inline]
     /// Reads IMP_FLASHIFREGIONR (*Flash Interface Region Register*)
     pub fn read() -> ImpFlashifregionr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

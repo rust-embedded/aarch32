@@ -20,7 +20,7 @@ impl CntVoff {
     #[inline]
     /// Reads CNTVOFF (*Virtual Counter-timer Offset Register*)
     pub fn read() -> CntVoff {
-        unsafe { Self(<Self as SysRegRead64>::read_raw()) }
+        Self(<Self as SysRegRead64>::read_raw())
     }
 }
 

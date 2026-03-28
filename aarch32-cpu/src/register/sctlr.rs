@@ -72,7 +72,7 @@ impl Sctlr {
     /// Read SCTLR (*System Control Register*)
     #[inline]
     pub fn read() -> Self {
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 
     /// Write SCTLR (*System Control Register*)

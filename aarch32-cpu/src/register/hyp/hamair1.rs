@@ -22,7 +22,7 @@ impl Hamair1 {
     #[inline]
     /// Reads HAMAIR1 (*Hyp Auxiliary Memory Attribute Indirection Register 1*)
     pub fn read() -> Hamair1 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

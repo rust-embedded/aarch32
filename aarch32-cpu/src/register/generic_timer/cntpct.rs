@@ -20,6 +20,6 @@ impl CntPct {
     #[inline]
     /// Reads CNTPCT (*Physical Counter-timer Count Register*)
     pub fn read() -> CntPct {
-        unsafe { Self(<Self as SysRegRead64>::read_raw()) }
+        Self(<Self as SysRegRead64>::read_raw())
     }
 }

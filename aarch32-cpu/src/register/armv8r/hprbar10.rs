@@ -22,7 +22,7 @@ impl Hprbar10 {
     #[inline]
     /// Reads HPRBAR10 (*Hyp Protection Region Base Address Register 10*)
     pub fn read() -> Hprbar10 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

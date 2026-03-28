@@ -22,6 +22,6 @@ impl Aidr {
     #[inline]
     /// Reads AIDR (*Auxiliary ID Register*)
     pub fn read() -> Aidr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

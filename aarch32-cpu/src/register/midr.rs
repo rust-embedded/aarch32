@@ -38,8 +38,7 @@ impl Midr {
     /// Read MIDR (*Main ID Register*)
     #[inline]
     pub fn read() -> Midr {
-        // Safety: Reading this register has no side-effects and is atomic
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 }
 

@@ -22,7 +22,7 @@ impl ImpBpctlr {
     #[inline]
     /// Reads IMP_BPCTLR (*Branch Predictor Control Register*)
     pub fn read() -> ImpBpctlr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

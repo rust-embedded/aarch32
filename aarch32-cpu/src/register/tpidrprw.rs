@@ -22,7 +22,7 @@ impl Tpidrprw {
     #[inline]
     /// Reads TPIDRPRW (*EL1 Software Thread ID Register*)
     pub fn read() -> Tpidrprw {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

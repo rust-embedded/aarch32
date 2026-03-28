@@ -22,7 +22,7 @@ impl Cntfrq {
     #[inline]
     /// Reads CNTFRQ (*Counter-timer Frequency Register*)
     pub fn read() -> Cntfrq {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

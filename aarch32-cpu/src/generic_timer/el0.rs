@@ -2,7 +2,7 @@
 
 use crate::register;
 
-/// Represents our Physical Timer when we are running at EL0.
+/// Represents our Generic Physical Timer when we are running at EL0.
 ///
 /// Note that for most of these APIs to work, EL0 needs to have been granted
 /// access using methods like
@@ -75,11 +75,11 @@ impl super::GenericTimer for El0PhysicalTimer {
     }
 }
 
-/// Represents our Virtual Timer when we are running at EL0.
+/// Represents our Generic Virtual Timer when we are running at EL0.
 ///
 /// Note that for most of these APIs to work, EL0 needs to have been granted
 /// access using methods like
-/// [El1PhysicalTimer::el0_access_virtual_counter](crate::generic_timer::El1VirtualTimer::el0_access_virtual_counter).
+/// [El1VirtualTimer::el0_access_virtual_counter](crate::generic_timer::El1VirtualTimer::el0_access_virtual_counter).
 pub struct El0VirtualTimer();
 
 impl El0VirtualTimer {

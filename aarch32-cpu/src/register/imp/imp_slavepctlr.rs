@@ -22,7 +22,7 @@ impl ImpSlavepctlr {
     #[inline]
     /// Reads IMP_SLAVEPCTLR (*Slave Port Control Register*)
     pub fn read() -> ImpSlavepctlr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

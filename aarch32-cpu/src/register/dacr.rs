@@ -6,6 +6,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Dacr {
+    /// An array of bits controlling access to each of the 16 domains
     #[bits(0..=1, rw)]
     d: [DomainAccess; 16],
 }
@@ -40,7 +41,7 @@ impl Dacr {
     #[inline]
     /// Reads DACR (*Domain Access Control Register*)
     pub fn read() -> Dacr {
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 }
 

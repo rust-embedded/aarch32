@@ -22,7 +22,7 @@ impl Prbar11 {
     #[inline]
     /// Reads PRBAR11 (*Protection Region Base Address Register 11*)
     pub fn read() -> Prbar {
-        unsafe { Prbar::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Prbar::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 }
 

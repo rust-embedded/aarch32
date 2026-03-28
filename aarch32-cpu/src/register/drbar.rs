@@ -25,7 +25,7 @@ impl Drbar {
     ///
     /// Set RGNR to control which region this reads.
     pub fn read() -> Drbar {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

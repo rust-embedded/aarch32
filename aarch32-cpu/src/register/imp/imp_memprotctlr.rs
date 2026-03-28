@@ -22,7 +22,7 @@ impl ImpMemprotctlr {
     #[inline]
     /// Reads IMP_MEMPROTCTLR (*Memory Protection Control Register*)
     pub fn read() -> ImpMemprotctlr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

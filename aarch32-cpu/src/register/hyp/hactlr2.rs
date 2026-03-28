@@ -22,7 +22,7 @@ impl Hactlr2 {
     #[inline]
     /// Reads HACTLR2 (*Hyp Auxiliary Control Register 2*)
     pub fn read() -> Hactlr2 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

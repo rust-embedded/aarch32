@@ -22,7 +22,7 @@ impl Pmintenset {
     #[inline]
     /// Reads PMINTENSET (*Performance Monitors Interrupt Enable Set Register*)
     pub fn read() -> Pmintenset {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

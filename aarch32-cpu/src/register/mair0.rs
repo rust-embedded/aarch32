@@ -31,7 +31,7 @@ impl Mair0 {
     #[inline]
     /// Reads MAIR0 (*Memory Attribute Indirection Register 0*)
     pub fn read() -> Mair {
-        unsafe { Mair::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Mair::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 }
 

@@ -22,7 +22,7 @@ impl Dfar {
     #[inline]
     /// Reads DFAR (*Data Fault Address Register*)
     pub fn read() -> Dfar {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

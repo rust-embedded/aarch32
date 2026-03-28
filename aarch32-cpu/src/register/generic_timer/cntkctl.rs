@@ -68,7 +68,7 @@ impl Cntkctl {
     #[inline]
     /// Reads CNTKCTL (*Counter-timer Kernel Control Register*)
     pub fn read() -> Cntkctl {
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 }
 

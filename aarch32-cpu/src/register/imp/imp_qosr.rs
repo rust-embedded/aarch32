@@ -22,7 +22,7 @@ impl ImpQosr {
     #[inline]
     /// Reads IMP_QOSR (*Quality Of Service Register*)
     pub fn read() -> ImpQosr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

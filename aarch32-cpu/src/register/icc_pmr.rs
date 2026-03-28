@@ -22,7 +22,7 @@ impl IccPmr {
     #[inline]
     /// Reads ICC_PMR (*Interrupt Controller Interrupt Priority Mask Register*)
     pub fn read() -> IccPmr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

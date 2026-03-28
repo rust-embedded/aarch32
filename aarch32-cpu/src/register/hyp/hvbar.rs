@@ -1,4 +1,4 @@
-//! Code for HVBAR (*Hyp Vector Base Address Register*)
+//! Code for managing HVBAR (*Hyp Vector Base Address Register*)
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
@@ -29,8 +29,7 @@ impl Hvbar {
     /// Read HVBAR (*Hyp Vector Base Address Register*)
     #[inline]
     pub fn read() -> Hvbar {
-        // Safety: Reading this register has no side-effects and is atomic
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 
     /// Write HVBAR (*Hyp Vector Base Address Register*)

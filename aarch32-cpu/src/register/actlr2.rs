@@ -21,8 +21,8 @@ impl crate::register::SysRegRead for Actlr2 {}
 impl Actlr2 {
     #[inline]
     /// Reads ACTLR2 (*Auxiliary Control Register 2*)
-    pub fn read() -> Actlr2 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+    pub fn read() -> Self {
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

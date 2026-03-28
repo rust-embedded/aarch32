@@ -22,6 +22,6 @@ impl ImpPinoptr {
     #[inline]
     /// Reads IMP_PINOPTR (*Pin Options Register*)
     pub fn read() -> ImpPinoptr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

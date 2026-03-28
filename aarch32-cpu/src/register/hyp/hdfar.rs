@@ -22,7 +22,7 @@ impl Hdfar {
     #[inline]
     /// Reads HDFAR (*Hyp Data Fault Address Register*)
     pub fn read() -> Hdfar {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

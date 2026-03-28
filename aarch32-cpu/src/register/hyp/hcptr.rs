@@ -34,7 +34,7 @@ impl Hcptr {
     #[inline]
     /// Reads HCPTR (*Hyp Architectural Feature Trap Register*)
     pub fn read() -> Hcptr {
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 
     /// Modify HCPTR (*Hyp Architectural Feature Trap Register*)

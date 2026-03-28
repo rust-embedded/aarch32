@@ -22,6 +22,6 @@ impl ImpTestr0 {
     #[inline]
     /// Reads IMP_TESTR0 (*Test Register 0*)
     pub fn read() -> ImpTestr0 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

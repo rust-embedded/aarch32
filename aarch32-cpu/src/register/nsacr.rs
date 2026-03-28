@@ -22,6 +22,6 @@ impl Nsacr {
     #[inline]
     /// Reads NSACR (*Non-Secure Access Control Register*)
     pub fn read() -> Nsacr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

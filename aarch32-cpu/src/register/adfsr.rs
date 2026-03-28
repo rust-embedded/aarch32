@@ -22,7 +22,7 @@ impl Adfsr {
     #[inline]
     /// Reads ADFSR (*Auxiliary Data Fault Status Register*)
     pub fn read() -> Adfsr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

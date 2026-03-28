@@ -22,6 +22,6 @@ impl Tcmtr {
     #[inline]
     /// Reads TCMTR (*TCM Type Register*)
     pub fn read() -> Tcmtr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

@@ -98,9 +98,13 @@ pub struct Hcr {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialEq, Eq)]
 pub enum Bsu {
+    /// No effect
     NoEffect = 0b00,
+    /// Inner Shareable
     InnerShareable = 0b01,
+    /// Outer Shareable
     OuterShareable = 0b10,
+    /// Full System
     FullSystem = 0b11,
 }
 
@@ -118,7 +122,7 @@ impl Hcr {
     #[inline]
     /// Reads HCR (*Hyp Configuration Register*)
     pub fn read() -> Hcr {
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 }
 

@@ -22,7 +22,7 @@ impl ImpCsctlr {
     #[inline]
     /// Reads IMP_CSCTLR (*Cache Segregation Control Register*)
     pub fn read() -> ImpCsctlr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

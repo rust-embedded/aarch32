@@ -33,7 +33,7 @@ impl Mpuir {
     #[inline]
     /// Reads MPUIR (*MPU Type Register*)
     pub fn read() -> Mpuir {
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 }
 

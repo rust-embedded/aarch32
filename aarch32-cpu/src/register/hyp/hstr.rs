@@ -22,7 +22,7 @@ impl Hstr {
     #[inline]
     /// Reads HSTR (*Hyp System Trap Register*)
     pub fn read() -> Hstr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

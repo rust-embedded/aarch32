@@ -34,7 +34,7 @@ fn hvc_handler(hsr: u32, frame: &aarch32_rt::Frame) -> u32 {
     if hsr.iss().value() == 0xABCD {
         do_hvc2();
     }
-    return 0x12345678;
+    0x12345678
 }
 
 #[instruction_set(arm::t32)]

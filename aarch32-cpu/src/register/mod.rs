@@ -1,4 +1,6 @@
-//! CPU system register access code
+//! Defines various AArch32 system registers
+//!
+//! These are all ready using Co-Processor read/write instructions
 
 pub mod actlr;
 pub mod actlr2;
@@ -204,9 +206,10 @@ pub use vmpidr::Vmpidr;
 pub use vpidr::Vpidr;
 pub use vsctlr::Vsctlr;
 
-#[cfg(any(test, doc, arm_architecture = "v8-r"))]
-pub mod armv8r;
-#[cfg(any(test, doc, arm_architecture = "v8-r"))]
+#[cfg(any(test, arm_architecture = "v8-r"))]
+mod armv8r;
+#[cfg(any(test, arm_architecture = "v8-r"))]
+#[doc(inline)]
 pub use armv8r::*;
 
 #[cfg(any(test, doc, arm_architecture = "v7-a", arm_architecture = "v8-r"))]
@@ -239,10 +242,9 @@ pub trait SysReg {
 pub trait SysRegRead: SysReg {
     /// Read a value from this 32-bit register
     ///
-    /// # Safety
-    ///
-    /// You need to read the Architecture Reference Manual because this read
-    /// may have side-effects.
+    /// Our working assumption is that no Arm system register read has
+    /// side-effects that can cause Undefined Behaviour, so this method
+    /// is safe.
     #[cfg_attr(not(feature = "check-asm"), inline)]
     #[cfg_attr(
         any(
@@ -252,7 +254,7 @@ pub trait SysRegRead: SysReg {
         ),
         instruction_set(arm::a32)
     )]
-    unsafe fn read_raw() -> u32 {
+    fn read_raw() -> u32 {
         let r: u32;
         #[cfg(target_arch = "arm")]
         unsafe {
@@ -323,12 +325,11 @@ pub trait SysReg64 {
 pub trait SysRegRead64: SysReg64 {
     /// Read a value from this 64-bit register
     ///
-    /// # Safety
-    ///
-    /// You need to read the Architecture Reference Manual because this read
-    /// may have side-effects.
+    /// Our working assumption is that no Arm system register read has
+    /// side-effects that can cause Undefined Behaviour, so this method
+    /// is safe.
     #[inline]
-    unsafe fn read_raw() -> u64 {
+    fn read_raw() -> u64 {
         let r_lo: u32;
         let r_hi: u32;
         #[cfg(target_arch = "arm")]

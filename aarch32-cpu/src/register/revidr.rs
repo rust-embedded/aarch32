@@ -22,6 +22,6 @@ impl Revidr {
     #[inline]
     /// Reads REVIDR (*Revision ID Register*)
     pub fn read() -> Revidr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

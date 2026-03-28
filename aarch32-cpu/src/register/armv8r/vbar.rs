@@ -27,8 +27,7 @@ impl Vbar {
     /// Read VBAR (*Vector Base Address Register*)
     #[inline]
     pub fn read() -> Vbar {
-        // Safety: Reading this register has no side-effects and is atomic
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 
     /// Write VBAR (*Vector Base Address Register*)

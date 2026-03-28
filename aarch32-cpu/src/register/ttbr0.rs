@@ -87,11 +87,11 @@ pub enum Region {
     /// Normal memory, Outer Non-cacheable
     NonCacheable = 0b00,
     /// Normal memory, Outer Write-Back Write-Allocate Cacheable
-    WriteBackWriteAllocateCacheable = 0b01,
+    WriteBackWriteAllocCacheable = 0b01,
     /// Normal memory, Outer Write-Through Cacheable
     WriteThroughCacheable = 0b10,
     /// Normal memory, Outer Write-Back no Write-Allocate Cacheable
-    WriteBackNoWriteAllocateCacheable = 0b11,
+    WriteBackNoWriteAllocCacheable = 0b11,
 }
 
 impl SysReg for Ttbr0 {
@@ -110,7 +110,7 @@ impl Ttbr0 {
     #[inline]
     /// Reads TTBR0 (*Translation Table Base Register 0*)
     pub fn read() -> Ttbr0 {
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 
     #[inline]

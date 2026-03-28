@@ -22,7 +22,7 @@ impl ImpPeriphpregionr {
     #[inline]
     /// Reads IMP_PERIPHPREGIONR (*Peripheral Port Region Register*)
     pub fn read() -> ImpPeriphpregionr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 
