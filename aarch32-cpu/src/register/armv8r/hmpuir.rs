@@ -25,6 +25,7 @@ impl Hmpuir {
     #[inline]
     /// Reads HMPUIR (*Hyp MPU Type Register*)
     pub fn read() -> Hmpuir {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }

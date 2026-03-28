@@ -51,11 +51,25 @@ serde = ["dep:serde", "arbitrary-int/serde"]
 check-asm = []
 
 [package.metadata.docs.rs]
-# This is a list of supported Tier 2 targets, as of latest stable
 targets = [
-    "armv7r-none-eabihf",
-    "armv7r-none-eabi",
-    "armv7a-none-eabihf",
+    "armebv7r-none-eabi",
+    "armebv7r-none-eabihf",
+    "armv4t-none-eabi",
+    "armv5te-none-eabi",
+    "armv6-none-eabi",
+    "armv6-none-eabihf",
     "armv7a-none-eabi",
-    "armv8r-none-eabihf"
+    "armv7a-none-eabihf",
+    "armv7r-none-eabi",
+    "armv7r-none-eabihf",
+    "armv8r-none-eabihf",
+    "thumbv4t-none-eabi",
+    "thumbv5te-none-eabi",
+    "thumbv6-none-eabi",
+    "thumbv7a-none-eabi",
+    "thumbv7a-none-eabihf",
+    "thumbv7r-none-eabi",
+    "thumbv7r-none-eabihf",
+    "thumbv8r-none-eabihf",
 ]
+cargo-args = ["-Z", "build-std"]

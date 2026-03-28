@@ -32,6 +32,7 @@ impl Hprlar {
     #[inline]
     /// Reads HPRLAR (*Hyp Protection Region Limit Address Register*)
     pub fn read() -> Hprlar {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }

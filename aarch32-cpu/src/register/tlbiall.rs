@@ -17,6 +17,7 @@ impl crate::register::SysRegWrite for TlbIAll {}
 
 impl TlbIAll {
     #[inline]
+    /// Writes 0 to TLBIALL (*TLB Invalidate All Register*) to trigger operation
     pub fn write() {
         unsafe { <Self as crate::register::SysRegWrite>::write_raw(0) }
     }

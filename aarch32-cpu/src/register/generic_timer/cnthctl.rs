@@ -8,40 +8,27 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Cnthctl {
-    #[bits(19..=19, rw)]
-    cntpmask: bool,
-    #[bits(18..=18, rw)]
-    cntvmask: bool,
-    #[bits(17..=17, rw)]
-    evntis: bool,
-    #[bits(16..=16, rw)]
-    el1nvvct: bool,
-    #[bits(15..=15, rw)]
-    el1nvpct: bool,
-    #[bits(14..=14, rw)]
-    el1tvct: bool,
-    #[bits(13..=13, rw)]
-    el1tvt: bool,
-    #[bits(12..=12, rw)]
-    ecv: bool,
-    #[bits(11..=11, rw)]
-    el1pten: bool,
-    #[bits(10..=10, rw)]
-    el1pcten: bool,
-    #[bits(9..=9, rw)]
-    el0pten: bool,
-    #[bits(8..=8, rw)]
-    el0vten: bool,
+    /// Selects which bit of CNTPCT, as seen from EL2, is the trigger for the
+    /// event stream generated from that counter when that stream is enabled.
     #[bits(4..=7, rw)]
     evnti: u4,
+    /// Controls which transition of the CNTPCT trigger bit, as seen from EL2
+    /// and defined by EVNTI, generates an event when the event stream is
+    /// enabled.
     #[bits(3..=3, rw)]
     evntdir: bool,
+    /// Enables the generation of an event stream from CNTPCT as seen from EL2.
     #[bits(2..=2, rw)]
     evnten: bool,
+    /// Traps Non-secure EL0 and EL1 MRC or MCR accesses, reported using EC
+    /// syndrome value 0x03, and MRRC or MCRR accesses, reported using EC
+    /// syndrome value 0x04, to the physical timer registers to Hyp mode.
     #[bits(1..=1, rw)]
-    el0vcten: bool,
+    pl1pcen: bool,
+    /// Traps Non-secure EL0 and EL1 MRRC or MCRR accesses, reported using EC
+    /// syndrome value 0x04, to the physical counter register to Hyp mode.
     #[bits(0..=0, rw)]
-    el0pcten: bool,
+    pl1pcten: bool,
 }
 
 impl SysReg for Cnthctl {
@@ -58,6 +45,7 @@ impl Cnthctl {
     #[inline]
     /// Reads CNTHCTL (*Hyp Counter-timer Control Register*)
     pub fn read() -> Cnthctl {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }

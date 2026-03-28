@@ -44,6 +44,7 @@ impl Dracr {
     ///
     /// Set RGNR to control which region this reads.
     pub fn read() -> Dracr {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }

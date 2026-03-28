@@ -42,24 +42,43 @@ impl Hsr {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialEq, Eq)]
+/// Exception Class value from the HSR (*Hyp Syndrome Register*)
 pub enum ExceptionClass {
+    /// Unknown reason
     Unknown = 0b00_0000,
+    /// Trapped WFI or WFE instruction execution
     TrappedWfiWfe = 0b00_0001,
+    /// Trapped MCR or MRC access with (coproc==`0b1111`) that is not reported using EC value `0b000000``
     TrappedCp15McrMrc = 0b00_0011,
+    /// Trapped MCRR or MRRC access with (coproc==`0b1111`) that is not reported using EC value `0b000000``
     TrappedCp15McrrMrrc = 0b00_0100,
+    /// Trapped MCR or MRC access with (coproc==`0b1110``)
     TrappedCp14McrMrc = 0b00_0101,
+    /// Trapped LDC or STC access
     TrappedLdcStc = 0b00_0110,
+    /// Access to Advanced SIMD or floating-point functionality trapped by a `HCPTR.{TASE, TCP10}` control
     TrappedFpu = 0b00_0111,
+    /// Trapped VMRS access, from ID group trap, that is not reported using EC value `0b000111`
     TrappedVmrs = 0b00_1000,
+    /// Trapped MRRC access with (coproc==`0b1110`)
     TrappedCp14McrrMrrc = 0b00_1100,
+    /// Illegal exception return to AArch32 state
     IllegalAArch32Eret = 0b00_1110,
+    /// Exception on SVC instruction execution in AArch32 state routed to EL2
     Svc = 0b01_0001,
+    /// HVC instruction execution in AArch32 state, when HVC is not disabled
     Hvc = 0b01_0010,
+    /// Trapped execution of SMC instruction in AArch32 state
     Smc = 0b01_0011,
+    /// Prefetch Abort from a lower Exception level
     PrefetchAbortFromLower = 0b10_0000,
+    /// Prefetch Abort taken without a change in Exception level
     PrefetchAbortFromCurrent = 0b10_0001,
+    /// PC alignment fault exception
     PcAlignment = 0b10_0010,
+    /// Data Abort exception from a lower Exception level
     DataAbortFromLower = 0b10_0100,
+    /// Data Abort exception taken without a change in Exception level
     DataAbortFromCurrent = 0b10_0101,
 }
 
@@ -68,27 +87,46 @@ pub enum ExceptionClass {
 /// ISS is a 25 bit field whose meaning varies depending on the value of the EC field.
 #[derive(Debug, Clone)]
 pub enum Iss {
+    /// ISS for [`ExceptionClass::Unknown`]
     Unknown(IssUnknown),
+    /// ISS for [`ExceptionClass::TrappedWfiWfe`]
     TrappedWfiWfe(IssTrappedWfiWfe),
+    /// ISS for [`ExceptionClass::TrappedCp15McrMrc`]
     TrappedCp15McrMrc(IssTrappedMcrMrc),
+    /// ISS for [`ExceptionClass::TrappedCp15McrrMrrc`]
     TrappedCp15McrrMrrc(IssTrappedMcrrMrrc),
+    /// ISS for [`ExceptionClass::TrappedCp14McrMrc`]
     TrappedCp14McrMrc(IssTrappedMcrMrc),
+    /// ISS for [`ExceptionClass::TrappedLdcStc`]
     TrappedLdcStc(IssTrappedLdcStc),
+    /// ISS for [`ExceptionClass::TrappedFpu`]
     TrappedFpu(IssTrappedFpu),
+    /// ISS for [`ExceptionClass::TrappedVmrs`]
     TrappedVmrs(IssTrappedVmrs),
+    /// ISS for [`ExceptionClass::TrappedCp14McrrMrrc`]
     TrappedCp14McrrMrrc(IssTrappedMcrrMrrc),
+    /// ISS for [`ExceptionClass::IllegalAArch32Eret`]
     IllegalAArch32Eret,
+    /// ISS for [`ExceptionClass::Svc`]
     Svc(IssCall),
+    /// ISS for [`ExceptionClass::Hvc`]
     Hvc(IssCall),
+    /// ISS for [`ExceptionClass::Smc`]
     Smc(IssSmc),
+    /// ISS for [`ExceptionClass::PrefetchAbortFromLower`]
     PrefetchAbortFromLower(IssPrefetchAbort),
+    /// ISS for [`ExceptionClass::PrefetchAbortFromCurrent`]
     PrefetchAbortFromCurrent(IssPrefetchAbort),
+    /// ISS for [`ExceptionClass::PcAlignment`]
     PcAlignment,
+    /// ISS for [`ExceptionClass::DataAbortFromLower`]
     DataAbortFromLower(IssDataAbort),
+    /// ISS for [`ExceptionClass::DataAbortFromCurrent`]
     DataAbortFromCurrent(IssDataAbort),
 }
 
 impl ExceptionClass {
+    /// Convert an ISS value based on the Exception Class
     pub fn decode_iss(&self, iss: u25) -> Iss {
         match self {
             ExceptionClass::Unknown => Iss::Unknown(IssUnknown(iss.value())),
@@ -324,8 +362,11 @@ pub struct IssDataAbort {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialEq, Eq)]
+/// The length of the instruction that trapped
 pub enum InstructionLength {
+    /// A 16-bit instruction
     SixteenBit = 0b0,
+    /// A 32-bit instruction
     ThirtyTwoBit = 0b1,
 }
 
@@ -343,6 +384,7 @@ impl Hsr {
     #[inline]
     /// Reads HSR (*Hyp Syndrome Register*)
     pub fn read() -> Hsr {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }

@@ -1,4 +1,6 @@
-//! CPU system register access code
+//! Defines various AArch32 system registers
+//!
+//! These are all ready using Co-Processor read/write instructions
 
 pub mod actlr;
 pub mod actlr2;
@@ -204,9 +206,10 @@ pub use vmpidr::Vmpidr;
 pub use vpidr::Vpidr;
 pub use vsctlr::Vsctlr;
 
-#[cfg(any(test, doc, arm_architecture = "v8-r"))]
-pub mod armv8r;
-#[cfg(any(test, doc, arm_architecture = "v8-r"))]
+#[cfg(any(test, arm_architecture = "v8-r"))]
+mod armv8r;
+#[cfg(any(test, arm_architecture = "v8-r"))]
+#[doc(inline)]
 pub use armv8r::*;
 
 #[cfg(any(test, doc, arm_architecture = "v7-a", arm_architecture = "v8-r"))]

@@ -20,7 +20,7 @@ DRegion 12: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false
 DRegion 13: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
 DRegion 14: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
 DRegion 15: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
-DRegion 0: Region { base: 0x20000000, size: _16M, subregion_mask: 0, enabled: true, no_exec: false, mem_attr: Cacheable { outer: NonCacheable, inner: WriteThroughNoWriteAllocate, shareable: true } }
+DRegion 0: Region { base: 0x20000000, size: _16M, subregion_mask: 0, enabled: true, no_exec: false, mem_attr: Cacheable { outer: NonCacheable, inner: WriteThroughNoWriteAlloc, shareable: true } }
 DRegion 1: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
 DRegion 2: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }
 DRegion 3: Region { base: 0x0, size: Invalid, subregion_mask: 0, enabled: false, no_exec: false, mem_attr: StronglyOrdered }

@@ -1,8 +1,8 @@
-//! Code for managing IMP_CDBGDCT (*Data Cache Tag Read Operation.*)
+//! Code for managing IMP_CDBGDCT (*Data Cache Tag Read Operation*)
 
 use crate::register::{SysReg, SysRegWrite};
 
-/// IMP_CDBGDCT (*Data Cache Tag Read Operation.*)
+/// IMP_CDBGDCT (*Data Cache Tag Read Operation*)
 #[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -20,7 +20,7 @@ impl crate::register::SysRegWrite for ImpCdbgdct {}
 
 impl ImpCdbgdct {
     #[inline]
-    /// Writes IMP_CDBGDCT (*Data Cache Tag Read Operation.*)
+    /// Writes IMP_CDBGDCT (*Data Cache Tag Read Operation*)
     ///
     /// # Safety
     ///
