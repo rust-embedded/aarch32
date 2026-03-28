@@ -47,16 +47,7 @@ impl core::fmt::Display for Region {
 impl Region {
     /// Create an iterator over all the regions
     pub fn iter() -> impl Iterator<Item = Region> {
-        [
-            Region::VectorTable,
-            Region::Text,
-            Region::Rodata,
-            Region::Bss,
-            Region::Data,
-            Region::Uninit,
-        ]
-        .iter()
-        .cloned()
+        RegionIter::new()
     }
 
     /// Get the highest address of this region
@@ -126,5 +117,42 @@ impl Region {
         } else {
             None
         }
+    }
+}
+
+/// Iterator over all the [`Region`] variants
+pub struct RegionIter {
+    next: Option<Region>,
+}
+
+impl RegionIter {
+    /// Create a new [`RegionIter`]
+    pub fn new() -> Self {
+        Self {
+            next: Some(Region::VectorTable),
+        }
+    }
+}
+
+impl Default for RegionIter {
+    fn default() -> Self {
+        RegionIter::new()
+    }
+}
+
+impl Iterator for RegionIter {
+    type Item = Region;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let current = self.next;
+        self.next = match self.next {
+            Some(Region::VectorTable) => Some(Region::Text),
+            Some(Region::Text) => Some(Region::Rodata),
+            Some(Region::Rodata) => Some(Region::Bss),
+            Some(Region::Bss) => Some(Region::Data),
+            Some(Region::Data) => Some(Region::Uninit),
+            Some(Region::Uninit) | None => None,
+        };
+        current
     }
 }

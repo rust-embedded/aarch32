@@ -36,17 +36,7 @@ impl core::fmt::Display for Stack {
 impl Stack {
     /// Create an iterator over all the stacks
     pub fn iter() -> impl Iterator<Item = Stack> {
-        [
-            Stack::Und,
-            Stack::Svc,
-            Stack::Abt,
-            Stack::Hyp,
-            Stack::Irq,
-            Stack::Fiq,
-            Stack::Sys,
-        ]
-        .iter()
-        .cloned()
+        StackIter::new()
     }
 
     /// Get the highest address of this stack, for the given core
@@ -142,5 +132,43 @@ impl Stack {
             Stack::Fiq => addr_of!(_fiq_stack_high_end),
             Stack::Sys => addr_of!(_sys_stack_high_end),
         }
+    }
+}
+
+/// Iterator over all the [`Stack`] variants
+pub struct StackIter {
+    next: Option<Stack>,
+}
+
+impl StackIter {
+    /// Create a new [`StackIter`]
+    pub fn new() -> Self {
+        Self {
+            next: Some(Stack::Und),
+        }
+    }
+}
+
+impl Default for StackIter {
+    fn default() -> Self {
+        StackIter::new()
+    }
+}
+
+impl Iterator for StackIter {
+    type Item = Stack;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let current = self.next;
+        self.next = match self.next {
+            Some(Stack::Und) => Some(Stack::Svc),
+            Some(Stack::Svc) => Some(Stack::Abt),
+            Some(Stack::Abt) => Some(Stack::Hyp),
+            Some(Stack::Hyp) => Some(Stack::Irq),
+            Some(Stack::Irq) => Some(Stack::Fiq),
+            Some(Stack::Fiq) => Some(Stack::Sys),
+            Some(Stack::Sys) | None => None,
+        };
+        current
     }
 }
