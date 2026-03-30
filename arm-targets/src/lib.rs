@@ -221,7 +221,11 @@ impl Arch {
             || target.starts_with("thumbv7r-")
         {
             Some(Arch::Armv7R)
-        } else if target.starts_with("armv8r-") || target.starts_with("thumbv8r-") {
+        } else if target.starts_with("armv8r-")
+            || target.starts_with("aarch64r82-")
+            || target.starts_with("aarch64v8r-")
+            || target.starts_with("thumbv8r-")
+        {
             Some(Arch::Armv8R)
         } else if target.starts_with("armv7a-") || target.starts_with("thumbv7a-") {
             Some(Arch::Armv7A)
@@ -537,6 +541,26 @@ mod test {
         assert_eq!(target_info.isa(), Some(Isa::A64));
         assert_eq!(target_info.arch(), Some(Arch::Armv8A));
         assert_eq!(target_info.profile(), Some(Profile::A));
+        assert_eq!(target_info.abi(), None);
+    }
+
+    #[test]
+    fn aarch64v8r_none() {
+        let target = "aarch64v8r-unknown-none";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A64));
+        assert_eq!(target_info.arch(), Some(Arch::Armv8R));
+        assert_eq!(target_info.profile(), Some(Profile::R));
+        assert_eq!(target_info.abi(), None);
+    }
+
+    #[test]
+    fn aarch64r82_none() {
+        let target = "aarch64r82-unknown-none";
+        let target_info = process_target(target);
+        assert_eq!(target_info.isa(), Some(Isa::A64));
+        assert_eq!(target_info.arch(), Some(Arch::Armv8R));
+        assert_eq!(target_info.profile(), Some(Profile::R));
         assert_eq!(target_info.abi(), None);
     }
 }
