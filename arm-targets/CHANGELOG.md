@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [v0.4.1]
+
+### Added
+
+- Support for Thumb versions of existing targets
+- Support for Armv8-R AArch64 targets
+
+### Changed
+
+- Increased MSRV to Rust 1.83
+
 ## [v0.4.0]
 
 ### Added
