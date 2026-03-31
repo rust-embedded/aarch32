@@ -23,10 +23,9 @@ fn main() -> ! {
     enable_alignment_check();
 
     println!("Hello, this is an data abort exception example");
-    unsafe {
-        // Unaligned read
-        unaligned_from_a32();
-    }
+
+    // Unaligned read
+    unaligned_from_a32();
 
     // turn it off before we do the stack dump on exit, because println! has been
     // observed to do unaligned reads.
@@ -37,25 +36,16 @@ fn main() -> ! {
     mps3_an536::exit(0);
 }
 
-// These functions are written in assembly
-unsafe extern "C" {
-    fn unaligned_from_a32();
+#[unsafe(naked)]
+#[instruction_set(arm::a32)]
+extern "C" fn unaligned_from_a32() {
+    core::arch::naked_asm!(
+        "ldr     r0, =COUNTER",
+        "adds    r0, r0, 1",
+        "ldr     r0, [r0]",
+        "bx      lr",
+    );
 }
-
-core::arch::global_asm!(
-    r#"
-    // fn unaligned_from_a32();
-    .arm
-    .global unaligned_from_a32
-    .type unaligned_from_a32, %function
-    unaligned_from_a32:
-        ldr     r0, =COUNTER
-        add     r0, r0, 1
-        ldr     r0, [r0]
-        bx      lr
-    .size unaligned_from_a32, . - unaligned_from_a32
-"#
-);
 
 fn enable_alignment_check() {
     let mut sctrl = Sctlr::read();
@@ -91,16 +81,15 @@ unsafe fn data_abort_handler(addr: usize) -> usize {
     enable_alignment_check();
 
     // note the fault isn't at the start of the function
-    let expect_fault_at = unaligned_from_a32 as unsafe extern "C" fn() as usize + 8;
+    let expect_fault_at = unaligned_from_a32 as extern "C" fn() as usize + 8;
 
     if addr == expect_fault_at {
         println!("caught unaligned_from_a32");
     } else {
-        println!(
+        panic!(
             "Bad fault address {:08x} is not {:08x}",
             addr, expect_fault_at
         );
-        semihosting::process::abort();
     }
 
     let expect_fault_from = core::ptr::addr_of!(COUNTER) as usize + 1;
@@ -108,11 +97,10 @@ unsafe fn data_abort_handler(addr: usize) -> usize {
     if dfar.0 as usize == expect_fault_from {
         println!("caught fault on COUNTER");
     } else {
-        println!(
+        panic!(
             "Bad DFAR address {:08x} is not {:08x}",
             dfar.0, expect_fault_from
         );
-        semihosting::process::abort();
     }
 
     match COUNTER.fetch_add(1, Ordering::Relaxed) {
