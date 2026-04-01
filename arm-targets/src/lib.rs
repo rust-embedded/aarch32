@@ -40,15 +40,34 @@
 //! cargo:rustc-check-cfg=cfg(arm_abi, values("eabi", "eabihf"))
 //! ```
 
-#[derive(Default)]
+use std::env;
+
+#[derive(Default, Debug)]
 pub struct TargetInfo {
     isa: Option<Isa>,
     arch: Option<Arch>,
-    profile: Option<Profile>,
     abi: Option<Abi>,
 }
 
 impl TargetInfo {
+    /// Parses the target information from the Cargo environment.
+    pub fn from_cargo_env() -> Self {
+        Self {
+            isa: Isa::from_cargo_env(),
+            arch: Arch::from_cargo_env(),
+            abi: Abi::from_cargo_env(),
+        }
+    }
+
+    /// Decode a target string
+    pub fn get(target: &str) -> Self {
+        Self {
+            isa: Isa::get(target),
+            arch: Arch::get(target),
+            abi: Abi::get(target),
+        }
+    }
+
     /// Get the Arm Instruction Set Architecture of the target
     pub fn isa(&self) -> Option<Isa> {
         self.isa
@@ -61,12 +80,46 @@ impl TargetInfo {
 
     /// Get the Arm Architecture Profile of the target
     pub fn profile(&self) -> Option<Profile> {
-        self.profile
+        self.arch.map(|arch| arch.profile())
     }
 
     /// Get the ABI of the target
     pub fn abi(&self) -> Option<Abi> {
         self.abi
+    }
+
+    fn dump(&self) {
+        if let Some(isa) = self.isa() {
+            println!(r#"cargo:rustc-cfg=arm_isa="{}""#, isa);
+        }
+        println!(
+            r#"cargo:rustc-check-cfg=cfg(arm_isa, values({}))"#,
+            Isa::values()
+        );
+
+        if let Some(arch) = self.arch() {
+            println!(r#"cargo:rustc-cfg=arm_architecture="{}""#, arch);
+        }
+        println!(
+            r#"cargo:rustc-check-cfg=cfg(arm_architecture, values({}))"#,
+            Arch::values()
+        );
+
+        if let Some(profile) = self.profile() {
+            println!(r#"cargo:rustc-cfg=arm_profile="{}""#, profile);
+        }
+        println!(
+            r#"cargo:rustc-check-cfg=cfg(arm_profile, values({}))"#,
+            Profile::values()
+        );
+
+        if let Some(abi) = self.abi() {
+            println!(r#"cargo:rustc-cfg=arm_abi="{}""#, abi);
+        }
+        println!(
+            r#"cargo:rustc-check-cfg=cfg(arm_abi, values({}))"#,
+            Abi::values()
+        );
     }
 }
 
@@ -74,48 +127,35 @@ impl TargetInfo {
 /// standard out.
 pub fn process() -> TargetInfo {
     let target = std::env::var("TARGET").expect("build script TARGET variable");
-    process_target(&target)
+    let target_info_from_target = TargetInfo::get(&target);
+
+    let target_info_from_cargo_env = TargetInfo::from_cargo_env();
+
+    let target_info = TargetInfo {
+        isa: target_info_from_target
+            .isa()
+            .or(target_info_from_cargo_env.isa()),
+        arch: target_info_from_target
+            .arch()
+            .or(target_info_from_cargo_env.arch()),
+        abi: target_info_from_target
+            .abi()
+            .or(target_info_from_cargo_env.abi()),
+    };
+
+    target_info.dump();
+
+    target_info
 }
 
 /// Process a given target string, and emit cargo configuration to standard out.
+#[deprecated(
+    since = "0.4.2",
+    note = "This function does not take `CARGO_CFG_TARGET_*` variables into account."
+)]
 pub fn process_target(target: &str) -> TargetInfo {
-    let mut target_info = TargetInfo::default();
-    if let Some(isa) = Isa::get(target) {
-        println!(r#"cargo:rustc-cfg=arm_isa="{}""#, isa);
-        target_info.isa = Some(isa);
-    }
-    println!(
-        r#"cargo:rustc-check-cfg=cfg(arm_isa, values({}))"#,
-        Isa::values()
-    );
-
-    if let Some(arch) = Arch::get(target) {
-        println!(r#"cargo:rustc-cfg=arm_architecture="{}""#, arch);
-        target_info.arch = Some(arch);
-    }
-    println!(
-        r#"cargo:rustc-check-cfg=cfg(arm_architecture, values({}))"#,
-        Arch::values()
-    );
-
-    if let Some(profile) = Profile::get(target) {
-        println!(r#"cargo:rustc-cfg=arm_profile="{}""#, profile);
-        target_info.profile = Some(profile);
-    }
-    println!(
-        r#"cargo:rustc-check-cfg=cfg(arm_profile, values({}))"#,
-        Profile::values()
-    );
-
-    if let Some(abi) = Abi::get(target) {
-        println!(r#"cargo:rustc-cfg=arm_abi="{}""#, abi);
-        target_info.abi = Some(abi);
-    }
-    println!(
-        r#"cargo:rustc-check-cfg=cfg(arm_abi, values({}))"#,
-        Abi::values()
-    );
-
+    let target_info = TargetInfo::get(target);
+    target_info.dump();
     target_info
 }
 
@@ -131,6 +171,20 @@ pub enum Isa {
 }
 
 impl Isa {
+    /// Parses the ISA from the Cargo environment.
+    pub fn from_cargo_env() -> Option<Self> {
+        let arch = env::var("CARGO_CFG_TARGET_ARCH").ok()?;
+        let features = env::var("CARGO_CFG_TARGET_FEATURE").ok()?;
+        let features = features.split(",").collect::<Vec<_>>();
+
+        match arch.as_str() {
+            "arm" if features.contains(&"thumb-mode") => Some(Self::T32),
+            "arm" => Some(Self::A32),
+            "aarch64" => Some(Self::A64),
+            _ => None,
+        }
+    }
+
     /// Decode a target string
     pub fn get(target: &str) -> Option<Isa> {
         if target.starts_with("arm") {
@@ -200,6 +254,59 @@ pub enum Arch {
 }
 
 impl Arch {
+    /// Parses the architecture from the Cargo environment.
+    pub fn from_cargo_env() -> Option<Self> {
+        let arch = env::var("CARGO_CFG_TARGET_ARCH").ok()?;
+        let features = env::var("CARGO_CFG_TARGET_FEATURE").ok()?;
+        let features = features.split(",").collect::<Vec<_>>();
+
+        if (arch == "arm" && features.contains(&"v8")) || arch == "aarch64" {
+            if features.contains(&"mclass") {
+                if features.contains(&"thumb2") {
+                    return Some(Self::Armv8MMain);
+                }
+
+                return Some(Self::Armv8MBase);
+            }
+
+            if features.contains(&"rclass") {
+                return Some(Self::Armv8R);
+            }
+
+            Some(Self::Armv8A)
+        } else if arch == "arm" && features.contains(&"v7") {
+            if features.contains(&"aclass") {
+                return Some(Self::Armv7A);
+            }
+
+            if features.contains(&"mclass") {
+                if features.contains(&"dsp") {
+                    return Some(Self::Armv7EM);
+                }
+
+                return Some(Self::Armv7M);
+            }
+
+            if features.contains(&"rclass") {
+                return Some(Self::Armv7R);
+            }
+
+            None
+        } else if arch == "arm" && features.contains(&"v6") {
+            if features.contains(&"mclass") {
+                return Some(Self::Armv6M);
+            }
+
+            Some(Self::Armv6)
+        } else if arch == "arm" && features.contains(&"v5te") {
+            Some(Self::Armv5TE)
+        } else if arch == "arm" {
+            Some(Self::Armv4T)
+        } else {
+            None
+        }
+    }
+
     /// Decode a target string
     pub fn get(target: &str) -> Option<Arch> {
         if target.starts_with("armv4t-") || target.starts_with("thumbv4t-") {
@@ -235,7 +342,7 @@ impl Arch {
             || target.starts_with("armv6-")
             || target.starts_with("thumbv6-")
         {
-            // If not specified, assume Armv6
+            // If not specified, assume ARMv6.
             Some(Arch::Armv6)
         } else {
             None
@@ -314,6 +421,12 @@ pub enum Profile {
 }
 
 impl Profile {
+    /// Parses the profile from the Cargo environment.
+    pub fn from_cargo_env() -> Option<Self> {
+        let arch = Arch::from_cargo_env()?;
+        Some(arch.profile())
+    }
+
     /// Decode a target string
     pub fn get(target: &str) -> Option<Profile> {
         let arch = Arch::get(target)?;
@@ -355,6 +468,17 @@ pub enum Abi {
 }
 
 impl Abi {
+    /// Parses the ABI from the Cargo environment.
+    pub fn from_cargo_env() -> Option<Self> {
+        let abi = env::var("CARGO_CFG_TARGET_ABI").ok()?;
+
+        match abi.as_str() {
+            "eabi" => Some(Self::Eabi),
+            "eabihf" => Some(Self::EabiHf),
+            _ => None,
+        }
+    }
+
     /// Decode a target string
     pub fn get(target: &str) -> Option<Abi> {
         let _ = Arch::get(target)?;

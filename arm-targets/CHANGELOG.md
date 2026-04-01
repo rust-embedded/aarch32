@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Take `CARGO_CFG_TARGET_*` variables into account for detecting targets.
+
 ## [v0.4.1]
 
 ### Added
