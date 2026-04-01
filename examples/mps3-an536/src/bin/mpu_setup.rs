@@ -8,7 +8,7 @@
 use aarch32_cpu::pmsav8::{
     Cacheable, El1AccessPerms, El1Mpu, El1Region, El1Shareability, MemAttr, RwAllocPolicy,
 };
-use aarch32_rt::{entry, regions::Region, stacks::Stack};
+use aarch32_rt::{entry, sections::Section, stacks::Stack};
 use semihosting::println;
 
 use mps3_an536 as _;
@@ -77,8 +77,8 @@ fn main() -> ! {
 
     let mut next = last + 1;
 
-    if let Some(range) = Region::VectorTable.mpu_range() {
-        println!("{:>13} @ {:010x?}", Region::VectorTable, range);
+    if let Some(range) = Section::VectorTable.mpu_range() {
+        println!("{:>13} @ {:010x?}", Section::VectorTable, range);
         mpu.set_region(
             next,
             &El1Region {
@@ -94,8 +94,8 @@ fn main() -> ! {
         next += 1;
     }
 
-    if let Some(range) = Region::Text.mpu_range() {
-        println!("{:>13} @ {:010x?}", Region::Text, range);
+    if let Some(range) = Section::Text.mpu_range() {
+        println!("{:>13} @ {:010x?}", Section::Text, range);
         mpu.set_region(
             next,
             &El1Region {
@@ -111,8 +111,8 @@ fn main() -> ! {
         next += 1;
     }
 
-    if let Some(range) = Region::Rodata.mpu_range() {
-        println!("{:>13} @ {:010x?}", Region::Rodata, range);
+    if let Some(range) = Section::Rodata.mpu_range() {
+        println!("{:>13} @ {:010x?}", Section::Rodata, range);
         mpu.set_region(
             next,
             &El1Region {
@@ -128,8 +128,8 @@ fn main() -> ! {
         next += 1;
     }
 
-    if let Some(range) = Region::Data.mpu_range() {
-        println!("{:>13} @ {:010x?}", Region::Data, range);
+    if let Some(range) = Section::Data.mpu_range() {
+        println!("{:>13} @ {:010x?}", Section::Data, range);
         mpu.set_region(
             next,
             &El1Region {
@@ -145,8 +145,8 @@ fn main() -> ! {
         next += 1;
     }
 
-    if let Some(range) = Region::Bss.mpu_range() {
-        println!("{:>13} @ {:010x?}", Region::Bss, range);
+    if let Some(range) = Section::Bss.mpu_range() {
+        println!("{:>13} @ {:010x?}", Section::Bss, range);
         mpu.set_region(
             next,
             &El1Region {
@@ -162,8 +162,8 @@ fn main() -> ! {
         next += 1;
     }
 
-    if let Some(range) = Region::Uninit.mpu_range() {
-        println!("{:>13} @ {:010x?}", Region::Uninit, range);
+    if let Some(range) = Section::Uninit.mpu_range() {
+        println!("{:>13} @ {:010x?}", Section::Uninit, range);
         mpu.set_region(
             next,
             &El1Region {

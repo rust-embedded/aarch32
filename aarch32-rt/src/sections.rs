@@ -4,7 +4,7 @@
 
 /// Represents one of the memory regions in the linker script
 #[derive(Debug, Copy, Clone)]
-pub enum Region {
+pub enum Section {
     /// The .vector_table section
     ///
     /// Contains the reset and exception vectors
@@ -31,23 +31,23 @@ pub enum Region {
     Uninit,
 }
 
-impl core::fmt::Display for Region {
+impl core::fmt::Display for Section {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.pad(match self {
-            Region::VectorTable => ".vector_table",
-            Region::Text => ".text",
-            Region::Rodata => ".rodata",
-            Region::Bss => ".bss",
-            Region::Data => ".data",
-            Region::Uninit => ".uninit",
+            Section::VectorTable => ".vector_table",
+            Section::Text => ".text",
+            Section::Rodata => ".rodata",
+            Section::Bss => ".bss",
+            Section::Data => ".data",
+            Section::Uninit => ".uninit",
         })
     }
 }
 
-impl Region {
+impl Section {
     /// Create an iterator over all the regions
-    pub fn iter() -> impl Iterator<Item = Region> {
-        RegionIter::new()
+    pub fn iter() -> impl Iterator<Item = Section> {
+        SectionIter::new()
     }
 
     /// Get the highest address of this region
@@ -64,12 +64,12 @@ impl Region {
             static __euninit: u8;
         }
         match self {
-            Region::VectorTable => addr_of!(__evector),
-            Region::Text => addr_of!(__etext),
-            Region::Rodata => addr_of!(__erodata),
-            Region::Bss => addr_of!(__ebss),
-            Region::Data => addr_of!(__edata),
-            Region::Uninit => addr_of!(__euninit),
+            Section::VectorTable => addr_of!(__evector),
+            Section::Text => addr_of!(__etext),
+            Section::Rodata => addr_of!(__erodata),
+            Section::Bss => addr_of!(__ebss),
+            Section::Data => addr_of!(__edata),
+            Section::Uninit => addr_of!(__euninit),
         }
     }
 
@@ -85,12 +85,12 @@ impl Region {
             static __suninit: u8;
         }
         match self {
-            Region::VectorTable => addr_of!(__svector),
-            Region::Text => addr_of!(__stext),
-            Region::Rodata => addr_of!(__srodata),
-            Region::Bss => addr_of!(__sbss),
-            Region::Data => addr_of!(__sdata),
-            Region::Uninit => addr_of!(__suninit),
+            Section::VectorTable => addr_of!(__svector),
+            Section::Text => addr_of!(__stext),
+            Section::Rodata => addr_of!(__srodata),
+            Section::Bss => addr_of!(__sbss),
+            Section::Data => addr_of!(__sdata),
+            Section::Uninit => addr_of!(__suninit),
         }
     }
 
@@ -121,37 +121,37 @@ impl Region {
 }
 
 /// Iterator over all the [`Region`] variants
-pub struct RegionIter {
-    next: Option<Region>,
+pub struct SectionIter {
+    next: Option<Section>,
 }
 
-impl RegionIter {
+impl SectionIter {
     /// Create a new [`RegionIter`]
     pub fn new() -> Self {
         Self {
-            next: Some(Region::VectorTable),
+            next: Some(Section::VectorTable),
         }
     }
 }
 
-impl Default for RegionIter {
+impl Default for SectionIter {
     fn default() -> Self {
-        RegionIter::new()
+        SectionIter::new()
     }
 }
 
-impl Iterator for RegionIter {
-    type Item = Region;
+impl Iterator for SectionIter {
+    type Item = Section;
 
     fn next(&mut self) -> Option<Self::Item> {
         let current = self.next;
         self.next = match self.next {
-            Some(Region::VectorTable) => Some(Region::Text),
-            Some(Region::Text) => Some(Region::Rodata),
-            Some(Region::Rodata) => Some(Region::Bss),
-            Some(Region::Bss) => Some(Region::Data),
-            Some(Region::Data) => Some(Region::Uninit),
-            Some(Region::Uninit) | None => None,
+            Some(Section::VectorTable) => Some(Section::Text),
+            Some(Section::Text) => Some(Section::Rodata),
+            Some(Section::Rodata) => Some(Section::Bss),
+            Some(Section::Bss) => Some(Section::Data),
+            Some(Section::Data) => Some(Section::Uninit),
+            Some(Section::Uninit) | None => None,
         };
         current
     }
