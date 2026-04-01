@@ -533,7 +533,7 @@
 #[cfg(target_arch = "arm")]
 use aarch32_cpu::register::{cpsr::ProcessorMode, Cpsr};
 
-#[cfg(any(arm_architecture = "v8-r", arm_architecture = "v7-a"))]
+#[cfg(any(arm_architecture = "v7-a", arm_architecture = "v8-r"))]
 use aarch32_cpu::register::Hactlr;
 
 pub use aarch32_rt_macros::{entry, exception, irq};
@@ -946,7 +946,7 @@ core::arch::global_asm!(
 // Go straight to our default routine
 #[cfg(all(
     target_arch = "arm",
-    not(any(arm_architecture = "v8-r", arm_architecture = "v7-a"))
+    not(any(arm_architecture = "v7-a", arm_architecture = "v8-r"))
 ))]
 core::arch::global_asm!(
     r#"
@@ -994,7 +994,7 @@ core::arch::global_asm!(
 // always enable it.
 //
 // We boot into EL2, set up a stack pointer, and run `kmain` in EL1.
-#[cfg(any(arm_architecture = "v8-r", arm_architecture = "v7-a"))]
+#[cfg(any(arm_architecture = "v7-a", arm_architecture = "v8-r"))]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269

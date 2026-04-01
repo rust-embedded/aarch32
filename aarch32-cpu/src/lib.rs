@@ -23,7 +23,7 @@ pub mod asm;
 
 pub mod cache;
 
-#[cfg(any(test, doc, arm_architecture = "v8-r", arm_architecture = "v7-a"))]
+#[cfg(any(test, doc, arm_architecture = "v7-a", arm_architecture = "v8-r"))]
 pub mod generic_timer;
 
 pub mod interrupt;
