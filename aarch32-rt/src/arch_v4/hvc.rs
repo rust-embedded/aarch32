@@ -7,12 +7,13 @@ core::arch::global_asm!(
     .fpu vfp2
 
     // Never called but makes the linker happy
-    .section .text._asm_default_hvc_handler
+    .pushsection .text._asm_default_hvc_handler
     .arm
     .global _asm_default_hvc_handler
     .type _asm_default_hvc_handler, %function
     _asm_default_hvc_handler:
         b       .
     .size _asm_default_hvc_handler, . - _asm_default_hvc_handler
+    .popsection
     "#,
 );

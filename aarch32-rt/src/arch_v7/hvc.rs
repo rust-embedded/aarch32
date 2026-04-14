@@ -7,7 +7,7 @@ core::arch::global_asm!(
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3
 
-    .section .text._asm_default_hvc_handler
+    .pushsection .text._asm_default_hvc_handler
 
     // Called from the vector table when we have an hypervisor call.
     // Saves state and calls a C-compatible handler like
@@ -33,6 +33,7 @@ core::arch::global_asm!(
         pop     {{ r12, lr }}             // pop state from stack
         eret                              // Return from the asm handler
     .size _asm_default_hvc_handler, . - _asm_default_hvc_handler
+    .popsection
     "#,
 );
 
@@ -45,12 +46,13 @@ core::arch::global_asm!(
 
 
     // Never called but makes the linker happy
-    .section .text._asm_default_hvc_handler
+    .pushsection .text._asm_default_hvc_handler
     .arm
     .global _asm_default_hvc_handler
     .type _asm_default_hvc_handler, %function
     _asm_default_hvc_handler:
         b       .
     .size _asm_default_hvc_handler, . - _asm_default_hvc_handler
+    .popsection
     "#,
 );
