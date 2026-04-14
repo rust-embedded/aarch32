@@ -1,4 +1,4 @@
-//! Access registers in Armv7-R and Armv8-R
+//! CPU system register access code
 
 pub mod actlr;
 pub mod actlr2;
@@ -209,6 +209,16 @@ pub mod armv8r;
 #[cfg(any(test, doc, arm_architecture = "v8-r"))]
 pub use armv8r::*;
 
+#[cfg(any(test, doc, arm_architecture = "v7-a", arm_architecture = "v8-r"))]
+pub mod hyp;
+#[cfg(any(test, doc, arm_architecture = "v7-a", arm_architecture = "v8-r"))]
+pub use hyp::*;
+
+#[cfg(any(test, doc, arm_architecture = "v7-a", arm_architecture = "v8-r"))]
+pub mod generic_timer;
+#[cfg(any(test, doc, arm_architecture = "v7-a", arm_architecture = "v8-r"))]
+pub use generic_timer::*;
+
 pub use imp::*;
 
 /// Describes a 32-bit System Register
@@ -225,7 +235,7 @@ pub trait SysReg {
     const OP2: u32;
 }
 
-/// 32-bit Readable System Registers
+/// Readable 32-bit System Registers
 pub trait SysRegRead: SysReg {
     /// Read a value from this 32-bit register
     ///
@@ -309,7 +319,7 @@ pub trait SysReg64 {
     const CRM: u32;
 }
 
-/// 64-bit Readable System Registers
+/// Readable 64-bit System Registers
 pub trait SysRegRead64: SysReg64 {
     /// Read a value from this 64-bit register
     ///

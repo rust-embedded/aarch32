@@ -1,0 +1,45 @@
+//! Access registers for Armv7-A and Armv8-R with the Virtualization Extension
+
+pub mod hacr;
+pub mod hactlr;
+pub mod hactlr2;
+pub mod hadfsr;
+pub mod haifsr;
+pub mod hamair0;
+pub mod hamair1;
+pub mod hcptr;
+pub mod hcr;
+pub mod hcr2;
+pub mod hdcr;
+pub mod hdfar;
+pub mod hifar;
+pub mod hmair0;
+pub mod hmair1;
+pub mod hpfar;
+pub mod hsctlr;
+pub mod hsr;
+pub mod hstr;
+pub mod htpidr;
+pub mod hvbar;
+
+pub use hacr::Hacr;
+pub use hactlr::Hactlr;
+pub use hactlr2::Hactlr2;
+pub use hadfsr::Hadfsr;
+pub use haifsr::Haifsr;
+pub use hamair0::Hamair0;
+pub use hamair1::Hamair1;
+pub use hcptr::Hcptr;
+pub use hcr::Hcr;
+pub use hcr2::Hcr2;
+pub use hdcr::Hdcr;
+pub use hdfar::Hdfar;
+pub use hifar::Hifar;
+pub use hmair0::Hmair0;
+pub use hmair1::Hmair1;
+pub use hpfar::Hpfar;
+pub use hsctlr::Hsctlr;
+pub use hsr::Hsr;
+pub use hstr::Hstr;
+pub use htpidr::Htpidr;
+pub use hvbar::Hvbar;

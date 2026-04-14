@@ -15,16 +15,16 @@ runner = "qemu-system-arm -machine versatileab -cpu cortex-r5 -semihosting -nogr
 runner = "qemu-system-arm -machine versatileab -cpu cortex-r5 -semihosting -nographic -audio none -kernel"
 
 [target.armv7a-none-eabihf]
-runner = "qemu-system-arm -machine versatileab -cpu cortex-a8 -semihosting -nographic -audio none -kernel"
+runner = "qemu-system-arm -machine versatileab -cpu cortex-a15 -semihosting -nographic -audio none -kernel"
 
 [target.thumbv7a-none-eabihf]
-runner = "qemu-system-arm -machine versatileab -cpu cortex-a8 -semihosting -nographic -audio none -kernel"
+runner = "qemu-system-arm -machine versatileab -cpu cortex-a15 -semihosting -nographic -audio none -kernel"
 
 [target.armv7a-none-eabi]
-runner = "qemu-system-arm -machine versatileab -cpu cortex-a8 -semihosting -nographic -audio none -kernel"
+runner = "qemu-system-arm -machine versatileab -cpu cortex-a15 -semihosting -nographic -audio none -kernel"
 
 [target.thumbv7a-none-eabi]
-runner = "qemu-system-arm -machine versatileab -cpu cortex-a8 -semihosting -nographic -audio none -kernel"
+runner = "qemu-system-arm -machine versatileab -cpu cortex-a15 -semihosting -nographic -audio none -kernel"
 
 [target.armv6-none-eabihf]
 runner = "qemu-system-arm -machine versatileab -cpu arm1176 -semihosting -nographic -audio none -kernel"
