@@ -21,36 +21,22 @@ pub enum Stack {
 
 impl core::fmt::Display for Stack {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Stack::Und => "UND",
-                Stack::Svc => "SVC",
-                Stack::Abt => "ABT",
-                Stack::Hyp => "HYP",
-                Stack::Irq => "IRQ",
-                Stack::Fiq => "FIQ",
-                Stack::Sys => "SYS",
-            }
-        )
+        f.pad(match self {
+            Stack::Und => "UND",
+            Stack::Svc => "SVC",
+            Stack::Abt => "ABT",
+            Stack::Hyp => "HYP",
+            Stack::Irq => "IRQ",
+            Stack::Fiq => "FIQ",
+            Stack::Sys => "SYS",
+        })
     }
 }
 
 impl Stack {
     /// Create an iterator over all the stacks
     pub fn iter() -> impl Iterator<Item = Stack> {
-        [
-            Stack::Und,
-            Stack::Svc,
-            Stack::Abt,
-            Stack::Hyp,
-            Stack::Irq,
-            Stack::Fiq,
-            Stack::Sys,
-        ]
-        .iter()
-        .cloned()
+        StackIter::new()
     }
 
     /// Get the highest address of this stack, for the given core
@@ -74,6 +60,20 @@ impl Stack {
     pub fn range(&self, core: usize) -> Option<core::ops::Range<*const u32>> {
         if let (Some(bottom), Some(top)) = (self.bottom(core), self.top(core)) {
             Some(bottom..top)
+        } else {
+            None
+        }
+    }
+
+    /// Get the inclusive range of this stack, for the given core
+    ///
+    /// This is the range you need to give to the PMSAv8 MPU code.
+    pub fn mpu_range(&self, core: usize) -> Option<core::ops::RangeInclusive<*const u8>> {
+        if let (Some(bottom), Some(top)) = (self.bottom(core), self.top(core)) {
+            let top = top as *const u8;
+            let bottom = bottom as *const u8;
+            let top_under = unsafe { top.offset(-1) };
+            Some(bottom..=top_under)
         } else {
             None
         }
@@ -132,5 +132,43 @@ impl Stack {
             Stack::Fiq => addr_of!(_fiq_stack_high_end),
             Stack::Sys => addr_of!(_sys_stack_high_end),
         }
+    }
+}
+
+/// Iterator over all the [`Stack`] variants
+pub struct StackIter {
+    next: Option<Stack>,
+}
+
+impl StackIter {
+    /// Create a new [`StackIter`]
+    pub fn new() -> Self {
+        Self {
+            next: Some(Stack::Und),
+        }
+    }
+}
+
+impl Default for StackIter {
+    fn default() -> Self {
+        StackIter::new()
+    }
+}
+
+impl Iterator for StackIter {
+    type Item = Stack;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let current = self.next;
+        self.next = match self.next {
+            Some(Stack::Und) => Some(Stack::Svc),
+            Some(Stack::Svc) => Some(Stack::Abt),
+            Some(Stack::Abt) => Some(Stack::Hyp),
+            Some(Stack::Hyp) => Some(Stack::Irq),
+            Some(Stack::Irq) => Some(Stack::Fiq),
+            Some(Stack::Fiq) => Some(Stack::Sys),
+            Some(Stack::Sys) | None => None,
+        };
+        current
     }
 }

@@ -558,6 +558,7 @@ mod arch_v7;
 ))]
 mod arch_v4;
 
+pub mod sections;
 pub mod stacks;
 
 /// Our default exception handler.
