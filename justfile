@@ -173,7 +173,7 @@ test-cargo:
 	cd arm-targets && cargo test {{verbose}}
 
 # Run the integration tests in QEMU
-test-qemu: test-qemu-v4t test-qemu-v5te test-qemu-v6 test-qemu-v7a test-qemu-v7r test-qemu-v8r test-qemu-v8r-smp
+test-qemu: test-qemu-v4t test-qemu-v5te test-qemu-v6 test-qemu-v7a test-qemu-v7r test-qemu-v8r test-qemu-v8r-smp test-qemu-v8r-el2
 
 test-qemu-v4t:
 	#!/bin/bash
