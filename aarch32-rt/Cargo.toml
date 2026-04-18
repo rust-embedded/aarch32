@@ -35,6 +35,8 @@ eabi-fpu = []
 # if you have set the `+d32` target feature) then you need to enable this
 # option otherwise important FPU state may be lost when an exception occurs.
 fpu-d32 = []
+# Leave the CPU in HYP mode (EL2), and handle exceptions in HYP mode
+el2-mode = []
 
 [build-dependencies]
 arm-targets = { version = "0.4.0", path = "../arm-targets" }

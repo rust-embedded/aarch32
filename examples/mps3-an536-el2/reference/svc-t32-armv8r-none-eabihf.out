@@ -1,0 +1,5 @@
+x = 1, y = 2, z = 3.000
+In hvc_handler, with Hsr { ec: Ok(Svc), il: SixteenBit, iss: 00000012 }, Some(Svc(IssCall { imm16: 12 })), Frame { r0: 10000000, r1: 10000001, r2: 10000002, r3: 10000003, r4: 10000004, r5: 10000005 }
+In hvc_handler, with Hsr { ec: Ok(Svc), il: SixteenBit, iss: 00000032 }, Some(Svc(IssCall { imm16: 32 })), Frame { r0: 20000000, r1: 20000001, r2: 20000002, r3: 20000003, r4: 20000004, r5: 20000005 }
+Got 12345678
+x = 1, y = 2, z = 3.000

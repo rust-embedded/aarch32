@@ -55,11 +55,17 @@
 
 use core::sync::atomic::{AtomicBool, Ordering};
 
-/// The PPI for the virutal timer, according to the Cortex-R52 Technical Reference Manual,
+/// The PPI for the virtual timer, according to the Cortex-R52 Technical Reference Manual,
 /// Table 10-3: PPI assignments.
 ///
 /// This corresponds to Interrupt ID 27.
 pub const VIRTUAL_TIMER_PPI: arm_gic::IntId = arm_gic::IntId::ppi(11);
+
+/// The PPI for the EL2 timer, according to the Cortex-R52 Technical Reference Manual,
+/// Table 10-3: PPI assignments.
+///
+/// This corresponds to Interrupt ID 26.
+pub const HYP_TIMER_PPI: arm_gic::IntId = arm_gic::IntId::ppi(10);
 
 #[cfg(not(arm_architecture = "v8-r"))]
 compile_error!("This example is only compatible to the ARMv8-R architecture");
@@ -186,24 +192,21 @@ impl Board {
     /// so you cannot have two copies of the [`Board`] structure.
     pub fn new() -> Option<Board> {
         static TAKEN: AtomicBool = AtomicBool::new(false);
-        if TAKEN
-            .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
-            .is_ok()
-        {
-            Some(Board {
-                // SAFETY: This is the first and only call to `make_gic()` as guaranteed by
-                // the atomic flag check above, ensuring no aliasing of GIC register access.
-                gic: unsafe { make_gic() },
-                // SAFETY: This is the first and only time we create the virtual timer instance
-                // as guaranteed by the atomic flag check above, ensuring exclusive access.
-                virtual_timer: unsafe { aarch32_cpu::generic_timer::El1VirtualTimer::new() },
-                // SAFETY: This is the first and only time we create the physical timer instance
-                // as guaranteed by the atomic flag check above, ensuring exclusive access.
-                physical_timer: unsafe { aarch32_cpu::generic_timer::El1PhysicalTimer::new() },
-            })
-        } else {
-            None
+        if TAKEN.swap(true, Ordering::SeqCst) {
+            // they already took the peripherals
+            return None;
         }
+        Some(Board {
+            // SAFETY: This is the first and only call to `make_gic()` as guaranteed by
+            // the atomic flag check above, ensuring no aliasing of GIC register access.
+            gic: unsafe { make_gic() },
+            // SAFETY: This is the first and only time we create the virtual timer instance
+            // as guaranteed by the atomic flag check above, ensuring exclusive access.
+            virtual_timer: unsafe { aarch32_cpu::generic_timer::El1VirtualTimer::new() },
+            // SAFETY: This is the first and only time we create the physical timer instance
+            // as guaranteed by the atomic flag check above, ensuring exclusive access.
+            physical_timer: unsafe { aarch32_cpu::generic_timer::El1PhysicalTimer::new() },
+        })
     }
 }
 

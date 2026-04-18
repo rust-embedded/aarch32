@@ -29,9 +29,6 @@ static INTERRUPT_HANDLERS: critical_section::Mutex<RefCell<LinearMap<IntId, Inte
 fn main() -> ! {
     let mut board = mps3_an536::Board::new().unwrap();
 
-    // Only interrupts with a higher priority (numerically lower) will be signalled.
-    GicCpuInterface::set_priority_mask(0x80);
-
     // Configure two Software Generated Interrupts for Core 0
     println!("Configure low-prio SGI...");
     board

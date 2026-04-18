@@ -1,0 +1,8 @@
+Hello, this is an data abort exception example
+data abort occurred Hsr { ec: Ok(DataAbortFromCurrent), il: ThirtyTwoBit, iss: 33 } Some(DataAbortFromCurrent(IssDataAbort { isv: false, sas: 0, sae: false, srt: 0, ar: false, fnv: false, ea: false, cm: false, wnr: false, dfsc: 21 }))
+caught unaligned_from_t32
+Doing it again
+data abort occurred Hsr { ec: Ok(DataAbortFromCurrent), il: ThirtyTwoBit, iss: 33 } Some(DataAbortFromCurrent(IssDataAbort { isv: false, sas: 0, sae: false, srt: 0, ar: false, fnv: false, ea: false, cm: false, wnr: false, dfsc: 21 }))
+caught unaligned_from_t32
+Skipping instruction
+Recovered from fault OK!

@@ -3,10 +3,22 @@
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// HCPTR (*Hyp Architectural Feature Trap Register*)
-#[derive(Debug, Copy, Clone)]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[bitbybit::bitfield(u32, debug, defmt_fields(feature = "defmt"))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct Hcptr(pub u32);
+pub struct Hcptr {
+    /// TCPAC - Traps EL1 accesses to the CPACR to Hyp mode
+    #[bit(31, rw)]
+    tcpac: bool,
+    /// TTA - Traps System register accesses to all implemented trace registers to Hyp mode
+    #[bit(20, rw)]
+    tta: bool,
+    /// TASE - Traps execution of Advanced SIMD instructions to Hyp mode when the value of HCPTR.TCP10 is 0.
+    #[bit(15, rw)]
+    tase: bool,
+    /// TCP - Trap accesses to Advanced SIMD and floating-point functionality to Hyp mode
+    #[bit(10, rw)]
+    tcp: bool,
+}
 
 impl SysReg for Hcptr {
     const CP: u32 = 15;
@@ -22,7 +34,18 @@ impl Hcptr {
     #[inline]
     /// Reads HCPTR (*Hyp Architectural Feature Trap Register*)
     pub fn read() -> Hcptr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+    }
+
+    /// Modify HCPTR (*Hyp Architectural Feature Trap Register*)
+    #[inline]
+    pub fn modify<F>(f: F)
+    where
+        F: FnOnce(&mut Self),
+    {
+        let mut value = Self::read();
+        f(&mut value);
+        Self::write(value);
     }
 }
 
@@ -31,13 +54,9 @@ impl crate::register::SysRegWrite for Hcptr {}
 impl Hcptr {
     #[inline]
     /// Writes HCPTR (*Hyp Architectural Feature Trap Register*)
-    ///
-    /// # Safety
-    ///
-    /// Ensure that this value is appropriate for this register
-    pub unsafe fn write(value: Self) {
+    pub fn write(value: Self) {
         unsafe {
-            <Self as SysRegWrite>::write_raw(value.0);
+            <Self as SysRegWrite>::write_raw(value.raw_value());
         }
     }
 }

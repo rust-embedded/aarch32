@@ -26,9 +26,6 @@ const HIGH_PRIORITY: u8 = 0x10;
 fn main() -> ! {
     let mut board = mps3_an536::Board::new().unwrap();
 
-    // Only interrupts with a higher priority (numerically lower) will be signalled.
-    GicCpuInterface::set_priority_mask(0x80);
-
     // Configure a Software Generated Interrupt for Core 0
     println!("Configure low-prio SGI...");
     board
