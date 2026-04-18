@@ -123,8 +123,15 @@ impl TargetInfo {
     }
 }
 
-/// Process the ${TARGET} environment variable, and emit cargo configuration to
-/// standard out.
+/// Process the `${TARGET}` environment variable, and emit cargo configuration
+/// to standard out.
+///
+/// You probably want to call this from your build script.
+///
+/// When `${TARGET}` isn't known to this library, it falls back to using
+/// `CARGO_CFG_TARGET_*` variables. These are only really useful on nightly Rust
+/// currently, because the ones that give us details about the architecture are
+/// not yet stable.
 pub fn process() -> TargetInfo {
     let target = std::env::var("TARGET").expect("build script TARGET variable");
     let target_info_from_target = TargetInfo::get(&target);
@@ -149,6 +156,9 @@ pub fn process() -> TargetInfo {
 }
 
 /// Process a given target string, and emit cargo configuration to standard out.
+///
+/// Note that this function does not take `CARGO_CFG_TARGET_*` variables into
+/// account so you probably do not want to call this from your build script.
 #[deprecated(
     since = "0.4.2",
     note = "This function does not take `CARGO_CFG_TARGET_*` variables into account."
