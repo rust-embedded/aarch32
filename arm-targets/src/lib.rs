@@ -19,7 +19,7 @@
 //! This will then let you write application code like:
 //!
 //! ```rust
-//! #[cfg(arm_architecture = "armv7m")]
+//! #[cfg(arm_architecture = "v7-m")]
 //! fn only_for_cortex_m3() { }
 //!
 //! #[cfg(arm_isa = "a32")]
@@ -172,11 +172,11 @@ pub fn process_target(target: &str) -> TargetInfo {
 /// The Arm Instruction Set
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Isa {
-    /// A64 instructions are executed by Arm processors in Aarch64 mode
+    /// A64 instructions are executed by Arm processors in AArch64 mode
     A64,
-    /// A32 instructions are executed by Arm processors in Aarch32 Arm mode
+    /// A32 instructions are executed by Arm processors in AArch32 Arm mode
     A32,
-    /// T32 instructions are executed by Arm processors in Aarch32 Thumb mode
+    /// T32 instructions are executed by Arm processors in AArch32 Thumb mode
     T32,
 }
 
