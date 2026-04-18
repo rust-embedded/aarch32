@@ -40,7 +40,7 @@
 //! cargo:rustc-check-cfg=cfg(arm_abi, values("eabi", "eabihf"))
 //! ```
 
-use std::env;
+use std::{collections::HashSet, env};
 
 #[derive(Default, Debug)]
 pub struct TargetInfo {
@@ -185,7 +185,7 @@ impl Isa {
     pub fn from_cargo_env() -> Option<Self> {
         let arch = env::var("CARGO_CFG_TARGET_ARCH").ok()?;
         let features = env::var("CARGO_CFG_TARGET_FEATURE").ok()?;
-        let features = features.split(",").collect::<Vec<_>>();
+        let features: HashSet<&str> = features.split(",").collect();
 
         match arch.as_str() {
             "arm" if features.contains(&"thumb-mode") => Some(Self::T32),
@@ -268,7 +268,7 @@ impl Arch {
     pub fn from_cargo_env() -> Option<Self> {
         let arch = env::var("CARGO_CFG_TARGET_ARCH").ok()?;
         let features = env::var("CARGO_CFG_TARGET_FEATURE").ok()?;
-        let features = features.split(",").collect::<Vec<_>>();
+        let features: HashSet<&str> = features.split(",").collect();
 
         if (arch == "arm" && features.contains(&"v8")) || arch == "aarch64" {
             if features.contains(&"mclass") {
