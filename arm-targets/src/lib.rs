@@ -518,173 +518,385 @@ impl core::fmt::Display for Abi {
 mod test {
     use super::*;
 
+    fn with_target(target: &str, f: impl FnOnce()) {
+        temp_env::with_vars(
+            [
+                ("TARGET", Some(target)),
+                ("CARGO_CFG_TARGET_ARCH", None),
+                ("CARGO_CFG_TARGET_ABI", None),
+                ("CARGO_CFG_TARGET_FEATURE", None),
+            ],
+            f,
+        )
+    }
+
+    fn with_cargo_env(target_arch: &str, target_feature: &str, target_abi: &str, f: impl FnOnce()) {
+        temp_env::with_vars(
+            [
+                ("TARGET", Some("ensure-fallback-to-cargo-env-is-used")),
+                ("CARGO_CFG_TARGET_ARCH", Some(target_arch)),
+                ("CARGO_CFG_TARGET_FEATURE", Some(target_feature)),
+                ("CARGO_CFG_TARGET_ABI", Some(target_abi)),
+            ],
+            f,
+        )
+    }
+
+    fn with_target_and_cargo_env(
+        target: &str,
+        target_arch: &str,
+        target_feature: &str,
+        target_abi: &str,
+        f: impl FnOnce(),
+    ) {
+        temp_env::with_vars(
+            [
+                ("TARGET", Some(target)),
+                ("CARGO_CFG_TARGET_ARCH", Some(target_arch)),
+                ("CARGO_CFG_TARGET_FEATURE", Some(target_feature)),
+                ("CARGO_CFG_TARGET_ABI", Some(target_abi)),
+            ],
+            f,
+        )
+    }
+
     #[test]
     fn armv4t_none_eabi() {
         let target = "armv4t-none-eabi";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::A32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv4T));
-        assert_eq!(target_info.profile(), Some(Profile::Legacy));
-        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        let target_arch = "arm";
+        let target_feature = "";
+        let target_abi = "eabi";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::A32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv4T));
+            assert_eq!(target_info.profile(), Some(Profile::Legacy));
+            assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn armv5te_none_eabi() {
         let target = "armv5te-none-eabi";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::A32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv5TE));
-        assert_eq!(target_info.profile(), Some(Profile::Legacy));
-        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        let target_arch = "arm";
+        let target_feature = "v5te";
+        let target_abi = "eabi";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::A32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv5TE));
+            assert_eq!(target_info.profile(), Some(Profile::Legacy));
+            assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn armv6_none_eabi() {
         let target = "armv6-none-eabi";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::A32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv6));
-        assert_eq!(target_info.profile(), Some(Profile::Legacy));
-        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        let target_arch = "arm";
+        let target_feature = "v6";
+        let target_abi = "eabi";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::A32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv6));
+            assert_eq!(target_info.profile(), Some(Profile::Legacy));
+            assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn armv6_none_eabihf() {
         let target = "armv6-none-eabihf";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::A32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv6));
-        assert_eq!(target_info.profile(), Some(Profile::Legacy));
-        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+        let target_arch = "arm";
+        let target_feature = "v6";
+        let target_abi = "eabihf";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::A32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv6));
+            assert_eq!(target_info.profile(), Some(Profile::Legacy));
+            assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn arm_unknown_linux_gnueabi() {
         let target = "arm-unknown-linux-gnueabi";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::A32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv6));
-        assert_eq!(target_info.profile(), Some(Profile::Legacy));
-        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        let target_arch = "arm";
+        let target_feature = "v6";
+        let target_abi = "eabi";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::A32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv6));
+            assert_eq!(target_info.profile(), Some(Profile::Legacy));
+            assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn thumbv6m_none_eabi() {
         let target = "thumbv6m-none-eabi";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::T32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv6M));
-        assert_eq!(target_info.profile(), Some(Profile::M));
-        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        let target_arch = "arm";
+        let target_feature = "thumb-mode,mclass,v6";
+        let target_abi = "eabi";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::T32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv6M));
+            assert_eq!(target_info.profile(), Some(Profile::M));
+            assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn thumbv7m_none_eabi() {
         let target = "thumbv7m-none-eabi";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::T32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv7M));
-        assert_eq!(target_info.profile(), Some(Profile::M));
-        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        let target_arch = "arm";
+        let target_feature = "thumb-mode,mclass,v7";
+        let target_abi = "eabi";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::T32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv7M));
+            assert_eq!(target_info.profile(), Some(Profile::M));
+            assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn thumbv7em_nuttx_eabihf() {
         let target = "thumbv7em-nuttx-eabihf";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::T32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv7EM));
-        assert_eq!(target_info.profile(), Some(Profile::M));
-        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+        let target_arch = "arm";
+        let target_feature = "thumb-mode,mclass,v7,dsp";
+        let target_abi = "eabihf";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::T32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv7EM));
+            assert_eq!(target_info.profile(), Some(Profile::M));
+            assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn thumbv8m_base_none_eabi() {
         let target = "thumbv8m.base-none-eabi";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::T32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv8MBase));
-        assert_eq!(target_info.profile(), Some(Profile::M));
-        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        let target_arch = "arm";
+        let target_feature = "thumb-mode,mclass,v8";
+        let target_abi = "eabi";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::T32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv8MBase));
+            assert_eq!(target_info.profile(), Some(Profile::M));
+            assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn thumbv8m_main_none_eabihf() {
         let target = "thumbv8m.main-none-eabihf";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::T32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv8MMain));
-        assert_eq!(target_info.profile(), Some(Profile::M));
-        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+        let target_arch = "arm";
+        let target_feature = "thumb-mode,thumb2,mclass,v8";
+        let target_abi = "eabihf";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::T32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv8MMain));
+            assert_eq!(target_info.profile(), Some(Profile::M));
+            assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn armv7r_none_eabi() {
         let target = "armv7r-none-eabi";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::A32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv7R));
-        assert_eq!(target_info.profile(), Some(Profile::R));
-        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        let target_arch = "arm";
+        let target_feature = "rclass,v7";
+        let target_abi = "eabi";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::A32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv7R));
+            assert_eq!(target_info.profile(), Some(Profile::R));
+            assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn armv8r_none_eabihf() {
         let target = "armv8r-none-eabihf";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::A32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv8R));
-        assert_eq!(target_info.profile(), Some(Profile::R));
-        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+        let target_arch = "arm";
+        let target_feature = "rclass,v8";
+        let target_abi = "eabihf";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::A32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv8R));
+            assert_eq!(target_info.profile(), Some(Profile::R));
+            assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn thumbv8r_none_eabihf() {
         let target = "thumbv8r-none-eabihf";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::T32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv8R));
-        assert_eq!(target_info.profile(), Some(Profile::R));
-        assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+        let target_arch = "arm";
+        let target_feature = "thumb-mode,rclass,v8";
+        let target_abi = "eabihf";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::T32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv8R));
+            assert_eq!(target_info.profile(), Some(Profile::R));
+            assert_eq!(target_info.abi(), Some(Abi::EabiHf));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn armv7a_none_eabi() {
         let target = "armv7a-none-eabi";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::A32));
-        assert_eq!(target_info.arch(), Some(Arch::Armv7A));
-        assert_eq!(target_info.profile(), Some(Profile::A));
-        assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        let target_arch = "arm";
+        let target_feature = "aclass,v7";
+        let target_abi = "eabi";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::A32));
+            assert_eq!(target_info.arch(), Some(Arch::Armv7A));
+            assert_eq!(target_info.profile(), Some(Profile::A));
+            assert_eq!(target_info.abi(), Some(Abi::Eabi));
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
-    fn aarch64_none_eabihf() {
+    fn aarch64_none() {
         let target = "aarch64-unknown-none";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::A64));
-        assert_eq!(target_info.arch(), Some(Arch::Armv8A));
-        assert_eq!(target_info.profile(), Some(Profile::A));
-        assert_eq!(target_info.abi(), None);
+        let target_arch = "aarch64";
+        let target_feature = "aclass,v8";
+        let target_abi = "";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::A64));
+            assert_eq!(target_info.arch(), Some(Arch::Armv8A));
+            assert_eq!(target_info.profile(), Some(Profile::A));
+            assert_eq!(target_info.abi(), None);
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn aarch64v8r_none() {
         let target = "aarch64v8r-unknown-none";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::A64));
-        assert_eq!(target_info.arch(), Some(Arch::Armv8R));
-        assert_eq!(target_info.profile(), Some(Profile::R));
-        assert_eq!(target_info.abi(), None);
+        let target_arch = "aarch64";
+        let target_feature = "rclass,v8";
+        let target_abi = "";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::A64));
+            assert_eq!(target_info.arch(), Some(Arch::Armv8R));
+            assert_eq!(target_info.profile(), Some(Profile::R));
+            assert_eq!(target_info.abi(), None);
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 
     #[test]
     fn aarch64r82_none() {
         let target = "aarch64r82-unknown-none";
-        let target_info = process_target(target);
-        assert_eq!(target_info.isa(), Some(Isa::A64));
-        assert_eq!(target_info.arch(), Some(Arch::Armv8R));
-        assert_eq!(target_info.profile(), Some(Profile::R));
-        assert_eq!(target_info.abi(), None);
+        let target_arch = "aarch64";
+        let target_feature = "rclass,v8";
+        let target_abi = "";
+
+        let test = || {
+            let target_info = process();
+            assert_eq!(target_info.isa(), Some(Isa::A64));
+            assert_eq!(target_info.arch(), Some(Arch::Armv8R));
+            assert_eq!(target_info.profile(), Some(Profile::R));
+            assert_eq!(target_info.abi(), None);
+        };
+
+        with_target(target, test);
+        with_cargo_env(target_arch, target_feature, target_abi, test);
+        with_target_and_cargo_env(target, target_arch, target_feature, target_abi, test);
     }
 }
