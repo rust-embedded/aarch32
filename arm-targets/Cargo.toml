@@ -15,3 +15,6 @@ rust-version = "1.83"
 version = "0.4.2"
 
 [dependencies]
+
+[dev-dependencies]
+temp-env = "0.3"
