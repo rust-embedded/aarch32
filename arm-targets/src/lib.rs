@@ -42,10 +42,14 @@
 
 use std::{collections::HashSet, env};
 
+/// Describes a target in terms of its support for the Arm architecture
 #[derive(Default, Debug)]
 pub struct TargetInfo {
+    /// The Arm Instruction Set Architecture supported (if known)
     isa: Option<Isa>,
+    /// The Arm Architecture supported (if known)
     arch: Option<Arch>,
+    /// The Application Binary Interface supported (if known)
     abi: Option<Abi>,
 }
 
@@ -88,6 +92,7 @@ impl TargetInfo {
         self.abi
     }
 
+    /// Export a target-info as cargo:rustc-cfg options on stdout.
     fn dump(&self) {
         if let Some(isa) = self.isa() {
             println!(r#"cargo:rustc-cfg=arm_isa="{}""#, isa);
@@ -133,7 +138,7 @@ impl TargetInfo {
 /// currently, because the ones that give us details about the architecture are
 /// not yet stable.
 pub fn process() -> TargetInfo {
-    let target = std::env::var("TARGET").expect("build script TARGET variable");
+    let target = env::var("TARGET").expect("build script TARGET variable");
     let target_info_from_target = TargetInfo::get(&target);
 
     let target_info_from_cargo_env = TargetInfo::from_cargo_env();
@@ -344,15 +349,23 @@ impl Arch {
             || target.starts_with("thumbv8r-")
         {
             Some(Arch::Armv8R)
-        } else if target.starts_with("armv7a-") || target.starts_with("thumbv7a-") {
+        } else if target.starts_with("armv7a-")
+            || target.starts_with("armv7-")
+            || target.starts_with("armv7s-")
+            || target.starts_with("armv7k-")
+            || target.starts_with("thumbv7a-")
+            || target.starts_with("thumbv7neon-")
+        {
             Some(Arch::Armv7A)
         } else if target.starts_with("aarch64-") || target.starts_with("aarch64be-") {
             Some(Arch::Armv8A)
         } else if target.starts_with("arm-")
+            || target.starts_with("armeb-")
             || target.starts_with("armv6-")
+            || target.starts_with("armv6k-")
             || target.starts_with("thumbv6-")
         {
-            // If not specified, assume ARMv6.
+            // NB: We assume bare 'arm' is ARMv6.
             Some(Arch::Armv6)
         } else {
             None
