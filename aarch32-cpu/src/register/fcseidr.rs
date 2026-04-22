@@ -16,7 +16,7 @@ impl SysReg for Fcseidr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Fcseidr {}
+impl SysRegRead for Fcseidr {}
 
 impl Fcseidr {
     #[inline]
@@ -26,7 +26,7 @@ impl Fcseidr {
     }
 }
 
-impl crate::register::SysRegWrite for Fcseidr {}
+impl SysRegWrite for Fcseidr {}
 
 impl Fcseidr {
     #[inline]

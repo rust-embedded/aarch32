@@ -51,7 +51,7 @@ impl SysReg for Hsctlr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Hsctlr {}
+impl SysRegRead for Hsctlr {}
 
 impl Hsctlr {
     #[inline]
@@ -62,7 +62,7 @@ impl Hsctlr {
     }
 }
 
-impl crate::register::SysRegWrite for Hsctlr {}
+impl SysRegWrite for Hsctlr {}
 
 impl Hsctlr {
     #[inline]

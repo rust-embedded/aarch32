@@ -38,7 +38,7 @@ impl SysReg for Ccsidr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Ccsidr {}
+impl SysRegRead for Ccsidr {}
 
 impl Ccsidr {
     #[inline]

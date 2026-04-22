@@ -28,7 +28,7 @@ impl SysReg for Hcptr {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for Hcptr {}
+impl SysRegRead for Hcptr {}
 
 impl Hcptr {
     #[inline]
@@ -50,7 +50,7 @@ impl Hcptr {
     }
 }
 
-impl crate::register::SysRegWrite for Hcptr {}
+impl SysRegWrite for Hcptr {}
 
 impl Hcptr {
     #[inline]

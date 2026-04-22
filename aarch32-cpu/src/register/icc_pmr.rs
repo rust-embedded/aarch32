@@ -16,7 +16,7 @@ impl SysReg for IccPmr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for IccPmr {}
+impl SysRegRead for IccPmr {}
 
 impl IccPmr {
     #[inline]
@@ -26,7 +26,7 @@ impl IccPmr {
     }
 }
 
-impl crate::register::SysRegWrite for IccPmr {}
+impl SysRegWrite for IccPmr {}
 
 impl IccPmr {
     #[inline]

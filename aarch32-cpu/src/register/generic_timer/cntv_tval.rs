@@ -16,7 +16,7 @@ impl SysReg for CntvTval {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for CntvTval {}
+impl SysRegRead for CntvTval {}
 
 impl CntvTval {
     #[inline]
@@ -26,7 +26,7 @@ impl CntvTval {
     }
 }
 
-impl crate::register::SysRegWrite for CntvTval {}
+impl SysRegWrite for CntvTval {}
 
 impl CntvTval {
     #[inline]

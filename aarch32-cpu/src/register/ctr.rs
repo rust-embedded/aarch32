@@ -16,7 +16,7 @@ impl SysReg for Ctr {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Ctr {}
+impl SysRegRead for Ctr {}
 
 impl Ctr {
     #[inline]

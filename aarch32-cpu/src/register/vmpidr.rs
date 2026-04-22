@@ -16,7 +16,7 @@ impl SysReg for Vmpidr {
     const OP2: u32 = 5;
 }
 
-impl crate::register::SysRegRead for Vmpidr {}
+impl SysRegRead for Vmpidr {}
 
 impl Vmpidr {
     #[inline]
@@ -26,7 +26,7 @@ impl Vmpidr {
     }
 }
 
-impl crate::register::SysRegWrite for Vmpidr {}
+impl SysRegWrite for Vmpidr {}
 
 impl Vmpidr {
     #[inline]

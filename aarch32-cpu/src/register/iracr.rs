@@ -36,7 +36,7 @@ impl SysReg for Iracr {
     const OP2: u32 = 5;
 }
 
-impl crate::register::SysRegRead for Iracr {}
+impl SysRegRead for Iracr {}
 
 impl Iracr {
     #[inline]
@@ -49,7 +49,7 @@ impl Iracr {
     }
 }
 
-impl crate::register::SysRegWrite for Iracr {}
+impl SysRegWrite for Iracr {}
 
 impl Iracr {
     #[inline]

@@ -16,7 +16,7 @@ impl SysReg for Mpidr {
     const OP2: u32 = 5;
 }
 
-impl crate::register::SysRegRead for Mpidr {}
+impl SysRegRead for Mpidr {}
 
 impl Mpidr {
     #[inline]

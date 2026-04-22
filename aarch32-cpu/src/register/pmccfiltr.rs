@@ -16,7 +16,7 @@ impl SysReg for Pmccfiltr {
     const OP2: u32 = 7;
 }
 
-impl crate::register::SysRegRead for Pmccfiltr {}
+impl SysRegRead for Pmccfiltr {}
 
 impl Pmccfiltr {
     #[inline]
@@ -26,7 +26,7 @@ impl Pmccfiltr {
     }
 }
 
-impl crate::register::SysRegWrite for Pmccfiltr {}
+impl SysRegWrite for Pmccfiltr {}
 
 impl Pmccfiltr {
     #[inline]

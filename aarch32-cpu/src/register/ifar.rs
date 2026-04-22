@@ -16,7 +16,7 @@ impl SysReg for Ifar {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for Ifar {}
+impl SysRegRead for Ifar {}
 
 impl Ifar {
     #[inline]
@@ -26,7 +26,7 @@ impl Ifar {
     }
 }
 
-impl crate::register::SysRegWrite for Ifar {}
+impl SysRegWrite for Ifar {}
 
 impl Ifar {
     #[inline]

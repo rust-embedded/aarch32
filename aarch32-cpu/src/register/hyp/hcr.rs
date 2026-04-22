@@ -116,7 +116,7 @@ impl SysReg for Hcr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Hcr {}
+impl SysRegRead for Hcr {}
 
 impl Hcr {
     #[inline]
@@ -127,7 +127,7 @@ impl Hcr {
     }
 }
 
-impl crate::register::SysRegWrite for Hcr {}
+impl SysRegWrite for Hcr {}
 
 impl Hcr {
     #[inline]

@@ -16,7 +16,7 @@ impl SysReg for Tpidrurw {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for Tpidrurw {}
+impl SysRegRead for Tpidrurw {}
 
 impl Tpidrurw {
     #[inline]
@@ -26,7 +26,7 @@ impl Tpidrurw {
     }
 }
 
-impl crate::register::SysRegWrite for Tpidrurw {}
+impl SysRegWrite for Tpidrurw {}
 
 impl Tpidrurw {
     #[inline]

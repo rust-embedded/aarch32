@@ -16,7 +16,7 @@ impl SysReg for Pmcr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Pmcr {}
+impl SysRegRead for Pmcr {}
 
 impl Pmcr {
     #[inline]
@@ -26,7 +26,7 @@ impl Pmcr {
     }
 }
 
-impl crate::register::SysRegWrite for Pmcr {}
+impl SysRegWrite for Pmcr {}
 
 impl Pmcr {
     #[inline]

@@ -172,7 +172,7 @@ impl El1Mpu {
     ///
     /// Write regions, attributes and enable/disable the background region
     /// with a single [El1Config] struct.
-    pub fn configure(&mut self, config: &El1Config) -> Result<(), Error> {
+    pub fn configure(&mut self, config: &El1Config<'_>) -> Result<(), Error> {
         self.set_regions(0, config.regions)?;
 
         self.set_attributes(config.memory_attributes);
@@ -336,7 +336,7 @@ impl El2Mpu {
     /// Configure the EL2 MPU
     ///
     /// Write regions, attributes and enable/disable the background region with a single [El2Config] struct.
-    pub fn configure(&mut self, config: &El2Config) -> Result<(), Error> {
+    pub fn configure(&mut self, config: &El2Config<'_>) -> Result<(), Error> {
         self.set_regions(0, config.regions)?;
 
         self.set_attributes(config.memory_attributes);

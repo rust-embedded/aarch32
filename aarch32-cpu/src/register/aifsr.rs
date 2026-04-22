@@ -16,7 +16,7 @@ impl SysReg for Aifsr {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Aifsr {}
+impl SysRegRead for Aifsr {}
 
 impl Aifsr {
     #[inline]
@@ -26,7 +26,7 @@ impl Aifsr {
     }
 }
 
-impl crate::register::SysRegWrite for Aifsr {}
+impl SysRegWrite for Aifsr {}
 
 impl Aifsr {
     #[inline]

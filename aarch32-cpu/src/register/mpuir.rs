@@ -27,7 +27,7 @@ impl SysReg for Mpuir {
     const OP2: u32 = 4;
 }
 
-impl crate::register::SysRegRead for Mpuir {}
+impl SysRegRead for Mpuir {}
 
 impl Mpuir {
     #[inline]
@@ -50,7 +50,7 @@ impl core::fmt::Debug for Mpuir {
 
 #[cfg(feature = "defmt")]
 impl defmt::Format for Mpuir {
-    fn format(&self, f: defmt::Formatter) {
+    fn format(&self, f: defmt::Formatter<'_>) {
         defmt::write!(
             f,
             "MPUIR {{ iregions={=u8}, dregions={=u8}, non_unified={=bool} }}",

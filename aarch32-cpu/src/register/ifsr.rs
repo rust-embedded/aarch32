@@ -246,7 +246,7 @@ impl SysReg for Ifsr {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Ifsr {}
+impl SysRegRead for Ifsr {}
 
 impl Ifsr {
     #[inline]
@@ -257,7 +257,7 @@ impl Ifsr {
     }
 }
 
-impl crate::register::SysRegWrite for Ifsr {}
+impl SysRegWrite for Ifsr {}
 
 impl Ifsr {
     #[inline]

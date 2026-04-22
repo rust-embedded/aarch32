@@ -16,7 +16,7 @@ impl SysReg for Dspsr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Dspsr {}
+impl SysRegRead for Dspsr {}
 
 impl Dspsr {
     #[inline]
@@ -26,7 +26,7 @@ impl Dspsr {
     }
 }
 
-impl crate::register::SysRegWrite for Dspsr {}
+impl SysRegWrite for Dspsr {}
 
 impl Dspsr {
     #[inline]

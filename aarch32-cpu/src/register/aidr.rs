@@ -16,7 +16,7 @@ impl SysReg for Aidr {
     const OP2: u32 = 7;
 }
 
-impl crate::register::SysRegRead for Aidr {}
+impl SysRegRead for Aidr {}
 
 impl Aidr {
     #[inline]

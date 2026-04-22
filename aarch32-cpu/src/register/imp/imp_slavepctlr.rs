@@ -16,7 +16,7 @@ impl SysReg for ImpSlavepctlr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for ImpSlavepctlr {}
+impl SysRegRead for ImpSlavepctlr {}
 
 impl ImpSlavepctlr {
     #[inline]
@@ -26,7 +26,7 @@ impl ImpSlavepctlr {
     }
 }
 
-impl crate::register::SysRegWrite for ImpSlavepctlr {}
+impl SysRegWrite for ImpSlavepctlr {}
 
 impl ImpSlavepctlr {
     #[inline]

@@ -17,7 +17,7 @@ impl SysReg for Drbar {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Drbar {}
+impl SysRegRead for Drbar {}
 
 impl Drbar {
     #[inline]
@@ -29,7 +29,7 @@ impl Drbar {
     }
 }
 
-impl crate::register::SysRegWrite for Drbar {}
+impl SysRegWrite for Drbar {}
 
 impl Drbar {
     #[inline]

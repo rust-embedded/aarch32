@@ -16,7 +16,7 @@ impl SysReg for Hadfsr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Hadfsr {}
+impl SysRegRead for Hadfsr {}
 
 impl Hadfsr {
     #[inline]
@@ -26,7 +26,7 @@ impl Hadfsr {
     }
 }
 
-impl crate::register::SysRegWrite for Hadfsr {}
+impl SysRegWrite for Hadfsr {}
 
 impl Hadfsr {
     #[inline]

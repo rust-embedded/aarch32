@@ -109,7 +109,7 @@ impl Mpu {
     }
 
     /// Configure the EL1 MPU
-    pub fn configure(&mut self, config: &Config) -> Result<(), Error> {
+    pub fn configure(&mut self, config: &Config<'_>) -> Result<(), Error> {
         if config.iregions.len() > self.num_iregions() as usize {
             return Err(Error::TooManyRegions);
         }

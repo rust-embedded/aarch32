@@ -13,10 +13,7 @@ pub unsafe fn stack_used_bytes(stack: core::ops::Range<*const u32>) -> (usize, u
     let size_words = unsafe { stack.end.offset_from(stack.start) } as usize;
     let unused_words = unsafe { stack_unused_bytes_asm(stack.start, size_words) };
     let used_words = size_words - unused_words;
-    (
-        size_words * core::mem::size_of::<u32>(),
-        used_words * core::mem::size_of::<u32>(),
-    )
+    (size_words * size_of::<u32>(), used_words * size_of::<u32>())
 }
 
 /// Counts number of words that are equal to zero

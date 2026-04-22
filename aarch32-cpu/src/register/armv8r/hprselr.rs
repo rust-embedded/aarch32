@@ -16,7 +16,7 @@ impl SysReg for Hprselr {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Hprselr {}
+impl SysRegRead for Hprselr {}
 
 impl Hprselr {
     #[inline]
@@ -26,7 +26,7 @@ impl Hprselr {
     }
 }
 
-impl crate::register::SysRegWrite for Hprselr {}
+impl SysRegWrite for Hprselr {}
 
 impl Hprselr {
     #[inline]

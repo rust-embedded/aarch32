@@ -122,7 +122,7 @@ impl SysReg for Drsr {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for Drsr {}
+impl SysRegRead for Drsr {}
 
 impl Drsr {
     #[inline]
@@ -135,7 +135,7 @@ impl Drsr {
     }
 }
 
-impl crate::register::SysRegWrite for Drsr {}
+impl SysRegWrite for Drsr {}
 
 impl Drsr {
     #[inline]

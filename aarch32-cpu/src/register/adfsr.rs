@@ -16,7 +16,7 @@ impl SysReg for Adfsr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Adfsr {}
+impl SysRegRead for Adfsr {}
 
 impl Adfsr {
     #[inline]
@@ -26,7 +26,7 @@ impl Adfsr {
     }
 }
 
-impl crate::register::SysRegWrite for Adfsr {}
+impl SysRegWrite for Adfsr {}
 
 impl Adfsr {
     #[inline]

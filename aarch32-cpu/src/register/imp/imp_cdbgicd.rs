@@ -16,7 +16,7 @@ impl SysReg for ImpCdbgicd {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegWrite for ImpCdbgicd {}
+impl SysRegWrite for ImpCdbgicd {}
 
 impl ImpCdbgicd {
     #[inline]

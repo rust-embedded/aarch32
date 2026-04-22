@@ -19,7 +19,7 @@ impl SysReg for Hmpuir {
     const OP2: u32 = 4;
 }
 
-impl crate::register::SysRegRead for Hmpuir {}
+impl SysRegRead for Hmpuir {}
 
 impl Hmpuir {
     #[inline]

@@ -36,7 +36,7 @@ impl SysReg for Dracr {
     const OP2: u32 = 4;
 }
 
-impl crate::register::SysRegRead for Dracr {}
+impl SysRegRead for Dracr {}
 
 impl Dracr {
     #[inline]
@@ -49,7 +49,7 @@ impl Dracr {
     }
 }
 
-impl crate::register::SysRegWrite for Dracr {}
+impl SysRegWrite for Dracr {}
 
 impl Dracr {
     #[inline]

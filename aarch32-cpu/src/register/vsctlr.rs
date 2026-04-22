@@ -16,7 +16,7 @@ impl SysReg for Vsctlr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Vsctlr {}
+impl SysRegRead for Vsctlr {}
 
 impl Vsctlr {
     #[inline]
@@ -26,7 +26,7 @@ impl Vsctlr {
     }
 }
 
-impl crate::register::SysRegWrite for Vsctlr {}
+impl SysRegWrite for Vsctlr {}
 
 impl Vsctlr {
     #[inline]

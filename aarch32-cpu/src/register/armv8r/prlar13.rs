@@ -16,7 +16,7 @@ impl SysReg for Prlar13 {
     const OP2: u32 = 5;
 }
 
-impl crate::register::SysRegRead for Prlar13 {}
+impl SysRegRead for Prlar13 {}
 
 impl Prlar13 {
     #[inline]
@@ -26,7 +26,7 @@ impl Prlar13 {
     }
 }
 
-impl crate::register::SysRegWrite for Prlar13 {}
+impl SysRegWrite for Prlar13 {}
 
 impl Prlar13 {
     #[inline]

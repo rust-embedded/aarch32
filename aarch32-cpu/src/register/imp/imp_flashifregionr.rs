@@ -16,7 +16,7 @@ impl SysReg for ImpFlashifregionr {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for ImpFlashifregionr {}
+impl SysRegRead for ImpFlashifregionr {}
 
 impl ImpFlashifregionr {
     #[inline]
@@ -26,7 +26,7 @@ impl ImpFlashifregionr {
     }
 }
 
-impl crate::register::SysRegWrite for ImpFlashifregionr {}
+impl SysRegWrite for ImpFlashifregionr {}
 
 impl ImpFlashifregionr {
     #[inline]

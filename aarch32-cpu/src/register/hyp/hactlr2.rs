@@ -16,7 +16,7 @@ impl SysReg for Hactlr2 {
     const OP2: u32 = 3;
 }
 
-impl crate::register::SysRegRead for Hactlr2 {}
+impl SysRegRead for Hactlr2 {}
 
 impl Hactlr2 {
     #[inline]
@@ -26,7 +26,7 @@ impl Hactlr2 {
     }
 }
 
-impl crate::register::SysRegWrite for Hactlr2 {}
+impl SysRegWrite for Hactlr2 {}
 
 impl Hactlr2 {
     #[inline]

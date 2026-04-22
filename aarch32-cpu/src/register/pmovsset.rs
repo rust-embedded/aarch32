@@ -16,7 +16,7 @@ impl SysReg for Pmovsset {
     const OP2: u32 = 3;
 }
 
-impl crate::register::SysRegRead for Pmovsset {}
+impl SysRegRead for Pmovsset {}
 
 impl Pmovsset {
     #[inline]
@@ -26,7 +26,7 @@ impl Pmovsset {
     }
 }
 
-impl crate::register::SysRegWrite for Pmovsset {}
+impl SysRegWrite for Pmovsset {}
 
 impl Pmovsset {
     #[inline]

@@ -16,7 +16,7 @@ impl SysReg for Revidr {
     const OP2: u32 = 6;
 }
 
-impl crate::register::SysRegRead for Revidr {}
+impl SysRegRead for Revidr {}
 
 impl Revidr {
     #[inline]

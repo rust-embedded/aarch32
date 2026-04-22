@@ -16,7 +16,7 @@ impl SysReg for Contextidr {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Contextidr {}
+impl SysRegRead for Contextidr {}
 
 impl Contextidr {
     #[inline]
@@ -26,7 +26,7 @@ impl Contextidr {
     }
 }
 
-impl crate::register::SysRegWrite for Contextidr {}
+impl SysRegWrite for Contextidr {}
 
 impl Contextidr {
     #[inline]

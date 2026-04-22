@@ -102,9 +102,9 @@ impl SysReg for Ttbr0 {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Ttbr0 {}
+impl SysRegRead for Ttbr0 {}
 
-impl crate::register::SysRegWrite for Ttbr0 {}
+impl SysRegWrite for Ttbr0 {}
 
 impl Ttbr0 {
     #[inline]

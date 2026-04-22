@@ -16,7 +16,7 @@ impl SysReg for ImpQosr {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for ImpQosr {}
+impl SysRegRead for ImpQosr {}
 
 impl ImpQosr {
     #[inline]
@@ -26,7 +26,7 @@ impl ImpQosr {
     }
 }
 
-impl crate::register::SysRegWrite for ImpQosr {}
+impl SysRegWrite for ImpQosr {}
 
 impl ImpQosr {
     #[inline]

@@ -24,7 +24,7 @@ impl SysReg for Dccmvau {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegWrite for Dccmvau {}
+impl SysRegWrite for Dccmvau {}
 
 impl Dccmvau {
     #[inline]

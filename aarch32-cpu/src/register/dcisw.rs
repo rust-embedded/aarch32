@@ -49,7 +49,7 @@ impl SysReg for Dcisw {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegWrite for Dcisw {}
+impl SysRegWrite for Dcisw {}
 
 impl Dcisw {
     #[inline]

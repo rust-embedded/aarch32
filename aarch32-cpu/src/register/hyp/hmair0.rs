@@ -16,7 +16,7 @@ impl SysReg for Hmair0 {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Hmair0 {}
+impl SysRegRead for Hmair0 {}
 
 impl Hmair0 {
     #[inline]
@@ -26,7 +26,7 @@ impl Hmair0 {
     }
 }
 
-impl crate::register::SysRegWrite for Hmair0 {}
+impl SysRegWrite for Hmair0 {}
 
 impl Hmair0 {
     #[inline]

@@ -36,7 +36,7 @@ impl SysReg for Csselr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Csselr {}
+impl SysRegRead for Csselr {}
 
 impl Csselr {
     #[inline]
@@ -47,7 +47,7 @@ impl Csselr {
     }
 }
 
-impl crate::register::SysRegWrite for Csselr {}
+impl SysRegWrite for Csselr {}
 
 impl Csselr {
     #[inline]

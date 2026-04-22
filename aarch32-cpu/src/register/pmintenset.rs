@@ -16,7 +16,7 @@ impl SysReg for Pmintenset {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Pmintenset {}
+impl SysRegRead for Pmintenset {}
 
 impl Pmintenset {
     #[inline]
@@ -26,7 +26,7 @@ impl Pmintenset {
     }
 }
 
-impl crate::register::SysRegWrite for Pmintenset {}
+impl SysRegWrite for Pmintenset {}
 
 impl Pmintenset {
     #[inline]

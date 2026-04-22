@@ -35,7 +35,7 @@ impl SysReg for Dacr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Dacr {}
+impl SysRegRead for Dacr {}
 
 impl Dacr {
     #[inline]
@@ -46,7 +46,7 @@ impl Dacr {
     }
 }
 
-impl crate::register::SysRegWrite for Dacr {}
+impl SysRegWrite for Dacr {}
 
 impl Dacr {
     #[inline]

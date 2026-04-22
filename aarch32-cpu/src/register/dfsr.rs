@@ -270,7 +270,7 @@ impl SysReg for Dfsr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Dfsr {}
+impl SysRegRead for Dfsr {}
 
 impl Dfsr {
     #[inline]
@@ -281,7 +281,7 @@ impl Dfsr {
     }
 }
 
-impl crate::register::SysRegWrite for Dfsr {}
+impl SysRegWrite for Dfsr {}
 
 impl Dfsr {
     #[inline]

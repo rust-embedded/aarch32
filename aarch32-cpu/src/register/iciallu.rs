@@ -19,7 +19,7 @@ impl SysReg for Iciallu {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegWrite for Iciallu {}
+impl SysRegWrite for Iciallu {}
 
 impl Iciallu {
     #[inline]

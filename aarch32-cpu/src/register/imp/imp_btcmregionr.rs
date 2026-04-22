@@ -16,7 +16,7 @@ impl SysReg for ImpBtcmregionr {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for ImpBtcmregionr {}
+impl SysRegRead for ImpBtcmregionr {}
 
 impl ImpBtcmregionr {
     #[inline]
@@ -26,7 +26,7 @@ impl ImpBtcmregionr {
     }
 }
 
-impl crate::register::SysRegWrite for ImpBtcmregionr {}
+impl SysRegWrite for ImpBtcmregionr {}
 
 impl ImpBtcmregionr {
     #[inline]

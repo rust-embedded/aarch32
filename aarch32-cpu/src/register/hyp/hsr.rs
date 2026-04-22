@@ -378,7 +378,7 @@ impl SysReg for Hsr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Hsr {}
+impl SysRegRead for Hsr {}
 
 impl Hsr {
     #[inline]
@@ -389,7 +389,7 @@ impl Hsr {
     }
 }
 
-impl crate::register::SysRegWrite for Hsr {}
+impl SysRegWrite for Hsr {}
 
 impl Hsr {
     #[inline]

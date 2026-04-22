@@ -55,7 +55,7 @@ mod critical_section;
 /// ```
 #[macro_export]
 macro_rules! svc {
-    ($num:expr) => { {
+    ($num:expr_2021) => { {
         let retval: u32;
         unsafe {
             core::arch::asm!("svc {arg}", arg = const $num, lateout("r0") retval);
@@ -75,7 +75,7 @@ macro_rules! svc {
 /// ```
 #[macro_export]
 macro_rules! svc1 {
-    ($num:expr, $arg0:expr) => { {
+    ($num:expr_2021, $arg0:expr_2021) => { {
         let retval: u32;
         let arg0: u32 = $arg0;
         unsafe {
@@ -100,7 +100,7 @@ macro_rules! svc1 {
 /// ```
 #[macro_export]
 macro_rules! svc2 {
-    ($num:expr, $arg0:expr, $arg1:expr) => { {
+    ($num:expr_2021, $arg0:expr_2021, $arg1:expr_2021) => { {
         let retval: u32;
         let arg0: u32 = $arg0;
         let arg1: u32 = $arg1;
@@ -127,7 +127,7 @@ macro_rules! svc2 {
 /// ```
 #[macro_export]
 macro_rules! svc3 {
-    ($num:expr, $arg0:expr, $arg1:expr, $arg2:expr) => { {
+    ($num:expr_2021, $arg0:expr_2021, $arg1:expr_2021, $arg2:expr_2021) => { {
         let retval: u32;
         let arg0: u32 = $arg0;
         let arg1: u32 = $arg1;
@@ -156,7 +156,7 @@ macro_rules! svc3 {
 /// ```
 #[macro_export]
 macro_rules! svc4 {
-    ($num:expr, $arg0:expr, $arg1:expr, $arg2:expr, $arg3:expr) => { {
+    ($num:expr_2021, $arg0:expr_2021, $arg1:expr_2021, $arg2:expr_2021, $arg3:expr_2021) => { {
         let retval: u32;
         let arg0: u32 = $arg0;
         let arg1: u32 = $arg1;
@@ -187,7 +187,7 @@ macro_rules! svc4 {
 /// ```
 #[macro_export]
 macro_rules! svc5 {
-    ($num:expr, $arg0:expr, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr) => { {
+    ($num:expr_2021, $arg0:expr_2021, $arg1:expr_2021, $arg2:expr_2021, $arg3:expr_2021, $arg4:expr_2021) => { {
         let retval: u32;
         let arg0: u32 = $arg0;
         let arg1: u32 = $arg1;
@@ -220,7 +220,7 @@ macro_rules! svc5 {
 /// ```
 #[macro_export]
 macro_rules! svc6 {
-    ($num:expr, $arg0:expr, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => { {
+    ($num:expr_2021, $arg0:expr_2021, $arg1:expr_2021, $arg2:expr_2021, $arg3:expr_2021, $arg4:expr_2021, $arg5:expr_2021) => { {
         let retval: u32;
         let arg0: u32 = $arg0;
         let arg1: u32 = $arg1;
@@ -247,7 +247,7 @@ macro_rules! svc6 {
 /// Generate an HVC call with the given argument.
 #[macro_export]
 macro_rules! hvc {
-    ($r0:expr) => {
+    ($r0:expr_2021) => {
         unsafe {
             core::arch::asm!("hvc {arg}", arg = const $r0);
         }
@@ -265,7 +265,7 @@ macro_rules! hvc {
 /// ```
 #[macro_export]
 macro_rules! hvc1 {
-    ($num:expr, $arg0:expr) => { {
+    ($num:expr_2021, $arg0:expr_2021) => { {
         let retval: u32;
         let arg0: u32 = $arg0;
         unsafe {
@@ -290,7 +290,7 @@ macro_rules! hvc1 {
 /// ```
 #[macro_export]
 macro_rules! hvc2 {
-    ($num:expr, $arg0:expr, $arg1:expr) => { {
+    ($num:expr_2021, $arg0:expr_2021, $arg1:expr_2021) => { {
         let retval: u32;
         let arg0: u32 = $arg0;
         let arg1: u32 = $arg1;
@@ -317,7 +317,7 @@ macro_rules! hvc2 {
 /// ```
 #[macro_export]
 macro_rules! hvc3 {
-    ($num:expr, $arg0:expr, $arg1:expr, $arg2:expr) => { {
+    ($num:expr_2021, $arg0:expr_2021, $arg1:expr_2021, $arg2:expr_2021) => { {
         let retval: u32;
         let arg0: u32 = $arg0;
         let arg1: u32 = $arg1;
@@ -346,7 +346,7 @@ macro_rules! hvc3 {
 /// ```
 #[macro_export]
 macro_rules! hvc4 {
-    ($num:expr, $arg0:expr, $arg1:expr, $arg2:expr, $arg3:expr) => { {
+    ($num:expr_2021, $arg0:expr_2021, $arg1:expr_2021, $arg2:expr_2021, $arg3:expr_2021) => { {
         let retval: u32;
         let arg0: u32 = $arg0;
         let arg1: u32 = $arg1;
@@ -377,7 +377,7 @@ macro_rules! hvc4 {
 /// ```
 #[macro_export]
 macro_rules! hvc5 {
-    ($num:expr, $arg0:expr, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr) => { {
+    ($num:expr_2021, $arg0:expr_2021, $arg1:expr_2021, $arg2:expr_2021, $arg3:expr_2021, $arg4:expr_2021) => { {
         let retval: u32;
         let arg0: u32 = $arg0;
         let arg1: u32 = $arg1;
@@ -410,7 +410,7 @@ macro_rules! hvc5 {
 /// ```
 #[macro_export]
 macro_rules! hvc6 {
-    ($num:expr, $arg0:expr, $arg1:expr, $arg2:expr, $arg3:expr, $arg4:expr, $arg5:expr) => { {
+    ($num:expr_2021, $arg0:expr_2021, $arg1:expr_2021, $arg2:expr_2021, $arg3:expr_2021, $arg4:expr_2021, $arg5:expr_2021) => { {
         let retval: u32;
         let arg0: u32 = $arg0;
         let arg1: u32 = $arg1;

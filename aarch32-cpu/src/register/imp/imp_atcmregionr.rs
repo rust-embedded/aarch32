@@ -16,7 +16,7 @@ impl SysReg for ImpAtcmregionr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for ImpAtcmregionr {}
+impl SysRegRead for ImpAtcmregionr {}
 
 impl ImpAtcmregionr {
     #[inline]
@@ -26,7 +26,7 @@ impl ImpAtcmregionr {
     }
 }
 
-impl crate::register::SysRegWrite for ImpAtcmregionr {}
+impl SysRegWrite for ImpAtcmregionr {}
 
 impl ImpAtcmregionr {
     #[inline]

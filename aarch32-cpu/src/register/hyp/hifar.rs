@@ -16,7 +16,7 @@ impl SysReg for Hifar {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for Hifar {}
+impl SysRegRead for Hifar {}
 
 impl Hifar {
     #[inline]
@@ -26,7 +26,7 @@ impl Hifar {
     }
 }
 
-impl crate::register::SysRegWrite for Hifar {}
+impl SysRegWrite for Hifar {}
 
 impl Hifar {
     #[inline]

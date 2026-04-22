@@ -16,7 +16,7 @@ impl SysReg for Hamair1 {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Hamair1 {}
+impl SysRegRead for Hamair1 {}
 
 impl Hamair1 {
     #[inline]
@@ -26,7 +26,7 @@ impl Hamair1 {
     }
 }
 
-impl crate::register::SysRegWrite for Hamair1 {}
+impl SysRegWrite for Hamair1 {}
 
 impl Hamair1 {
     #[inline]

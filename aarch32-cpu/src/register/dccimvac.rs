@@ -24,7 +24,7 @@ impl SysReg for Dccimvac {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegWrite for Dccimvac {}
+impl SysRegWrite for Dccimvac {}
 
 impl Dccimvac {
     #[inline]
