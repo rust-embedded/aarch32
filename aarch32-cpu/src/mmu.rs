@@ -1,6 +1,6 @@
 //! Support for the VMSAv7 MMU
 
-use arbitrary_int::{u12, u2, u3, u4};
+use arbitrary_int::{u2, u3, u4, u12};
 
 /// Number of 1 MiB pages in a 4 GiB virtual address space
 pub const NUM_L1_PAGE_TABLE_ENTRIES: usize = 4096;

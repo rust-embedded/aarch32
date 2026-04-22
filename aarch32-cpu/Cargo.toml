@@ -8,7 +8,7 @@ categories = [
     "no-std",
 ]
 description = "CPU support for AArch32 Arm Processors"
-edition = "2021"
+edition = "2024"
 keywords = [
     "arm",
     "cortex-a",
@@ -21,7 +21,7 @@ name = "aarch32-cpu"
 readme = "README.md"
 repository = "https://github.com/rust-embedded/aarch32.git"
 homepage = "https://github.com/rust-embedded/aarch32"
-rust-version = "1.83"
+rust-version = "1.85"
 version = "0.2.0"
 
 [dependencies]

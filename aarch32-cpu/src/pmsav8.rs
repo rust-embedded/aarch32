@@ -6,7 +6,7 @@
 //!
 //! [armv8r]: https://developer.arm.com/documentation/ddi0568/latest/
 
-use arbitrary_int::{u26, u3};
+use arbitrary_int::{u3, u26};
 
 use crate::register;
 

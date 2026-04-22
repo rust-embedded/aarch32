@@ -2,7 +2,7 @@
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
-use arbitrary_int::{u2, u25, u3, u4, u6};
+use arbitrary_int::{u2, u3, u4, u6, u25};
 
 /// HSR (*Hyp Syndrome Register*)
 #[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]

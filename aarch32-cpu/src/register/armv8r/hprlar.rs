@@ -1,6 +1,6 @@
 //! Code for managing HPRLAR (*Hyp Protection Region Limit Address Register*)
 
-use arbitrary_int::{u26, u3};
+use arbitrary_int::{u3, u26};
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 

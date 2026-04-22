@@ -10,8 +10,8 @@ use proc_macro::{TokenStream, TokenTree};
 use proc_macro2::Span;
 use quote::quote;
 use syn::{
-    parse, parse_macro_input, spanned::Spanned, AttrStyle, Attribute, Ident, ItemFn, ReturnType,
-    Type, Visibility,
+    AttrStyle, Attribute, Ident, ItemFn, ReturnType, Type, Visibility, parse, parse_macro_input,
+    spanned::Spanned,
 };
 
 /// Creates an `unsafe` program entry point (i.e. a `kmain` function).
@@ -32,7 +32,7 @@ use syn::{
 ///
 /// ```rust
 /// #[doc(hidden)]
-/// #[export_name = "kmain"]
+/// #[unsafe(export_name = "kmain")]
 /// pub unsafe extern "C" fn __aarch32_rt_kmain() -> ! {
 ///     foo()
 /// }
@@ -99,7 +99,7 @@ pub fn entry(args: TokenStream, input: TokenStream) -> TokenStream {
         #(#cfgs)*
         #(#attrs)*
         #[doc(hidden)]
-        #[export_name = "kmain"]
+        #[unsafe(export_name = "kmain")]
         pub unsafe extern "C" fn #tramp_ident() -> ! {
             #block
         }
@@ -149,7 +149,7 @@ impl std::fmt::Display for Exception {
 ///
 /// ```rust
 /// #[doc(hidden)]
-/// #[export_name = "_undefined_handler"]
+/// #[unsafe(export_name = "_undefined_handler")]
 /// pub unsafe extern "C" fn __aarch32_rt_undefined_handler(addr: usize) -> ! {
 ///     foo(addr)
 /// }
@@ -190,7 +190,7 @@ pub fn exception(args: TokenStream, input: TokenStream) -> TokenStream {
 ///
 /// ```rust
 /// #[doc(hidden)]
-/// #[export_name = "_irq_handler"]
+/// #[unsafe(export_name = "_irq_handler")]
 /// pub unsafe extern "C" fn __aarch32_rt_irq_handler(addr: usize) -> ! {
 ///     foo(addr)
 /// }
@@ -317,7 +317,7 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
                     #(#cfgs)*
                     #(#attrs)*
                     #[doc(hidden)]
-                    #[export_name = "_undefined_handler"]
+                    #[unsafe(export_name = "_undefined_handler")]
                     pub unsafe extern "C" fn #tramp_ident(addr: usize) -> ! {
                         #block
                     }
@@ -328,7 +328,7 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
                     #(#cfgs)*
                     #(#attrs)*
                     #[doc(hidden)]
-                    #[export_name = "_undefined_handler"]
+                    #[unsafe(export_name = "_undefined_handler")]
                     pub unsafe extern "C" fn #tramp_ident(addr: usize) -> usize {
                         #block
                     }
@@ -345,7 +345,7 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
                     #(#cfgs)*
                     #(#attrs)*
                     #[doc(hidden)]
-                    #[export_name = "_prefetch_abort_handler"]
+                    #[unsafe(export_name = "_prefetch_abort_handler")]
                     pub unsafe extern "C" fn #tramp_ident(addr: usize) -> ! {
                         #block
                     }
@@ -355,7 +355,7 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
                     #(#cfgs)*
                     #(#attrs)*
                     #[doc(hidden)]
-                    #[export_name = "_prefetch_abort_handler"]
+                    #[unsafe(export_name = "_prefetch_abort_handler")]
                     pub unsafe extern "C" fn #tramp_ident(addr: usize) -> usize {
                         #block
                     }
@@ -372,7 +372,7 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
                     #(#cfgs)*
                     #(#attrs)*
                     #[doc(hidden)]
-                    #[export_name = "_data_abort_handler"]
+                    #[unsafe(export_name = "_data_abort_handler")]
                     pub unsafe extern "C" fn #tramp_ident(addr: usize) -> ! {
                         #block
                     }
@@ -383,7 +383,7 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
                     #(#cfgs)*
                     #(#attrs)*
                     #[doc(hidden)]
-                    #[export_name = "_data_abort_handler"]
+                    #[unsafe(export_name = "_data_abort_handler")]
                     pub unsafe extern "C" fn #tramp_ident(addr: usize) -> usize {
                         #block
                     }
@@ -397,7 +397,7 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
                 #(#cfgs)*
                 #(#attrs)*
                 #[doc(hidden)]
-                #[export_name = "_svc_handler"]
+                #[unsafe(export_name = "_svc_handler")]
                 pub unsafe extern "C" fn #tramp_ident(arg: u32, frame: &aarch32_rt::Frame) -> u32 {
                     #f
 
@@ -412,7 +412,7 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
                 #(#cfgs)*
                 #(#attrs)*
                 #[doc(hidden)]
-                #[export_name = "_hvc_handler"]
+                #[unsafe(export_name = "_hvc_handler")]
                 pub unsafe extern "C" fn #tramp_ident(hsr: u32, frame: &aarch32_rt::Frame) -> u32 {
                     #f
 
@@ -427,7 +427,7 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
                 #(#cfgs)*
                 #(#attrs)*
                 #[doc(hidden)]
-                #[export_name = "_irq_handler"]
+                #[unsafe(export_name = "_irq_handler")]
                 pub unsafe extern "C" fn #tramp_ident() {
                     #block
                 }

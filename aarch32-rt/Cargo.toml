@@ -8,7 +8,7 @@ categories = [
     "no-std",
 ]
 description = "Run-time support for Arm AArch32"
-edition = "2021"
+edition = "2024"
 keywords = [
     "arm",
     "aarch32",
@@ -20,7 +20,7 @@ license = "MIT OR Apache-2.0"
 name = "aarch32-rt"
 readme = "README.md"
 repository = "https://github.com/rust-embedded/aarch32.git"
-rust-version = "1.83"
+rust-version = "1.85"
 version = "0.2.0"
 
 [dependencies]

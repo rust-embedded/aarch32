@@ -23,11 +23,7 @@ mod single_core {
             let was_active = !crate::register::Cpsr::read().i();
             crate::interrupt::disable();
             atomic::compiler_fence(atomic::Ordering::SeqCst);
-            if was_active {
-                INT_ON
-            } else {
-                INT_OFF
-            }
+            if was_active { INT_ON } else { INT_OFF }
         }
 
         unsafe fn release(was_active: critical_section::RawRestoreState) {

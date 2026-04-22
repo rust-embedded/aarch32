@@ -1,7 +1,7 @@
 //! Code for managing CCSIDR (*Current Cache Size ID Register*)
 
 use crate::register::{SysReg, SysRegRead};
-use arbitrary_int::{u10, u15, u3};
+use arbitrary_int::{u3, u10, u15};
 
 /// CCSIDR (*Current Cache Size ID Register*)
 #[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]

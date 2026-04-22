@@ -529,7 +529,7 @@
 #![no_std]
 
 #[cfg(target_arch = "arm")]
-use aarch32_cpu::register::{cpsr::ProcessorMode, Cpsr};
+use aarch32_cpu::register::{Cpsr, cpsr::ProcessorMode};
 
 #[cfg(all(
     any(arm_architecture = "v7-a", arm_architecture = "v8-r"),

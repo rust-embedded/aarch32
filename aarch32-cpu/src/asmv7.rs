@@ -7,7 +7,7 @@
 /// after the `DMB` instruction.
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn dmb() {
-    use core::sync::atomic::{compiler_fence, Ordering};
+    use core::sync::atomic::{Ordering, compiler_fence};
     compiler_fence(Ordering::SeqCst);
     unsafe {
         core::arch::asm!("dmb", options(nostack, preserves_flags));
@@ -24,7 +24,7 @@ pub fn dmb() {
 ///  * all cache and branch predictor maintenance operations before this instruction complete
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn dsb() {
-    use core::sync::atomic::{compiler_fence, Ordering};
+    use core::sync::atomic::{Ordering, compiler_fence};
     compiler_fence(Ordering::SeqCst);
     unsafe {
         core::arch::asm!("dsb", options(nostack, preserves_flags));
@@ -38,7 +38,7 @@ pub fn dsb() {
 /// from cache or memory, after the instruction has been completed.
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn isb() {
-    use core::sync::atomic::{compiler_fence, Ordering};
+    use core::sync::atomic::{Ordering, compiler_fence};
     compiler_fence(Ordering::SeqCst);
     unsafe {
         core::arch::asm!("isb", options(nostack, preserves_flags));

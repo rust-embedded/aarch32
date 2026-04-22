@@ -1,6 +1,6 @@
 //! Code for managing PRLAR (*Protection Region Limit Address Register*)
 
-use arbitrary_int::{traits::Integer, u26, u3};
+use arbitrary_int::{traits::Integer, u3, u26};
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 

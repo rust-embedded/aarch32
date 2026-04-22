@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+- Bumped MSRV to v1.85 to allow switch to Edition 2024
+
 ## [aarch32-rt v0.2.0]
 
 ### Changed
