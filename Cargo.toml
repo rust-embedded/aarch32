@@ -11,4 +11,4 @@ members = [
   "aarch32-rt",
   "aarch32-rt-macros",
 ]
-resolver = "2"
+resolver = "3"
