@@ -19,7 +19,7 @@
 //! This will then let you write application code like:
 //!
 //! ```rust
-//! #[cfg(arm_architecture = "armv7m")]
+//! #[cfg(arm_architecture = "v7-m")]
 //! fn only_for_cortex_m3() { }
 //!
 //! #[cfg(arm_isa = "a32")]
@@ -40,7 +40,7 @@
 //! cargo:rustc-check-cfg=cfg(arm_abi, values("eabi", "eabihf"))
 //! ```
 
-use std::env;
+use std::{collections::HashSet, env};
 
 #[derive(Default, Debug)]
 pub struct TargetInfo {
@@ -123,8 +123,15 @@ impl TargetInfo {
     }
 }
 
-/// Process the ${TARGET} environment variable, and emit cargo configuration to
-/// standard out.
+/// Process the `${TARGET}` environment variable, and emit cargo configuration
+/// to standard out.
+///
+/// You probably want to call this from your build script.
+///
+/// When `${TARGET}` isn't known to this library, it falls back to using
+/// `CARGO_CFG_TARGET_*` variables. These are only really useful on nightly Rust
+/// currently, because the ones that give us details about the architecture are
+/// not yet stable.
 pub fn process() -> TargetInfo {
     let target = std::env::var("TARGET").expect("build script TARGET variable");
     let target_info_from_target = TargetInfo::get(&target);
@@ -149,6 +156,9 @@ pub fn process() -> TargetInfo {
 }
 
 /// Process a given target string, and emit cargo configuration to standard out.
+///
+/// Note that this function does not take `CARGO_CFG_TARGET_*` variables into
+/// account so you probably do not want to call this from your build script.
 #[deprecated(
     since = "0.4.2",
     note = "This function does not take `CARGO_CFG_TARGET_*` variables into account."
@@ -162,11 +172,11 @@ pub fn process_target(target: &str) -> TargetInfo {
 /// The Arm Instruction Set
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Isa {
-    /// A64 instructions are executed by Arm processors in Aarch64 mode
+    /// A64 instructions are executed by Arm processors in AArch64 mode
     A64,
-    /// A32 instructions are executed by Arm processors in Aarch32 Arm mode
+    /// A32 instructions are executed by Arm processors in AArch32 Arm mode
     A32,
-    /// T32 instructions are executed by Arm processors in Aarch32 Thumb mode
+    /// T32 instructions are executed by Arm processors in AArch32 Thumb mode
     T32,
 }
 
@@ -175,7 +185,7 @@ impl Isa {
     pub fn from_cargo_env() -> Option<Self> {
         let arch = env::var("CARGO_CFG_TARGET_ARCH").ok()?;
         let features = env::var("CARGO_CFG_TARGET_FEATURE").ok()?;
-        let features = features.split(",").collect::<Vec<_>>();
+        let features: HashSet<&str> = features.split(",").collect();
 
         match arch.as_str() {
             "arm" if features.contains(&"thumb-mode") => Some(Self::T32),
@@ -258,7 +268,7 @@ impl Arch {
     pub fn from_cargo_env() -> Option<Self> {
         let arch = env::var("CARGO_CFG_TARGET_ARCH").ok()?;
         let features = env::var("CARGO_CFG_TARGET_FEATURE").ok()?;
-        let features = features.split(",").collect::<Vec<_>>();
+        let features: HashSet<&str> = features.split(",").collect();
 
         if (arch == "arm" && features.contains(&"v8")) || arch == "aarch64" {
             if features.contains(&"mclass") {
