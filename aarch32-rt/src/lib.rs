@@ -569,7 +569,7 @@ pub mod stacks;
 ///
 /// We end up here if an exception fires and the weak 'PROVIDE' in the link.x
 /// file hasn't been over-ridden.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn _default_handler() {
     loop {
         core::hint::spin_loop();
@@ -610,11 +610,17 @@ core::arch::global_asm!(
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[repr(C)]
 pub struct Frame {
+    /// Copy of the R0 register, captured on exception entry
     pub r0: u32,
+    /// Copy of the R1 register, captured on exception entry
     pub r1: u32,
+    /// Copy of the R2 register, captured on exception entry
     pub r2: u32,
+    /// Copy of the R3 register, captured on exception entry
     pub r3: u32,
+    /// Copy of the R4 register, captured on exception entry
     pub r4: u32,
+    /// Copy of the R5 register, captured on exception entry
     pub r5: u32,
 }
 
@@ -1149,5 +1155,5 @@ core::arch::global_asm!(
         b       .
     .size _default_start, . - _default_start
     "#,
-    irq_fiq = const aarch32_cpu::register::Cpsr::new_with_raw_value(0).with_i(true).with_f(true).raw_value()
+    irq_fiq = const Cpsr::new_with_raw_value(0).with_i(true).with_f(true).raw_value()
 );

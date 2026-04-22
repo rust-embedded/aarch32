@@ -20,7 +20,7 @@ pub enum Stack {
 }
 
 impl core::fmt::Display for Stack {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.pad(match self {
             Stack::Und => "UND",
             Stack::Svc => "SVC",

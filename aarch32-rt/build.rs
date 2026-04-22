@@ -7,7 +7,7 @@
 use std::io::Write;
 
 fn main() {
-    arm_targets::process();
+    _ = arm_targets::process();
     write("link.x", include_bytes!("link.x"));
 }
 

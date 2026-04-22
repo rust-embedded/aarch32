@@ -67,7 +67,7 @@ pub fn core_id() -> u32 {
 }
 
 /// LLVM intrinsic for memory barriers
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn __sync_synchronize() {
     // we don't have a barrier instruction - the linux kernel just uses an empty inline asm block
     unsafe {

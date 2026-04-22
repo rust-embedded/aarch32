@@ -32,7 +32,7 @@ pub enum Section {
 }
 
 impl core::fmt::Display for Section {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.pad(match self {
             Section::VectorTable => ".vector_table",
             Section::Text => ".text",

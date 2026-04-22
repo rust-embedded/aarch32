@@ -6,8 +6,6 @@
 //!
 //! Based on <https://github.com/rust-embedded/cortex-m/tree/c-m-rt-v0.7.5/cortex-m-rt/macros>.
 
-extern crate proc_macro;
-
 use proc_macro::{TokenStream, TokenTree};
 use proc_macro2::Span;
 use quote::quote;
