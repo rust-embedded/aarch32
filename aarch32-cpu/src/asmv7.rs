@@ -92,6 +92,24 @@ pub unsafe fn irq_enable() {
     }
 }
 
+/// Mask FIQ
+#[cfg_attr(not(feature = "check-asm"), inline)]
+pub fn fiq_disable() {
+    unsafe {
+        core::arch::asm!("cpsid f");
+    }
+}
+
+/// Unmask FIQ
+///
+/// FIQ is safe to enable because it is unsafe to handle (because the handler is raw assembly).
+#[cfg_attr(not(feature = "check-asm"), inline)]
+pub fn fiq_enable() {
+    unsafe {
+        core::arch::asm!("cpsie f");
+    }
+}
+
 /// Which core are we?
 ///
 /// Return the bottom 24-bits of the MPIDR
