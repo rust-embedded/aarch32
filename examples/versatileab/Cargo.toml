@@ -30,3 +30,6 @@ arm-targets = { version = "0.4.0", path = "../../arm-targets" }
 [features]
 eabi-fpu = ["aarch32-rt/eabi-fpu"]
 fpu-d32 = ["aarch32-rt/fpu-d32"]
+
+[patch.crates-io]
+aarch32-cpu = { path = "../../aarch32-cpu" }
