@@ -52,6 +52,50 @@ pub unsafe fn irq_enable() {
     };
 }
 
+/// Mask FIQ
+#[cfg_attr(not(feature = "check-asm"), inline)]
+#[cfg_attr(target_arch = "arm", instruction_set(arm::a32))]
+pub fn fiq_disable() {
+    #[cfg(target_arch = "arm")]
+    unsafe {
+        core::arch::asm!(r#"
+            mrs {0}, cpsr 
+            orr {0}, {flag}
+            msr cpsr, {0}
+        "#,
+        inout(reg) 0 => _,
+        flag = const {
+            crate::register::Cpsr::new_with_raw_value(0)
+                .with_f(true)
+                .raw_value()
+        },
+        options(nomem, nostack, preserves_flags));
+    };
+}
+
+/// Unmask FIQ
+///
+/// FIQ is safe to enable because it is unsafe to handle (because the handler is raw assembly).
+#[cfg_attr(not(feature = "check-asm"), inline)]
+#[cfg_attr(target_arch = "arm", instruction_set(arm::a32))]
+pub fn fiq_enable() {
+    #[cfg(target_arch = "arm")]
+    unsafe {
+        core::arch::asm!(r#"
+            mrs {0}, cpsr 
+            bic {0}, #{flag}
+            msr cpsr, {0}
+        "#,
+        inout(reg) 0 => _,
+        flag = const {
+            crate::register::Cpsr::new_with_raw_value(0)
+                .with_f(true)
+                .raw_value()
+        },
+        options(nomem, nostack, preserves_flags));
+    };
+}
+
 /// Which core are we?
 ///
 /// Return the bottom 24-bits of the MPIDR
