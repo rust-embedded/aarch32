@@ -16,7 +16,7 @@ impl SysReg for IdIsar2 {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for IdIsar2 {}
+impl SysRegRead for IdIsar2 {}
 
 impl IdIsar2 {
     #[inline]

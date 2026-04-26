@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 - Added `Iciallu` register which allows invalidating the instruction cache.
+- Bumped MSRV to v1.85 to allow switch to Edition 2024
 
 ## [aarch32-cpu v0.2.0]
 

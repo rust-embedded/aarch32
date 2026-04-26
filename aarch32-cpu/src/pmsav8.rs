@@ -6,7 +6,7 @@
 //!
 //! [armv8r]: https://developer.arm.com/documentation/ddi0568/latest/
 
-use arbitrary_int::{u26, u3};
+use arbitrary_int::{u3, u26};
 
 use crate::register;
 
@@ -172,7 +172,7 @@ impl El1Mpu {
     ///
     /// Write regions, attributes and enable/disable the background region
     /// with a single [El1Config] struct.
-    pub fn configure(&mut self, config: &El1Config) -> Result<(), Error> {
+    pub fn configure(&mut self, config: &El1Config<'_>) -> Result<(), Error> {
         self.set_regions(0, config.regions)?;
 
         self.set_attributes(config.memory_attributes);
@@ -336,7 +336,7 @@ impl El2Mpu {
     /// Configure the EL2 MPU
     ///
     /// Write regions, attributes and enable/disable the background region with a single [El2Config] struct.
-    pub fn configure(&mut self, config: &El2Config) -> Result<(), Error> {
+    pub fn configure(&mut self, config: &El2Config<'_>) -> Result<(), Error> {
         self.set_regions(0, config.regions)?;
 
         self.set_attributes(config.memory_attributes);
@@ -461,9 +461,9 @@ pub enum MemAttr {
     /// Normal memory
     NormalMemory {
         /// Controls outer access
-        outer: Cacheable,
+        outer: CachePolicy,
         /// Controls inner access
-        inner: Cacheable,
+        inner: CachePolicy,
     },
 }
 
@@ -484,23 +484,28 @@ impl MemAttr {
 
 /// Cacheability of a region
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Cacheable {
+pub enum CachePolicy {
+    /// Normal memory, Outer Write-Through Transient
     WriteThroughTransient(RwAllocPolicy),
+    /// Normal memory, Outer Write-Back Transient
     WriteBackTransient(RwAllocPolicy),
+    /// Normal memory, Outer Write-Through Non-transient
     WriteThroughNonTransient(RwAllocPolicy),
+    /// Normal memory, Outer Write-Back Non-transient
     WriteBackNonTransient(RwAllocPolicy),
+    /// Normal memory, Outer Non-cacheable
     NonCacheable,
 }
 
-impl Cacheable {
+impl CachePolicy {
     const fn to_bits(&self) -> u8 {
         #[allow(clippy::identity_op)]
         match self {
-            Cacheable::WriteThroughTransient(rw_alloc) => 0b0000 | (*rw_alloc as u8),
-            Cacheable::WriteBackTransient(rw_alloc) => 0b0100 | (*rw_alloc as u8),
-            Cacheable::WriteThroughNonTransient(rw_alloc) => 0b1000 | (*rw_alloc as u8),
-            Cacheable::WriteBackNonTransient(rw_alloc) => 0b1100 | (*rw_alloc as u8),
-            Cacheable::NonCacheable => 0b0100,
+            CachePolicy::WriteThroughTransient(rw_alloc) => 0b0000 | (*rw_alloc as u8),
+            CachePolicy::WriteBackTransient(rw_alloc) => 0b0100 | (*rw_alloc as u8),
+            CachePolicy::WriteThroughNonTransient(rw_alloc) => 0b1000 | (*rw_alloc as u8),
+            CachePolicy::WriteBackNonTransient(rw_alloc) => 0b1100 | (*rw_alloc as u8),
+            CachePolicy::NonCacheable => 0b0100,
         }
     }
 }
@@ -536,8 +541,8 @@ mod test {
     #[test]
     fn mem_attr_normal() {
         let mem_attr = MemAttr::NormalMemory {
-            outer: Cacheable::NonCacheable,
-            inner: Cacheable::WriteBackNonTransient(RwAllocPolicy::W),
+            outer: CachePolicy::NonCacheable,
+            inner: CachePolicy::WriteBackNonTransient(RwAllocPolicy::W),
         };
         assert_eq!(
             mem_attr.to_bits(),

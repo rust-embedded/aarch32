@@ -61,17 +61,18 @@ impl SysReg for Hprbar {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Hprbar {}
+impl SysRegRead for Hprbar {}
 
 impl Hprbar {
     #[inline]
     /// Reads HPRBAR (*Hyp Protection Region Base Address Register*)
     pub fn read() -> Hprbar {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
 
-impl crate::register::SysRegWrite for Hprbar {}
+impl SysRegWrite for Hprbar {}
 
 impl Hprbar {
     #[inline]

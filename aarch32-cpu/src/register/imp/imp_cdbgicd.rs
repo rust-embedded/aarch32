@@ -1,8 +1,8 @@
-//! Code for managing IMP_CDBGICD (*Instruction Cache Data Read Operation.*)
+//! Code for managing IMP_CDBGICD (*Instruction Cache Data Read Operation*)
 
 use crate::register::{SysReg, SysRegWrite};
 
-/// IMP_CDBGICD (*Instruction Cache Data Read Operation.*)
+/// IMP_CDBGICD (*Instruction Cache Data Read Operation*)
 #[derive(Debug, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -16,11 +16,11 @@ impl SysReg for ImpCdbgicd {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegWrite for ImpCdbgicd {}
+impl SysRegWrite for ImpCdbgicd {}
 
 impl ImpCdbgicd {
     #[inline]
-    /// Writes IMP_CDBGICD (*Instruction Cache Data Read Operation.*)
+    /// Writes IMP_CDBGICD (*Instruction Cache Data Read Operation*)
     ///
     /// # Safety
     ///

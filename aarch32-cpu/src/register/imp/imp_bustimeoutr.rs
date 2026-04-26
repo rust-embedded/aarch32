@@ -16,7 +16,7 @@ impl SysReg for ImpBustimeoutr {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for ImpBustimeoutr {}
+impl SysRegRead for ImpBustimeoutr {}
 
 impl ImpBustimeoutr {
     #[inline]
@@ -26,7 +26,7 @@ impl ImpBustimeoutr {
     }
 }
 
-impl crate::register::SysRegWrite for ImpBustimeoutr {}
+impl SysRegWrite for ImpBustimeoutr {}
 
 impl ImpBustimeoutr {
     #[inline]

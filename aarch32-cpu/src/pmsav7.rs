@@ -8,6 +8,7 @@
 use crate::register;
 
 use arbitrary_int::{u2, u3};
+
 #[doc(inline)]
 pub use register::drsr::RegionSize;
 
@@ -108,7 +109,7 @@ impl Mpu {
     }
 
     /// Configure the EL1 MPU
-    pub fn configure(&mut self, config: &Config) -> Result<(), Error> {
+    pub fn configure(&mut self, config: &Config<'_>) -> Result<(), Error> {
         if config.iregions.len() > self.num_iregions() as usize {
             return Err(Error::TooManyRegions);
         }
@@ -235,21 +236,42 @@ pub enum MemAttr {
     /// Strongly-ordered memory
     StronglyOrdered,
     /// Device (shareable or non-shareable)
-    Device { shareable: bool },
-    /// Outer and Inner Write-Through, no Write-Allocate
-    WriteThroughNoWriteAllocate { shareable: bool },
-    /// Outer and Inner Write-Back, no Write-Allocate
-    WriteBackNoWriteAllocate { shareable: bool },
-    /// Outer and Inner Non-cacheable
-    NonCacheable { shareable: bool },
+    Device {
+        /// Is device shareable (across multiple CPUs)
+        shareable: bool,
+    },
+    /// Normal Memory, Outer and Inner Cache are Write-Through, no Write-Allocate
+    WriteThroughNoWriteAlloc {
+        /// Is memory shareable (across multiple CPUs)
+        shareable: bool,
+    },
+    /// Normal Memory, Outer and Inner Cache are Write-Back, no Write-Allocate
+    WriteBackNoWriteAlloc {
+        /// Is memory shareable (across multiple CPUs)
+        shareable: bool,
+    },
+    /// Normal Memory, Non-cacheable in Outer and Inner Caches
+    NonCacheable {
+        /// Is memory shareable (across multiple CPUs)
+        shareable: bool,
+    },
     /// Implementation Defined
-    ImplementationDefined { shareable: bool },
+    ImplementationDefined {
+        /// Is memory shareable (across multiple CPUs)
+        shareable: bool,
+    },
     /// Outer and Inner Write-Back, Write-Allocate
-    WriteBackWriteAllocate { shareable: bool },
-    /// Cacheable memory
+    WriteBackWriteAlloc {
+        /// Is memory shareable (across multiple CPUs)
+        shareable: bool,
+    },
+    /// Normal Memory, where Inner and Outer cache have different settings
     Cacheable {
-        outer: CacheablePolicy,
-        inner: CacheablePolicy,
+        /// Settings for the Outer Cache
+        outer: CachePolicy,
+        /// Settings for the Inner Cache
+        inner: CachePolicy,
+        /// Is memory shareable (across multiple CPUs)
         shareable: bool,
     },
 }
@@ -276,13 +298,13 @@ impl MemAttr {
                 b: false,
                 s: false,
             },
-            MemAttr::WriteThroughNoWriteAllocate { shareable } => MemAttrBits {
+            MemAttr::WriteThroughNoWriteAlloc { shareable } => MemAttrBits {
                 tex: u3::from_u8(0b000),
                 c: true,
                 b: false,
                 s: *shareable,
             },
-            MemAttr::WriteBackNoWriteAllocate { shareable } => MemAttrBits {
+            MemAttr::WriteBackNoWriteAlloc { shareable } => MemAttrBits {
                 tex: u3::from_u8(0b000),
                 c: true,
                 b: true,
@@ -300,7 +322,7 @@ impl MemAttr {
                 b: false,
                 s: *shareable,
             },
-            MemAttr::WriteBackWriteAllocate { shareable } => MemAttrBits {
+            MemAttr::WriteBackWriteAlloc { shareable } => MemAttrBits {
                 tex: u3::from_u8(0b000),
                 c: true,
                 b: true,
@@ -338,20 +360,18 @@ impl MemAttrBits {
         match (self.tex.value(), self.c, self.b) {
             (0b000, false, false) => Some(MemAttr::StronglyOrdered),
             (0b000, false, true) => Some(MemAttr::Device { shareable: true }),
-            (0b000, true, false) => {
-                Some(MemAttr::WriteThroughNoWriteAllocate { shareable: self.s })
-            }
-            (0b000, true, true) => Some(MemAttr::WriteBackNoWriteAllocate { shareable: self.s }),
+            (0b000, true, false) => Some(MemAttr::WriteThroughNoWriteAlloc { shareable: self.s }),
+            (0b000, true, true) => Some(MemAttr::WriteBackNoWriteAlloc { shareable: self.s }),
             (0b001, false, false) => Some(MemAttr::NonCacheable { shareable: self.s }),
             (0b001, true, false) => Some(MemAttr::ImplementationDefined { shareable: self.s }),
-            (0b001, true, true) => Some(MemAttr::WriteBackWriteAllocate { shareable: self.s }),
+            (0b001, true, true) => Some(MemAttr::WriteBackWriteAlloc { shareable: self.s }),
             (0b010, false, false) => Some(MemAttr::Device { shareable: false }),
             (tex, c, b) if tex >= 0b100 => {
                 let outer = tex & 0b11;
                 let inner = ((c as u8) << 1) | (b as u8);
                 Some(MemAttr::Cacheable {
-                    outer: CacheablePolicy::new_with_raw_value(u2::from_u8(outer)),
-                    inner: CacheablePolicy::new_with_raw_value(u2::from_u8(inner)),
+                    outer: CachePolicy::new_with_raw_value(u2::from_u8(outer)),
+                    inner: CachePolicy::new_with_raw_value(u2::from_u8(inner)),
                     shareable: self.s,
                 })
             }
@@ -363,14 +383,20 @@ impl MemAttrBits {
     }
 }
 
-/// Describes the cache policy of a region
-#[derive(Debug, PartialEq, Eq)]
+/// Whether/how a region is cacheable
 #[bitbybit::bitenum(u2, exhaustive = true)]
-pub enum CacheablePolicy {
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, PartialEq, Eq)]
+pub enum CachePolicy {
+    /// Non-cacheable
     NonCacheable = 0b00,
-    WriteBackWriteAllocate = 0b01,
-    WriteThroughNoWriteAllocate = 0b10,
-    WriteBackNoWriteAllocate = 0b11,
+    /// Write-Back Cacheable, Write-Allocate
+    WriteBackWriteAlloc = 0b01,
+    /// Write-Through Cacheable
+    WriteThroughNoWriteAlloc = 0b10,
+    /// Write-Back Cacheable, no Write-Allocate
+    WriteBackNoWriteAlloc = 0b11,
 }
 
 #[cfg(test)]
@@ -398,9 +424,9 @@ mod test {
     fn mem_attr_complex() {
         let mem_attr = MemAttr::Cacheable {
             // 0b01
-            outer: CacheablePolicy::WriteBackWriteAllocate,
+            outer: CachePolicy::WriteBackWriteAlloc,
             // 0b10
-            inner: CacheablePolicy::WriteThroughNoWriteAllocate,
+            inner: CachePolicy::WriteThroughNoWriteAlloc,
             shareable: true,
         };
         let mem_attr_bits = mem_attr.to_bits();

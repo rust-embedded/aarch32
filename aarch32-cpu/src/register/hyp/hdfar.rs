@@ -16,7 +16,7 @@ impl SysReg for Hdfar {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Hdfar {}
+impl SysRegRead for Hdfar {}
 
 impl Hdfar {
     #[inline]
@@ -26,7 +26,7 @@ impl Hdfar {
     }
 }
 
-impl crate::register::SysRegWrite for Hdfar {}
+impl SysRegWrite for Hdfar {}
 
 impl Hdfar {
     #[inline]

@@ -16,7 +16,7 @@ impl SysReg for IdMmfr3 {
     const OP2: u32 = 7;
 }
 
-impl crate::register::SysRegRead for IdMmfr3 {}
+impl SysRegRead for IdMmfr3 {}
 
 impl IdMmfr3 {
     #[inline]

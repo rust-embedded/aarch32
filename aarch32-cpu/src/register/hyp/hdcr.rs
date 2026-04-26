@@ -16,7 +16,7 @@ impl SysReg for Hdcr {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Hdcr {}
+impl SysRegRead for Hdcr {}
 
 impl Hdcr {
     #[inline]
@@ -26,7 +26,7 @@ impl Hdcr {
     }
 }
 
-impl crate::register::SysRegWrite for Hdcr {}
+impl SysRegWrite for Hdcr {}
 
 impl Hdcr {
     #[inline]

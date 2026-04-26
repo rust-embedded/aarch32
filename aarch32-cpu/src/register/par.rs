@@ -16,7 +16,7 @@ impl SysReg for Par {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Par {}
+impl SysRegRead for Par {}
 
 impl Par {
     #[inline]
@@ -26,7 +26,7 @@ impl Par {
     }
 }
 
-impl crate::register::SysRegWrite for Par {}
+impl SysRegWrite for Par {}
 
 impl Par {
     #[inline]

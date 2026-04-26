@@ -61,17 +61,18 @@ impl SysReg for Prbar {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Prbar {}
+impl SysRegRead for Prbar {}
 
 impl Prbar {
     #[inline]
     /// Reads PRBAR (*Protection Region Base Address Register*)
     pub fn read() -> Prbar {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
 
-impl crate::register::SysRegWrite for Prbar {}
+impl SysRegWrite for Prbar {}
 
 impl Prbar {
     #[inline]

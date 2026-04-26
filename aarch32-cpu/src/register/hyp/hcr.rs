@@ -98,9 +98,13 @@ pub struct Hcr {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialEq, Eq)]
 pub enum Bsu {
+    /// No effect
     NoEffect = 0b00,
+    /// Inner Shareable
     InnerShareable = 0b01,
+    /// Outer Shareable
     OuterShareable = 0b10,
+    /// Full System
     FullSystem = 0b11,
 }
 
@@ -112,17 +116,18 @@ impl SysReg for Hcr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Hcr {}
+impl SysRegRead for Hcr {}
 
 impl Hcr {
     #[inline]
     /// Reads HCR (*Hyp Configuration Register*)
     pub fn read() -> Hcr {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
 
-impl crate::register::SysRegWrite for Hcr {}
+impl SysRegWrite for Hcr {}
 
 impl Hcr {
     #[inline]

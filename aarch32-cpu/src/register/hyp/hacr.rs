@@ -16,7 +16,7 @@ impl SysReg for Hacr {
     const OP2: u32 = 7;
 }
 
-impl crate::register::SysRegRead for Hacr {}
+impl SysRegRead for Hacr {}
 
 impl Hacr {
     #[inline]
@@ -26,7 +26,7 @@ impl Hacr {
     }
 }
 
-impl crate::register::SysRegWrite for Hacr {}
+impl SysRegWrite for Hacr {}
 
 impl Hacr {
     #[inline]

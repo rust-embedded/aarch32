@@ -17,7 +17,7 @@ impl SysReg for Mair1 {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Mair1 {}
+impl SysRegRead for Mair1 {}
 
 impl Mair1 {
     #[inline]
@@ -27,7 +27,7 @@ impl Mair1 {
     }
 }
 
-impl crate::register::SysRegWrite for Mair1 {}
+impl SysRegWrite for Mair1 {}
 
 impl Mair1 {
     #[inline]

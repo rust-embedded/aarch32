@@ -1,4 +1,4 @@
-//! Code for managing DCCSW (*Clean Data or Unified Cache line by Set/Way.*)
+//! Code for managing DCCSW (*Data Cache line Clean by Set/Way Register*)
 
 use arbitrary_int::u3;
 
@@ -7,6 +7,7 @@ use crate::register::{SysReg, SysRegWrite};
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+/// DCCSW (*Data Cache line Clean by Set/Way Register*)
 pub struct Dccsw(pub u32);
 
 impl Dccsw {
@@ -48,11 +49,11 @@ impl SysReg for Dccsw {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegWrite for Dccsw {}
+impl SysRegWrite for Dccsw {}
 
 impl Dccsw {
     #[inline]
-    /// Writes DCCSW (*Clean Data or Unified Cache line by Set/Way.*)
+    /// Writes DCCSW (*Data Cache line Clean by Set/Way Register*)
     ///
     /// # Safety
     ///

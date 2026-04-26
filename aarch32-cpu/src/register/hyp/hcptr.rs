@@ -28,12 +28,13 @@ impl SysReg for Hcptr {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for Hcptr {}
+impl SysRegRead for Hcptr {}
 
 impl Hcptr {
     #[inline]
     /// Reads HCPTR (*Hyp Architectural Feature Trap Register*)
     pub fn read() -> Hcptr {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 
@@ -49,7 +50,7 @@ impl Hcptr {
     }
 }
 
-impl crate::register::SysRegWrite for Hcptr {}
+impl SysRegWrite for Hcptr {}
 
 impl Hcptr {
     #[inline]

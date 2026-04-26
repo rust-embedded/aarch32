@@ -16,7 +16,7 @@ impl SysReg for ImpBpctlr {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for ImpBpctlr {}
+impl SysRegRead for ImpBpctlr {}
 
 impl ImpBpctlr {
     #[inline]
@@ -26,7 +26,7 @@ impl ImpBpctlr {
     }
 }
 
-impl crate::register::SysRegWrite for ImpBpctlr {}
+impl SysRegWrite for ImpBpctlr {}
 
 impl ImpBpctlr {
     #[inline]

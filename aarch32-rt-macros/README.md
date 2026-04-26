@@ -6,7 +6,7 @@ This crate contains proc-macros that are re-exported through the `aarch32-rt` cr
 
 ## Minimum Supported Rust Version (MSRV)
 
-This crate is guaranteed to compile on stable Rust 1.83.0 and up, as recorded
+This crate is guaranteed to compile on stable Rust 1.85.0 and up, as recorded
 by the `package.rust-version` property in `Cargo.toml`.
 
 Increasing the MSRV is not considered a breaking change and may occur in a

@@ -16,7 +16,7 @@ impl SysReg for Pmuserenr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Pmuserenr {}
+impl SysRegRead for Pmuserenr {}
 
 impl Pmuserenr {
     #[inline]
@@ -26,7 +26,7 @@ impl Pmuserenr {
     }
 }
 
-impl crate::register::SysRegWrite for Pmuserenr {}
+impl SysRegWrite for Pmuserenr {}
 
 impl Pmuserenr {
     #[inline]

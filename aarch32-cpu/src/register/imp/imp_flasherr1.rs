@@ -16,7 +16,7 @@ impl SysReg for ImpFlasherr1 {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for ImpFlasherr1 {}
+impl SysRegRead for ImpFlasherr1 {}
 
 impl ImpFlasherr1 {
     #[inline]
@@ -26,7 +26,7 @@ impl ImpFlasherr1 {
     }
 }
 
-impl crate::register::SysRegWrite for ImpFlasherr1 {}
+impl SysRegWrite for ImpFlasherr1 {}
 
 impl ImpFlasherr1 {
     #[inline]

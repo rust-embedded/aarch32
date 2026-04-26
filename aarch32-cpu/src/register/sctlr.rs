@@ -72,6 +72,7 @@ impl Sctlr {
     /// Read SCTLR (*System Control Register*)
     #[inline]
     pub fn read() -> Self {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 
@@ -129,7 +130,11 @@ impl core::fmt::Debug for Sctlr {
 
 #[cfg(feature = "defmt")]
 impl defmt::Format for Sctlr {
-    fn format(&self, f: defmt::Formatter) {
-        defmt::write!(f, "SCTLR {{ IE={0=31..32} TE={0=30..31} NMFI={0=27..28} EE={0=25..26} U={0=22..23} FI={0=21..22} DZ={0=18..19} BR={0=17..18} RR={0=14..15} V={0=13..14} I={0=12..13} Z={0=11..12} SW={0=10..11} C={0=2..3} A={0=1..2} M={0=0..1} }}", self.raw_value())
+    fn format(&self, f: defmt::Formatter<'_>) {
+        defmt::write!(
+            f,
+            "SCTLR {{ IE={0=31..32} TE={0=30..31} NMFI={0=27..28} EE={0=25..26} U={0=22..23} FI={0=21..22} DZ={0=18..19} BR={0=17..18} RR={0=14..15} V={0=13..14} I={0=12..13} Z={0=11..12} SW={0=10..11} C={0=2..3} A={0=1..2} M={0=0..1} }}",
+            self.raw_value()
+        )
     }
 }

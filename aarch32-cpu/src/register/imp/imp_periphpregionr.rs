@@ -16,7 +16,7 @@ impl SysReg for ImpPeriphpregionr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for ImpPeriphpregionr {}
+impl SysRegRead for ImpPeriphpregionr {}
 
 impl ImpPeriphpregionr {
     #[inline]
@@ -26,7 +26,7 @@ impl ImpPeriphpregionr {
     }
 }
 
-impl crate::register::SysRegWrite for ImpPeriphpregionr {}
+impl SysRegWrite for ImpPeriphpregionr {}
 
 impl ImpPeriphpregionr {
     #[inline]

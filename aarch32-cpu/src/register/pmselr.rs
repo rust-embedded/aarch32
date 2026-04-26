@@ -16,7 +16,7 @@ impl SysReg for Pmselr {
     const OP2: u32 = 5;
 }
 
-impl crate::register::SysRegRead for Pmselr {}
+impl SysRegRead for Pmselr {}
 
 impl Pmselr {
     #[inline]
@@ -26,7 +26,7 @@ impl Pmselr {
     }
 }
 
-impl crate::register::SysRegWrite for Pmselr {}
+impl SysRegWrite for Pmselr {}
 
 impl Pmselr {
     #[inline]

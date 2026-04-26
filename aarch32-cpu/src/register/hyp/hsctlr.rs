@@ -51,17 +51,18 @@ impl SysReg for Hsctlr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Hsctlr {}
+impl SysRegRead for Hsctlr {}
 
 impl Hsctlr {
     #[inline]
     /// Reads HSCTLR (*Hyp System Control Register*)
     pub fn read() -> Hsctlr {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
 
-impl crate::register::SysRegWrite for Hsctlr {}
+impl SysRegWrite for Hsctlr {}
 
 impl Hsctlr {
     #[inline]

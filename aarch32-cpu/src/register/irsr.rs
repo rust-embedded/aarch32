@@ -34,7 +34,7 @@ impl SysReg for Irsr {
     const OP2: u32 = 3;
 }
 
-impl crate::register::SysRegRead for Irsr {}
+impl SysRegRead for Irsr {}
 
 impl Irsr {
     #[inline]
@@ -42,11 +42,12 @@ impl Irsr {
     ///
     /// Set RGNR to control which region this reads.
     pub fn read() -> Irsr {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
 
-impl crate::register::SysRegWrite for Irsr {}
+impl SysRegWrite for Irsr {}
 
 impl Irsr {
     #[inline]

@@ -16,7 +16,7 @@ impl SysReg for Nsacr {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for Nsacr {}
+impl SysRegRead for Nsacr {}
 
 impl Nsacr {
     #[inline]

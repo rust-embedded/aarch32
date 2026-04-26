@@ -16,7 +16,7 @@ impl SysReg for Pmceid0 {
     const OP2: u32 = 6;
 }
 
-impl crate::register::SysRegRead for Pmceid0 {}
+impl SysRegRead for Pmceid0 {}
 
 impl Pmceid0 {
     #[inline]

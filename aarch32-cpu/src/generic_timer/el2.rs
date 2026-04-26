@@ -161,7 +161,7 @@ impl El2HypPhysicalTimer {
     }
 }
 
-impl super::GenericTimer for El2HypPhysicalTimer {
+impl GenericTimer for El2HypPhysicalTimer {
     fn frequency_hz(&self) -> u32 {
         register::Cntfrq::read().0
     }

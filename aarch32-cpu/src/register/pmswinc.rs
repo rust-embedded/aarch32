@@ -16,7 +16,7 @@ impl SysReg for Pmswinc {
     const OP2: u32 = 4;
 }
 
-impl crate::register::SysRegWrite for Pmswinc {}
+impl SysRegWrite for Pmswinc {}
 
 impl Pmswinc {
     #[inline]

@@ -19,12 +19,13 @@ impl SysReg for Hmpuir {
     const OP2: u32 = 4;
 }
 
-impl crate::register::SysRegRead for Hmpuir {}
+impl SysRegRead for Hmpuir {}
 
 impl Hmpuir {
     #[inline]
     /// Reads HMPUIR (*Hyp MPU Type Register*)
     pub fn read() -> Hmpuir {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }

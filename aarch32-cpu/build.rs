@@ -5,5 +5,5 @@
 //! Copyright (c) Ferrous Systems, 2025
 
 fn main() {
-    arm_targets::process();
+    _ = arm_targets::process();
 }

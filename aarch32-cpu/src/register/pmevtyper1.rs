@@ -16,7 +16,7 @@ impl SysReg for Pmevtyper1 {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Pmevtyper1 {}
+impl SysRegRead for Pmevtyper1 {}
 
 impl Pmevtyper1 {
     #[inline]
@@ -26,7 +26,7 @@ impl Pmevtyper1 {
     }
 }
 
-impl crate::register::SysRegWrite for Pmevtyper1 {}
+impl SysRegWrite for Pmevtyper1 {}
 
 impl Pmevtyper1 {
     #[inline]

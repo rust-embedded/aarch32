@@ -1,14 +1,16 @@
-//! Code for managing DCCMVAU (*Clean Data Cache Or Unified Cache Line by MVA to Point of Unification.*)
+//! Code for managing DCCMVAU (*Data Cache line Clean by VA to PoU Register*)
 
 use crate::register::{SysReg, SysRegWrite};
 
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+/// DCCMVAU (*Data Cache line Clean by VA to PoU Register*)
 pub struct Dccmvau(pub u32);
 
 impl Dccmvau {
     #[inline]
+    /// Create a new DCCMVAU value containing the Virtual Address to clean
     pub const fn new(addr: u32) -> Self {
         Self(addr)
     }
@@ -22,11 +24,11 @@ impl SysReg for Dccmvau {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegWrite for Dccmvau {}
+impl SysRegWrite for Dccmvau {}
 
 impl Dccmvau {
     #[inline]
-    /// Writes DCCMVAU (*Clean Data Cache Or Unified Cache Line by MVA to Point of Unification.*)
+    /// Writes DCCMVAU (*Data Cache line Clean by VA to PoU Register*)
     ///
     /// # Safety
     ///

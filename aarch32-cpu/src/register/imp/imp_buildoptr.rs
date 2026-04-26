@@ -16,7 +16,7 @@ impl SysReg for ImpBuildoptr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for ImpBuildoptr {}
+impl SysRegRead for ImpBuildoptr {}
 
 impl ImpBuildoptr {
     #[inline]

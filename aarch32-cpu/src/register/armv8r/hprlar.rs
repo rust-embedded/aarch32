@@ -1,6 +1,6 @@
 //! Code for managing HPRLAR (*Hyp Protection Region Limit Address Register*)
 
-use arbitrary_int::{u26, u3};
+use arbitrary_int::{u3, u26};
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
@@ -26,17 +26,18 @@ impl SysReg for Hprlar {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Hprlar {}
+impl SysRegRead for Hprlar {}
 
 impl Hprlar {
     #[inline]
     /// Reads HPRLAR (*Hyp Protection Region Limit Address Register*)
     pub fn read() -> Hprlar {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
 
-impl crate::register::SysRegWrite for Hprlar {}
+impl SysRegWrite for Hprlar {}
 
 impl Hprlar {
     #[inline]

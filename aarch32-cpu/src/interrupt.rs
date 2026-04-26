@@ -1,6 +1,6 @@
 //! Interrupts on Arm AArch32
 
-use core::sync::atomic::{compiler_fence, Ordering};
+use core::sync::atomic::{Ordering, compiler_fence};
 
 /// Enable interrupts
 ///

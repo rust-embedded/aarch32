@@ -1,6 +1,6 @@
 //! Code for managing PRLAR (*Protection Region Limit Address Register*)
 
-use arbitrary_int::{traits::Integer, u26, u3};
+use arbitrary_int::{traits::Integer, u3, u26};
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
@@ -26,17 +26,18 @@ impl SysReg for Prlar {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Prlar {}
+impl SysRegRead for Prlar {}
 
 impl Prlar {
     #[inline]
     /// Reads PRLAR (*Protection Region Limit Address Register*)
     pub fn read() -> Prlar {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
 
-impl crate::register::SysRegWrite for Prlar {}
+impl SysRegWrite for Prlar {}
 
 impl Prlar {
     #[inline]

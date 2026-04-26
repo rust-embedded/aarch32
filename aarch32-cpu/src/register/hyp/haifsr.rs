@@ -16,7 +16,7 @@ impl SysReg for Haifsr {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Haifsr {}
+impl SysRegRead for Haifsr {}
 
 impl Haifsr {
     #[inline]
@@ -26,7 +26,7 @@ impl Haifsr {
     }
 }
 
-impl crate::register::SysRegWrite for Haifsr {}
+impl SysRegWrite for Haifsr {}
 
 impl Haifsr {
     #[inline]

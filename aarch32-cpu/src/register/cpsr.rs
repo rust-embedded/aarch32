@@ -168,7 +168,11 @@ impl core::fmt::Debug for Cpsr {
 
 #[cfg(feature = "defmt")]
 impl defmt::Format for Cpsr {
-    fn format(&self, f: defmt::Formatter) {
-        defmt::write!(f, "CPSR {{ N={0=31..32} Z={0=30..31} C={0=29..30} V={0=28..29} Q={0=27..28} J={0=24..25} E={0=9..10} A={0=8..9} I={0=7..8} F={0=6..7} T={0=5..6} MODE={0=0..5} }}", self.raw_value())
+    fn format(&self, f: defmt::Formatter<'_>) {
+        defmt::write!(
+            f,
+            "CPSR {{ N={0=31..32} Z={0=30..31} C={0=29..30} V={0=28..29} Q={0=27..28} J={0=24..25} E={0=9..10} A={0=8..9} I={0=7..8} F={0=6..7} T={0=5..6} MODE={0=0..5} }}",
+            self.raw_value()
+        )
     }
 }

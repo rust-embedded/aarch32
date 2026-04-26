@@ -16,7 +16,7 @@ impl SysReg for ImpTcmsyndr0 {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for ImpTcmsyndr0 {}
+impl SysRegRead for ImpTcmsyndr0 {}
 
 impl ImpTcmsyndr0 {
     #[inline]

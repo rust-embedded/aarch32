@@ -1,14 +1,16 @@
-//! Code for managing DCIMVAC (*Invalidate Data Cache Or Unified Cache Line by MVA to Point of Coherence.*)
+//! Code for managing DCIMVAC (*Data Cache line Invalidate by VA to PoC Register*)
 
 use crate::register::{SysReg, SysRegWrite};
 
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+/// DCIMVAC (*Data Cache line Invalidate by VA to PoC Register*)
 pub struct Dcimvac(pub u32);
 
 impl Dcimvac {
     #[inline]
+    /// Create a new DCIMVAC value, given an address
     pub const fn new(addr: u32) -> Self {
         Self(addr)
     }
@@ -22,11 +24,11 @@ impl SysReg for Dcimvac {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegWrite for Dcimvac {}
+impl SysRegWrite for Dcimvac {}
 
 impl Dcimvac {
     #[inline]
-    /// Writes DCIMVAC (*Invalidate Data Cache Or Unified Cache Line by MVA to Point of Coherence.*)
+    /// Writes DCIMVAC (*Data Cache line Invalidate by VA to PoC Register*)
     ///
     /// # Safety
     ///

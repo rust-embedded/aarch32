@@ -17,7 +17,7 @@ impl SysReg for Hpfar {
     const OP2: u32 = 4;
 }
 
-impl crate::register::SysRegRead for Hpfar {}
+impl SysRegRead for Hpfar {}
 
 impl Hpfar {
     #[inline]
@@ -27,7 +27,7 @@ impl Hpfar {
     }
 }
 
-impl crate::register::SysRegWrite for Hpfar {}
+impl SysRegWrite for Hpfar {}
 
 impl Hpfar {
     #[inline]

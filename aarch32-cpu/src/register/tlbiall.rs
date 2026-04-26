@@ -1,6 +1,6 @@
 //! Code for managing TLBIALL (*TLB Invalidate All Register*)
 
-use crate::register::SysReg;
+use crate::register::{SysReg, SysRegWrite};
 
 /// TLBIALL (*TLB Invalidate All Register*)
 pub struct TlbIAll;
@@ -13,11 +13,12 @@ impl SysReg for TlbIAll {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegWrite for TlbIAll {}
+impl SysRegWrite for TlbIAll {}
 
 impl TlbIAll {
     #[inline]
+    /// Writes 0 to TLBIALL (*TLB Invalidate All Register*) to trigger operation
     pub fn write() {
-        unsafe { <Self as crate::register::SysRegWrite>::write_raw(0) }
+        unsafe { <Self as SysRegWrite>::write_raw(0) }
     }
 }

@@ -16,7 +16,7 @@ impl SysReg for ImpPinoptr {
     const OP2: u32 = 7;
 }
 
-impl crate::register::SysRegRead for ImpPinoptr {}
+impl SysRegRead for ImpPinoptr {}
 
 impl ImpPinoptr {
     #[inline]

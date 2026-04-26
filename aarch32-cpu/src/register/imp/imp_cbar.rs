@@ -39,7 +39,7 @@ impl core::fmt::Debug for ImpCbar {
 
 #[cfg(feature = "defmt")]
 impl defmt::Format for ImpCbar {
-    fn format(&self, f: defmt::Formatter) {
+    fn format(&self, f: defmt::Formatter<'_>) {
         defmt::write!(f, "IMP_CBAR {{ 0x{=usize:08x} }}", self.0 as usize)
     }
 }

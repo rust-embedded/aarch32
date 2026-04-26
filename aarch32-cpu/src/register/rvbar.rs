@@ -17,7 +17,7 @@ impl SysReg for Rvbar {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Rvbar {}
+impl SysRegRead for Rvbar {}
 
 impl Rvbar {
     #[inline]

@@ -16,7 +16,7 @@ impl SysReg for Tcmtr {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for Tcmtr {}
+impl SysRegRead for Tcmtr {}
 
 impl Tcmtr {
     #[inline]

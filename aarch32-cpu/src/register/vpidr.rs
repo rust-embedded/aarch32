@@ -16,7 +16,7 @@ impl SysReg for Vpidr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Vpidr {}
+impl SysRegRead for Vpidr {}
 
 impl Vpidr {
     #[inline]
@@ -26,7 +26,7 @@ impl Vpidr {
     }
 }
 
-impl crate::register::SysRegWrite for Vpidr {}
+impl SysRegWrite for Vpidr {}
 
 impl Vpidr {
     #[inline]

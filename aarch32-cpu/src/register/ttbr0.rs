@@ -87,11 +87,11 @@ pub enum Region {
     /// Normal memory, Outer Non-cacheable
     NonCacheable = 0b00,
     /// Normal memory, Outer Write-Back Write-Allocate Cacheable
-    WriteBackWriteAllocateCacheable = 0b01,
+    WriteBackWriteAllocCacheable = 0b01,
     /// Normal memory, Outer Write-Through Cacheable
     WriteThroughCacheable = 0b10,
     /// Normal memory, Outer Write-Back no Write-Allocate Cacheable
-    WriteBackNoWriteAllocateCacheable = 0b11,
+    WriteBackNoWriteAllocCacheable = 0b11,
 }
 
 impl SysReg for Ttbr0 {
@@ -102,14 +102,15 @@ impl SysReg for Ttbr0 {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Ttbr0 {}
+impl SysRegRead for Ttbr0 {}
 
-impl crate::register::SysRegWrite for Ttbr0 {}
+impl SysRegWrite for Ttbr0 {}
 
 impl Ttbr0 {
     #[inline]
     /// Reads TTBR0 (*Translation Table Base Register 0*)
     pub fn read() -> Ttbr0 {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 

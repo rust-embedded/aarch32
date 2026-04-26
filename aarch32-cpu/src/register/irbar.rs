@@ -17,7 +17,7 @@ impl SysReg for Irbar {
     const OP2: u32 = 1;
 }
 
-impl crate::register::SysRegRead for Irbar {}
+impl SysRegRead for Irbar {}
 
 impl Irbar {
     #[inline]
@@ -29,7 +29,7 @@ impl Irbar {
     }
 }
 
-impl crate::register::SysRegWrite for Irbar {}
+impl SysRegWrite for Irbar {}
 
 impl Irbar {
     #[inline]

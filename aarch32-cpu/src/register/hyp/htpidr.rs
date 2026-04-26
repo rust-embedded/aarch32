@@ -16,7 +16,7 @@ impl SysReg for Htpidr {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for Htpidr {}
+impl SysRegRead for Htpidr {}
 
 impl Htpidr {
     #[inline]
@@ -26,7 +26,7 @@ impl Htpidr {
     }
 }
 
-impl crate::register::SysRegWrite for Htpidr {}
+impl SysRegWrite for Htpidr {}
 
 impl Htpidr {
     #[inline]

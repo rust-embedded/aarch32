@@ -10,10 +10,10 @@ mod single_core {
     critical_section::set_impl!(SingleCoreCriticalSection);
 
     /// Indicates the critical section was entered with interrupts on
-    pub const INT_ON: u8 = 0;
+    const INT_ON: u8 = 0;
 
     /// Indicates the critical section was entered with interrupts off
-    pub const INT_OFF: u8 = 1;
+    const INT_OFF: u8 = 1;
 
     #[cfg(feature = "critical-section-single-core")]
     unsafe impl critical_section::Impl for SingleCoreCriticalSection {
@@ -23,11 +23,7 @@ mod single_core {
             let was_active = !crate::register::Cpsr::read().i();
             crate::interrupt::disable();
             atomic::compiler_fence(atomic::Ordering::SeqCst);
-            if was_active {
-                INT_ON
-            } else {
-                INT_OFF
-            }
+            if was_active { INT_ON } else { INT_OFF }
         }
 
         unsafe fn release(was_active: critical_section::RawRestoreState) {
@@ -52,18 +48,18 @@ mod multi_core {
     critical_section::set_impl!(MultiCoreCriticalSection);
 
     /// The default value for our spin-lock
-    pub const UNLOCKED: u32 = 0xFFFF_FFFF;
+    const UNLOCKED: u32 = 0xFFFF_FFFF;
 
     /// Indicates the critical section was entered with interrupts on, and the spin-lock unlocked
-    pub const INT_ON_UNLOCKED: u8 = 0;
+    const INT_ON_UNLOCKED: u8 = 0;
 
     /// Indicates the critical section was entered with interrupts off, and the spin-lock locked (by us)
-    pub const INT_OFF_LOCKED: u8 = 1;
+    const INT_OFF_LOCKED: u8 = 1;
 
     /// Indicates the critical section was entered with interrupts off, and the spin-lock unlocked
-    pub const INT_OFF_UNLOCKED: u8 = 2;
+    const INT_OFF_UNLOCKED: u8 = 2;
 
-    pub static CORE_SPIN_LOCK: core::sync::atomic::AtomicU32 =
+    static CORE_SPIN_LOCK: core::sync::atomic::AtomicU32 =
         core::sync::atomic::AtomicU32::new(UNLOCKED);
     unsafe impl critical_section::Impl for MultiCoreCriticalSection {
         unsafe fn acquire() -> critical_section::RawRestoreState {

@@ -19,7 +19,7 @@
 //! This will then let you write application code like:
 //!
 //! ```rust
-//! #[cfg(arm_architecture = "armv7m")]
+//! #[cfg(arm_architecture = "v7-m")]
 //! fn only_for_cortex_m3() { }
 //!
 //! #[cfg(arm_isa = "a32")]
@@ -40,12 +40,16 @@
 //! cargo:rustc-check-cfg=cfg(arm_abi, values("eabi", "eabihf"))
 //! ```
 
-use std::env;
+use std::{collections::HashSet, env};
 
+/// Describes a target in terms of its support for the Arm architecture
 #[derive(Default, Debug)]
 pub struct TargetInfo {
+    /// The Arm Instruction Set Architecture supported (if known)
     isa: Option<Isa>,
+    /// The Arm Architecture supported (if known)
     arch: Option<Arch>,
+    /// The Application Binary Interface supported (if known)
     abi: Option<Abi>,
 }
 
@@ -88,6 +92,7 @@ impl TargetInfo {
         self.abi
     }
 
+    /// Export a target-info as cargo:rustc-cfg options on stdout.
     fn dump(&self) {
         if let Some(isa) = self.isa() {
             println!(r#"cargo:rustc-cfg=arm_isa="{}""#, isa);
@@ -123,10 +128,17 @@ impl TargetInfo {
     }
 }
 
-/// Process the ${TARGET} environment variable, and emit cargo configuration to
-/// standard out.
+/// Process the `${TARGET}` environment variable, and emit cargo configuration
+/// to standard out.
+///
+/// You probably want to call this from your build script.
+///
+/// When `${TARGET}` isn't known to this library, it falls back to using
+/// `CARGO_CFG_TARGET_*` variables. These are only really useful on nightly Rust
+/// currently, because the ones that give us details about the architecture are
+/// not yet stable.
 pub fn process() -> TargetInfo {
-    let target = std::env::var("TARGET").expect("build script TARGET variable");
+    let target = env::var("TARGET").expect("build script TARGET variable");
     let target_info_from_target = TargetInfo::get(&target);
 
     let target_info_from_cargo_env = TargetInfo::from_cargo_env();
@@ -149,6 +161,9 @@ pub fn process() -> TargetInfo {
 }
 
 /// Process a given target string, and emit cargo configuration to standard out.
+///
+/// Note that this function does not take `CARGO_CFG_TARGET_*` variables into
+/// account so you probably do not want to call this from your build script.
 #[deprecated(
     since = "0.4.2",
     note = "This function does not take `CARGO_CFG_TARGET_*` variables into account."
@@ -162,11 +177,11 @@ pub fn process_target(target: &str) -> TargetInfo {
 /// The Arm Instruction Set
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Isa {
-    /// A64 instructions are executed by Arm processors in Aarch64 mode
+    /// A64 instructions are executed by Arm processors in AArch64 mode
     A64,
-    /// A32 instructions are executed by Arm processors in Aarch32 Arm mode
+    /// A32 instructions are executed by Arm processors in AArch32 Arm mode
     A32,
-    /// T32 instructions are executed by Arm processors in Aarch32 Thumb mode
+    /// T32 instructions are executed by Arm processors in AArch32 Thumb mode
     T32,
 }
 
@@ -175,7 +190,7 @@ impl Isa {
     pub fn from_cargo_env() -> Option<Self> {
         let arch = env::var("CARGO_CFG_TARGET_ARCH").ok()?;
         let features = env::var("CARGO_CFG_TARGET_FEATURE").ok()?;
-        let features = features.split(",").collect::<Vec<_>>();
+        let features: HashSet<&str> = features.split(",").collect();
 
         match arch.as_str() {
             "arm" if features.contains(&"thumb-mode") => Some(Self::T32),
@@ -258,7 +273,7 @@ impl Arch {
     pub fn from_cargo_env() -> Option<Self> {
         let arch = env::var("CARGO_CFG_TARGET_ARCH").ok()?;
         let features = env::var("CARGO_CFG_TARGET_FEATURE").ok()?;
-        let features = features.split(",").collect::<Vec<_>>();
+        let features: HashSet<&str> = features.split(",").collect();
 
         if (arch == "arm" && features.contains(&"v8")) || arch == "aarch64" {
             if features.contains(&"mclass") {
@@ -334,15 +349,23 @@ impl Arch {
             || target.starts_with("thumbv8r-")
         {
             Some(Arch::Armv8R)
-        } else if target.starts_with("armv7a-") || target.starts_with("thumbv7a-") {
+        } else if target.starts_with("armv7a-")
+            || target.starts_with("armv7-")
+            || target.starts_with("armv7s-")
+            || target.starts_with("armv7k-")
+            || target.starts_with("thumbv7a-")
+            || target.starts_with("thumbv7neon-")
+        {
             Some(Arch::Armv7A)
         } else if target.starts_with("aarch64-") || target.starts_with("aarch64be-") {
             Some(Arch::Armv8A)
         } else if target.starts_with("arm-")
+            || target.starts_with("armeb-")
             || target.starts_with("armv6-")
+            || target.starts_with("armv6k-")
             || target.starts_with("thumbv6-")
         {
-            // If not specified, assume ARMv6.
+            // NB: We assume bare 'arm' is ARMv6.
             Some(Arch::Armv6)
         } else {
             None

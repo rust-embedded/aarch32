@@ -18,7 +18,7 @@ impl SysReg for Rgnr {
     const OP2: u32 = 0;
 }
 
-impl crate::register::SysRegRead for Rgnr {}
+impl SysRegRead for Rgnr {}
 
 impl Rgnr {
     #[inline]
@@ -28,7 +28,7 @@ impl Rgnr {
     }
 }
 
-impl crate::register::SysRegWrite for Rgnr {}
+impl SysRegWrite for Rgnr {}
 
 impl Rgnr {
     #[inline]

@@ -16,7 +16,7 @@ impl SysReg for Hstr {
     const OP2: u32 = 3;
 }
 
-impl crate::register::SysRegRead for Hstr {}
+impl SysRegRead for Hstr {}
 
 impl Hstr {
     #[inline]
@@ -26,7 +26,7 @@ impl Hstr {
     }
 }
 
-impl crate::register::SysRegWrite for Hstr {}
+impl SysRegWrite for Hstr {}
 
 impl Hstr {
     #[inline]

@@ -16,7 +16,7 @@ impl SysReg for Cpacr {
     const OP2: u32 = 2;
 }
 
-impl crate::register::SysRegRead for Cpacr {}
+impl SysRegRead for Cpacr {}
 
 impl Cpacr {
     #[inline]
@@ -26,7 +26,7 @@ impl Cpacr {
     }
 }
 
-impl crate::register::SysRegWrite for Cpacr {}
+impl SysRegWrite for Cpacr {}
 
 impl Cpacr {
     #[inline]

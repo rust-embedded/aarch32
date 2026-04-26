@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Take `CARGO_CFG_TARGET_*` variables into account for detecting targets.
+- Bumped MSRV to v1.85 to allow switch to Edition 2024
+- Amended CLI tool output
 
 ## [v0.4.1]
 
