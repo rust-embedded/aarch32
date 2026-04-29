@@ -1151,3 +1151,16 @@ core::arch::global_asm!(
     "#,
     irq_fiq = const aarch32_cpu::register::Cpsr::new_with_raw_value(0).with_i(true).with_f(true).raw_value()
 );
+
+/// LLVM intrinsic for memory barriers
+///
+/// Only required on Armv4T and Armv5TE, because Armv6K onwards support atomics.
+#[no_mangle]
+#[cfg(any(arm_architecture = "v4t", arm_architecture = "v5te"))]
+pub extern "C" fn __sync_synchronize() {
+    // we don't have a barrier instruction - the linux kernel just uses an empty inline asm block
+    // so we do the same.
+    unsafe {
+        core::arch::asm!("");
+    }
+}
