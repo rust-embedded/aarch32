@@ -44,6 +44,7 @@ impl CntpCtl {
     #[inline]
     /// Reads CNTP_CTL (*Physical Counter-timer Control Register*)
     pub fn read() -> CntpCtl {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }

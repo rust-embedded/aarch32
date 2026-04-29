@@ -17,6 +17,7 @@ impl crate::register::SysRegWrite for BpIAll {}
 
 impl BpIAll {
     #[inline]
+    /// Writes 0 to BPIALL (*Branch Predictor Invalidate All*) to trigger operation
     pub fn write() {
         unsafe { <Self as crate::register::SysRegWrite>::write_raw(0) }
     }

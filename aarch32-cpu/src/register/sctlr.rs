@@ -72,6 +72,7 @@ impl Sctlr {
     /// Read SCTLR (*System Control Register*)
     #[inline]
     pub fn read() -> Self {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 

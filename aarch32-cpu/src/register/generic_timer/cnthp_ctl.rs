@@ -34,6 +34,7 @@ impl CnthpCtl {
     #[inline]
     /// Reads CNTHP_CTL (*Hyp Physical Counter-timer Control Register (EL2)*)
     pub fn read() -> CnthpCtl {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }

@@ -1,7 +1,14 @@
 //! CPU/peripheral support for Arm AArch32
 #![no_std]
+#![deny(missing_docs)]
+#![deny(unsafe_op_in_unsafe_fn)]
+#![deny(clippy::missing_safety_doc)]
+#![deny(clippy::unnecessary_safety_comment)]
+#![deny(clippy::unnecessary_safety_doc)]
 
-mod critical_section;
+pub mod cache;
+pub mod interrupt;
+pub mod register;
 
 #[cfg(any(
     doc,
@@ -21,26 +28,22 @@ pub mod asm;
 #[path = "asmv4.rs"]
 pub mod asm;
 
-pub mod cache;
-
 #[cfg(any(test, doc, arm_architecture = "v7-a", arm_architecture = "v8-r"))]
 pub mod generic_timer;
 
-pub mod interrupt;
-
-#[cfg(any(test, doc, arm_architecture = "v7-a"))]
+#[cfg(any(test, arm_profile = "a", arm_profile = "legacy"))]
 pub mod mmu;
 
-pub mod register;
+#[cfg(any(test, arm_architecture = "v7-r"))]
+pub mod pmsav7;
+
+#[cfg(any(test, arm_architecture = "v8-r"))]
+pub mod pmsav8;
 
 #[cfg(target_arch = "arm")]
 pub mod stacks;
 
-#[cfg(any(test, doc, arm_architecture = "v7-r"))]
-pub mod pmsav7;
-
-#[cfg(any(test, doc, arm_architecture = "v8-r"))]
-pub mod pmsav8;
+mod critical_section;
 
 /// Generate an SVC call with no parameters.
 ///

@@ -1,14 +1,16 @@
-//! Code for managing DCCMVAC (*Clean Data Cache Or Unified Cache Line by MVA to Point of Coherence.*)
+//! Code for managing DCCMVAC (*Data Cache line Clean by VA to PoC Register*)
 
 use crate::register::{SysReg, SysRegWrite};
 
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+/// DCCMVAC (*Data Cache line Clean by VA to PoC Register*)
 pub struct Dccmvac(pub u32);
 
 impl Dccmvac {
     #[inline]
+    /// Create a new DCCMVAC containing the Virtual Address to clean
     pub const fn new(addr: u32) -> Self {
         Self(addr)
     }
@@ -26,7 +28,7 @@ impl crate::register::SysRegWrite for Dccmvac {}
 
 impl Dccmvac {
     #[inline]
-    /// Writes DCCMVAC (*Clean Data Cache Or Unified Cache Line by MVA to Point of Coherence.*)
+    /// Writes DCCMVAC (*Data Cache line Clean by VA to PoC Register*)
     ///
     /// # Safety
     ///

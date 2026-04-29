@@ -34,6 +34,7 @@ impl Hcptr {
     #[inline]
     /// Reads HCPTR (*Hyp Architectural Feature Trap Register*)
     pub fn read() -> Hcptr {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 

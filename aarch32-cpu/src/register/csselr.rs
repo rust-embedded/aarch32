@@ -7,8 +7,11 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 #[derive(Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+/// Type of processor cache
 pub enum CacheType {
+    /// Data or Unified Cache
     DataOrUnified = 0,
+    /// Instruction Cache
     Instruction = 1,
 }
 
@@ -20,6 +23,7 @@ pub struct Csselr {
     /// 0 for L1 cache, 1 for L2, etc.
     #[bits(1..=3, rw)]
     level: u3,
+    /// The type of cache
     #[bit(0, rw)]
     cache_type: CacheType,
 }
@@ -38,6 +42,7 @@ impl Csselr {
     #[inline]
     /// Reads CSSELR (*Cache Size Selection Register*)
     pub fn read() -> Csselr {
+        // Safety: it's OK to set bits with no accessors specified
         unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
     }
 }
