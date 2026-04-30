@@ -68,7 +68,7 @@ pub fn wfe() {
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn sev() {
     unsafe {
-        core::arch::asm!("sev");
+        core::arch::asm!("sev", options(nomem, nostack, preserves_flags));
     }
 }
 
@@ -76,7 +76,7 @@ pub fn sev() {
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn irq_disable() {
     unsafe {
-        core::arch::asm!("cpsid i");
+        core::arch::asm!("cpsid i", options(nomem, nostack, preserves_flags));
     }
 }
 
@@ -88,7 +88,7 @@ pub fn irq_disable() {
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub unsafe fn irq_enable() {
     unsafe {
-        core::arch::asm!("cpsie i");
+        core::arch::asm!("cpsie i", options(nomem, nostack, preserves_flags));
     }
 }
 
@@ -96,7 +96,7 @@ pub unsafe fn irq_enable() {
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn fiq_disable() {
     unsafe {
-        core::arch::asm!("cpsid f");
+        core::arch::asm!("cpsid f", options(nomem, nostack, preserves_flags));
     }
 }
 
@@ -106,7 +106,7 @@ pub fn fiq_disable() {
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn fiq_enable() {
     unsafe {
-        core::arch::asm!("cpsie f");
+        core::arch::asm!("cpsie f", options(nomem, nostack, preserves_flags));
     }
 }
 
