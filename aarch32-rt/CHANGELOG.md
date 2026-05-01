@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [aarch32-rt v0.3.0]
+
+### Added
+
+- `el2-mode` feature, to keep CPU in EL2 mode
+- Discard entry for `.ARM.exidx` and `.ARM.extab` sections
+- Region alignment support, with `_region_alignment` linker symbol
+- `__sXXX` and `__eXXX` linker symbols for each output section
+- Support for setting up stacks for multiple cores
+- Support for exception handling at EL2 (including a new `HypervisorCall` handler)
+- `.pushsection` and `.popsection` to all assembly blocks to avoid accidentally changing the section of another piece of code
+- New `sections` module for getting information about linker output sections at run-time
+
+### Changed
+
+- Default stack size now 16K, except FIQ and IRQ which are 64 bytes
+- `SupervisorCall` now gets a `&Frame` argument
+- `_init_segments` function now zeroes out the stack space
+
 ## [aarch32-rt v0.2.0]
 
 ### Changed
@@ -59,7 +78,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.2.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.3.0...HEAD
+[aarch32-rt v0.3.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.2.0...aarch32-rt-v0.3.0
 [aarch32-rt v0.2.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.1.0...aarch32-rt-v0.2.0
 [aarch32-rt v0.1.0]: https://github.com/rust-embedded/aarch32/compare/cortex-r-rt-v0.2.1...aarch32-rt-v0.1.0
 [cortex-r-rt v0.2.1]: https://github.com/rust-embedded/aarch32/compare/cortex-r-rt-v0.2.0...cortex-r-rt-v0.2.1
