@@ -24,7 +24,7 @@ rust-version = "1.83"
 version = "0.2.0"
 
 [dependencies]
-aarch32-cpu = { version = "0.2.0", path = "../aarch32-cpu" }
+aarch32-cpu = { version = "0.3.0", path = "../aarch32-cpu" }
 aarch32-rt-macros = { path = "../aarch32-rt-macros", version = "=0.2.0" }
 
 [features]
