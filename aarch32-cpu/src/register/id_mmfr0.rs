@@ -22,6 +22,6 @@ impl IdMmfr0 {
     #[inline]
     /// Reads ID_MMFR0 (*Memory Model Feature Register 0*)
     pub fn read() -> IdMmfr0 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

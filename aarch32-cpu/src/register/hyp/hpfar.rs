@@ -23,7 +23,7 @@ impl Hpfar {
     #[inline]
     /// Reads HPFAR (*Hyp IPA Fault Address Register*)
     pub fn read() -> Hpfar {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

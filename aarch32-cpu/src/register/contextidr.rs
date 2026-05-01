@@ -22,7 +22,7 @@ impl Contextidr {
     #[inline]
     /// Reads CONTEXTIDR (*Context ID Register*)
     pub fn read() -> Contextidr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

@@ -22,7 +22,7 @@ impl Hprlar1 {
     #[inline]
     /// Reads HPRLAR1 (*Hyp Protection Region Limit Address Register 1*)
     pub fn read() -> Hprlar1 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

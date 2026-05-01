@@ -22,7 +22,7 @@ impl ImpFlasherr0 {
     #[inline]
     /// Reads IMP_FLASHERR0 (*Flash Error Record Register 0*)
     pub fn read() -> ImpFlasherr0 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

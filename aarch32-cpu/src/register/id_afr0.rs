@@ -22,6 +22,6 @@ impl IdAfr0 {
     #[inline]
     /// Reads ID_AFR0 (*Auxiliary Feature Register 0*)
     pub fn read() -> IdAfr0 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

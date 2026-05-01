@@ -22,7 +22,7 @@ impl Hprselr {
     #[inline]
     /// Reads HPRSELR (*Hyp Protection Region Selection Register*)
     pub fn read() -> Hprselr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

@@ -22,6 +22,6 @@ impl IdDfr0 {
     #[inline]
     /// Reads ID_DFR0 (*Debug Feature Register 0*)
     pub fn read() -> IdDfr0 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

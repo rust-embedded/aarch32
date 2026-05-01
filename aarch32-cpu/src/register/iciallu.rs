@@ -1,4 +1,4 @@
-//! Code for managing ICIALLU (*Invalidate all instruction caches to PoU.*)
+//! Code for managing ICIALLU (*Invalidate entire instruction cache to PoU Register*)
 //!
 //! Starting with ARMv6, the type of cache can be determined from the System Coprocessor register 0,
 //! and controlled through registers 1, 7 and 9. In earlier architecture variants, it is
@@ -8,6 +8,7 @@ use crate::register::{SysReg, SysRegWrite};
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+/// ICIALLU (*Invalidate entire instruction cache to PoU Register*)
 pub struct Iciallu;
 
 impl SysReg for Iciallu {
@@ -22,7 +23,7 @@ impl crate::register::SysRegWrite for Iciallu {}
 
 impl Iciallu {
     #[inline]
-    /// Writes ICIALLU (*Invalidate all instruction caches to PoU.*)
+    /// Writes 0 to ICIALLU (*Invalidate entire instruction cache to PoU Register*) to trigger operation
     pub fn write() {
         unsafe {
             <Self as SysRegWrite>::write_raw(0);

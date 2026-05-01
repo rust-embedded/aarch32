@@ -22,7 +22,7 @@ impl Pmevtyper0 {
     #[inline]
     /// Reads PMEVTYPER0 (*Performance Monitors Event Type Register 0*)
     pub fn read() -> Pmevtyper0 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

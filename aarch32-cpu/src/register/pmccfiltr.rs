@@ -22,7 +22,7 @@ impl Pmccfiltr {
     #[inline]
     /// Reads PMCCFILTR (*Performance Monitors Cycle Count Filter Register*)
     pub fn read() -> Pmccfiltr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

@@ -20,7 +20,7 @@ impl CnthpCval {
     #[inline]
     /// Reads CNTHP_CVAL (*Hyp Physical Counter-timer CompareValue Register*)
     pub fn read() -> CnthpCval {
-        unsafe { Self(<Self as SysRegRead64>::read_raw()) }
+        Self(<Self as SysRegRead64>::read_raw())
     }
 }
 

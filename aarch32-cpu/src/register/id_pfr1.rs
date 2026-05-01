@@ -22,6 +22,6 @@ impl IdPfr1 {
     #[inline]
     /// Reads ID_PFR1 (*Processor Feature Register 1*)
     pub fn read() -> IdPfr1 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

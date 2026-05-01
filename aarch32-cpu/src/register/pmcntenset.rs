@@ -22,7 +22,7 @@ impl Pmcntenset {
     #[inline]
     /// Reads PMCNTENSET (*Performance Monitors Count Enable Set Register*)
     pub fn read() -> Pmcntenset {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

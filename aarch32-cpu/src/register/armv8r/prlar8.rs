@@ -22,7 +22,7 @@ impl Prlar8 {
     #[inline]
     /// Reads PRLAR8 (*Protection Region Limit Address Register 8*)
     pub fn read() -> Prlar {
-        unsafe { Prlar::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Prlar::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 }
 

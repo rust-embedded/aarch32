@@ -22,6 +22,6 @@ impl Pmceid0 {
     #[inline]
     /// Reads PMCEID0 (*Performance Monitors Common Event Identification Register 0*)
     pub fn read() -> Pmceid0 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

@@ -22,7 +22,7 @@ impl Pmuserenr {
     #[inline]
     /// Reads PMUSERENR (*Performance Monitors User Enable Register*)
     pub fn read() -> Pmuserenr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

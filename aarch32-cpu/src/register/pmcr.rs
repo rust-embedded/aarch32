@@ -22,7 +22,7 @@ impl Pmcr {
     #[inline]
     /// Reads PMCR (*Performance Monitors Control Register*)
     pub fn read() -> Pmcr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

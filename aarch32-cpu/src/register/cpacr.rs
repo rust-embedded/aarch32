@@ -22,7 +22,7 @@ impl Cpacr {
     #[inline]
     /// Reads CPACR (*Architectural Feature Access Control Register*)
     pub fn read() -> Cpacr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

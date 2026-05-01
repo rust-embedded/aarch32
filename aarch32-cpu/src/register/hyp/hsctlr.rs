@@ -57,7 +57,7 @@ impl Hsctlr {
     #[inline]
     /// Reads HSCTLR (*Hyp System Control Register*)
     pub fn read() -> Hsctlr {
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 }
 

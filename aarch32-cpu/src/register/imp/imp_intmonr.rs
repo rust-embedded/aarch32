@@ -22,7 +22,7 @@ impl ImpIntmonr {
     #[inline]
     /// Reads IMP_INTMONR (*Interrupt Monitoring Register*)
     pub fn read() -> ImpIntmonr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

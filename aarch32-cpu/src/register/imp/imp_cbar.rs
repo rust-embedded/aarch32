@@ -21,8 +21,7 @@ impl ImpCbar {
     /// Read IMP_CBAR (*Configuration Base Address Register*)
     #[inline]
     pub fn read() -> ImpCbar {
-        // Safety: this read has no side-effects
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 
     /// Get the periphbase address

@@ -33,30 +33,32 @@ pub unsafe fn stack_used_bytes(stack: core::ops::Range<*const u32>) -> (usize, u
 /// of at least `size` words in length.
 unsafe fn stack_unused_bytes_asm(start: *const u32, size: usize) -> usize {
     let result: usize;
-    core::arch::asm!(
-        r#"
-        // skip out if size is zero
-        movs    {result}, #0
-        cmp     {size}, #0
-        beq     3f
-2:      // loop
-        ldr     {scratch}, [{start}]
-        cmp     {scratch}, #0
-        // break out if value is non-zero
-        bne     3f
-        // otherwise increment counter
-        adds    {result}, {result}, #1
-        adds    {start}, {start}, #4
-        // loop if not finished yet
-        cmp     {result}, {size}
-        bne     2b
-        // all finished
-3:
-        "#,
-        size = in(reg) size,
-        start = inout(reg) start => _,
-        result = out(reg) result,
-        scratch = out(reg) _,
-    );
+    unsafe {
+        core::arch::asm!(
+            r#"
+            // skip out if size is zero
+            movs    {result}, #0
+            cmp     {size}, #0
+            beq     3f
+    2:      // loop
+            ldr     {scratch}, [{start}]
+            cmp     {scratch}, #0
+            // break out if value is non-zero
+            bne     3f
+            // otherwise increment counter
+            adds    {result}, {result}, #1
+            adds    {start}, {start}, #4
+            // loop if not finished yet
+            cmp     {result}, {size}
+            bne     2b
+            // all finished
+    3:
+            "#,
+            size = in(reg) size,
+            start = inout(reg) start => _,
+            result = out(reg) result,
+            scratch = out(reg) _,
+        );
+    }
     result
 }

@@ -52,8 +52,7 @@ impl Hactlr {
     /// Read HACTRL (*Hyp Auxiliary Control Register*)
     #[inline]
     pub fn read() -> Hactlr {
-        // Safety: Reading this register has no side-effects and is atomic
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 
     /// Write HACTRL (*Hyp Auxiliary Control Register*)

@@ -22,7 +22,7 @@ impl Hifar {
     #[inline]
     /// Reads HIFAR (*Hyp Instruction Fault Address Register*)
     pub fn read() -> Hifar {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

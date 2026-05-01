@@ -84,7 +84,7 @@ impl Cpsr {
     )]
     pub fn read() -> Self {
         let r: u32;
-        // Safety: Reading this register has no side-effects and is atomic
+
         #[cfg(target_arch = "arm")]
         unsafe {
             core::arch::asm!("mrs {}, CPSR", out(reg) r, options(nomem, nostack, preserves_flags));

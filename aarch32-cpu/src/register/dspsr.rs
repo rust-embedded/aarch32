@@ -22,7 +22,7 @@ impl Dspsr {
     #[inline]
     /// Reads DSPSR (*Debug Saved Program Status Register*)
     pub fn read() -> Dspsr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

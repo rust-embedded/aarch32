@@ -24,7 +24,7 @@ impl Rgnr {
     #[inline]
     /// Reads RGNR (*MPU Region Number Register*)
     pub fn read() -> Rgnr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

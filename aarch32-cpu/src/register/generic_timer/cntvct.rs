@@ -20,6 +20,6 @@ impl CntVct {
     #[inline]
     /// Reads CNTVCT (*Virtual Counter-timer Count Register*)
     pub fn read() -> CntVct {
-        unsafe { Self(<Self as SysRegRead64>::read_raw()) }
+        Self(<Self as SysRegRead64>::read_raw())
     }
 }

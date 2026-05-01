@@ -22,7 +22,7 @@ impl ImpBustimeoutr {
     #[inline]
     /// Reads IMP_BUSTIMEOUTR (*Bus Timeout Register*)
     pub fn read() -> ImpBustimeoutr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

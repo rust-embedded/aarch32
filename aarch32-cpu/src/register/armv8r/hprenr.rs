@@ -22,7 +22,7 @@ impl Hprenr {
     #[inline]
     /// Reads HPRENR (*Hyp MPU Region Enable Register*)
     pub fn read() -> Hprenr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

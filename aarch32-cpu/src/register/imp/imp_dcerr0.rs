@@ -22,7 +22,7 @@ impl ImpDcerr0 {
     #[inline]
     /// Reads IMP_DCERR0 (*Data Cache Error Record Register 0*)
     pub fn read() -> ImpDcerr0 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

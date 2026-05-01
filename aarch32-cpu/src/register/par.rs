@@ -22,7 +22,7 @@ impl Par {
     #[inline]
     /// Reads PAR (*Physical Address Register*)
     pub fn read() -> Par {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

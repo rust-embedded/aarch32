@@ -22,7 +22,7 @@ impl Prselr {
     #[inline]
     /// Reads PRSELR (*Protection Region Selection Register*)
     pub fn read() -> Prselr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

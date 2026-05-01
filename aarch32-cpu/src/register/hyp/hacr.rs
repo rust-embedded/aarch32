@@ -22,7 +22,7 @@ impl Hacr {
     #[inline]
     /// Reads HACR (*Hyp Auxiliary Configuration Register*)
     pub fn read() -> Hacr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

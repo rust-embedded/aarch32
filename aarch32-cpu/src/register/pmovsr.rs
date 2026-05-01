@@ -22,7 +22,7 @@ impl Pmovsr {
     #[inline]
     /// Reads PMOVSR (*Performance Monitor Overflow Flag Status Clear Register*)
     pub fn read() -> Pmovsr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

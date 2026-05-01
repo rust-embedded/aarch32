@@ -22,7 +22,7 @@ impl ImpTcmerr0 {
     #[inline]
     /// Reads IMP_TCMERR0 (*TCM Error Record Register 0*)
     pub fn read() -> ImpTcmerr0 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

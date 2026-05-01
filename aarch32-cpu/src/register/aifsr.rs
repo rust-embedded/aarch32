@@ -22,7 +22,7 @@ impl Aifsr {
     #[inline]
     /// Reads AIFSR (*Auxiliary Instruction Fault Status Register*)
     pub fn read() -> Aifsr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

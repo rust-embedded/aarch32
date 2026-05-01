@@ -22,7 +22,7 @@ impl Pmselr {
     #[inline]
     /// Reads PMSELR (*Performance Monitors Event Counter Selection Register*)
     pub fn read() -> Pmselr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

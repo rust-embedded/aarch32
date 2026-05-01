@@ -22,7 +22,7 @@ impl Pmevcntr2 {
     #[inline]
     /// Reads PMEVCNTR2 (*Performance Monitors Event Count Register 2 *)
     pub fn read() -> Pmevcntr2 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

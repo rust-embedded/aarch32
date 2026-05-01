@@ -22,7 +22,7 @@ impl Htpidr {
     #[inline]
     /// Reads HTPIDR (*Hyp Software Thread ID Register*)
     pub fn read() -> Htpidr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

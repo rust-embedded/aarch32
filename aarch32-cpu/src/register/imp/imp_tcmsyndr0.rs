@@ -22,6 +22,6 @@ impl ImpTcmsyndr0 {
     #[inline]
     /// Reads IMP_TCMSYNDR0 (*TCM Syndrome Register 0*)
     pub fn read() -> ImpTcmsyndr0 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

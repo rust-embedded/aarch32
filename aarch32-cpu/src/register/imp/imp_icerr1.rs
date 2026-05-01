@@ -22,7 +22,7 @@ impl ImpIcerr1 {
     #[inline]
     /// Reads IMP_ICERR1 (*Instruction Cache Error Record Register 1*)
     pub fn read() -> ImpIcerr1 {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

@@ -22,7 +22,7 @@ impl ImpBtcmregionr {
     #[inline]
     /// Reads IMP_BTCMREGIONR (*TCM Region Registers A B and C*)
     pub fn read() -> ImpBtcmregionr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

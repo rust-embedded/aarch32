@@ -22,7 +22,7 @@ impl Pmovsset {
     #[inline]
     /// Reads PMOVSSET (*Performance Monitor Overflow Flag Status Set Register*)
     pub fn read() -> Pmovsset {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

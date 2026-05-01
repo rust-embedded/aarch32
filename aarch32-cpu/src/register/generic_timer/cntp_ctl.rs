@@ -44,7 +44,7 @@ impl CntpCtl {
     #[inline]
     /// Reads CNTP_CTL (*Physical Counter-timer Control Register*)
     pub fn read() -> CntpCtl {
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 }
 

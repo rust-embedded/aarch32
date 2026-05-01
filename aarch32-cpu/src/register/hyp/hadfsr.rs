@@ -22,7 +22,7 @@ impl Hadfsr {
     #[inline]
     /// Reads HADFSR (*Hyp Auxiliary Data Fault Status Register*)
     pub fn read() -> Hadfsr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

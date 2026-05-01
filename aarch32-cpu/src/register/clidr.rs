@@ -22,6 +22,6 @@ impl Clidr {
     #[inline]
     /// Reads CLIDR (*Cache Level ID Register*)
     pub fn read() -> Clidr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

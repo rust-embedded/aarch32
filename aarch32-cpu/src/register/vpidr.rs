@@ -22,7 +22,7 @@ impl Vpidr {
     #[inline]
     /// Reads VPIDR (*Virtualization Processor ID Register*)
     pub fn read() -> Vpidr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

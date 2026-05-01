@@ -23,6 +23,6 @@ impl Rvbar {
     #[inline]
     /// Reads RVBAR (*Reset Vector Base Address Register*)
     pub fn read() -> Rvbar {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }

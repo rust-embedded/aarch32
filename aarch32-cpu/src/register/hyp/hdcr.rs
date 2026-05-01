@@ -22,7 +22,7 @@ impl Hdcr {
     #[inline]
     /// Reads HDCR (*Hyp Debug Control Register*)
     pub fn read() -> Hdcr {
-        unsafe { Self(<Self as SysRegRead>::read_raw()) }
+        Self(<Self as SysRegRead>::read_raw())
     }
 }
 

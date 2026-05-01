@@ -25,6 +25,6 @@ impl Hmpuir {
     #[inline]
     /// Reads HMPUIR (*Hyp MPU Type Register*)
     pub fn read() -> Hmpuir {
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 }

@@ -42,7 +42,7 @@ impl Irsr {
     ///
     /// Set RGNR to control which region this reads.
     pub fn read() -> Irsr {
-        unsafe { Self::new_with_raw_value(<Self as SysRegRead>::read_raw()) }
+        Self::new_with_raw_value(<Self as SysRegRead>::read_raw())
     }
 }
 
