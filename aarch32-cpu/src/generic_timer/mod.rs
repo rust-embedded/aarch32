@@ -99,6 +99,30 @@ pub trait GenericTimer {
     }
 }
 
+/// A free-standing function to get the current Physical Timer value
+///
+/// In some circumstances (e.g. timestamping a defmt log) you just want to get
+/// the time and don't want to drag around an object representing the whole
+/// timer.
+///
+/// This is just a thin wrapper around the relevant CPU register's read function
+/// - this just has a more discoverable name.
+pub fn read_physical_timer() -> u64 {
+    crate::register::CntPct::read().0
+}
+
+/// A free-standing function to get the current Virtual Timer value
+///
+/// In some circumstances (e.g. timestamping a defmt log) you just want to get
+/// the time and don't want to drag around an object representing the whole
+/// timer.
+///
+/// This is just a thin wrapper around the relevant CPU register's read function
+/// - this just has a more discoverable name.
+pub fn read_virtual_timer() -> u64 {
+    crate::register::CntVct::read().0
+}
+
 /// Describes the configuration for an Edvent
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EventConfig {
