@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added `mmu::L1Table` type for basic MMU L1 page-tables
 - Added `Prlar::limit_address` method
 - Added `Prbar::base_address` method
+- `register::vbar` and `register::Vbar` are also available for ARMv7-A now.
 - Added `defmt` implementations for PMSA types.
 
 ### Changed
