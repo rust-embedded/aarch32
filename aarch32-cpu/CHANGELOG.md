@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 - Added `Iciallu` register which allows invalidating the instruction cache.
+- Added `defmt` implementations for PMSA types.
 
 ## [aarch32-cpu v0.2.0]
 
