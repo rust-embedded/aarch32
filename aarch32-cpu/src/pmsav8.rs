@@ -17,6 +17,7 @@ pub use register::prbar::{AccessPerms as El1AccessPerms, Shareability as El1Shar
 
 /// Ways this API can fail
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Error {
     /// Found too many regions
     TooManyRegions,
@@ -363,6 +364,7 @@ impl El2Mpu {
 
 /// Configuration for the PMSAv8-32 EL1 MPU
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct El1Config<'a> {
     /// Background Config Enable
     ///
@@ -380,6 +382,7 @@ pub struct El1Config<'a> {
 
 /// Configuration for the PMSAv8-32 MPU
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct El1Region {
     /// The range of the region
     ///
@@ -408,6 +411,7 @@ unsafe impl Sync for El1Region {}
 
 /// Configuration for the PMSAv8-32 EL2 MPU
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct El2Config<'a> {
     /// Background Config Enable
     ///
@@ -425,6 +429,7 @@ pub struct El2Config<'a> {
 
 /// Configuration for the PMSAv8-32 EL2 MPU
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct El2Region {
     /// The range of the region
     ///
@@ -453,6 +458,7 @@ unsafe impl Sync for El2Region {}
 
 /// Describes the memory ordering and cacheability of a region
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum MemAttr {
     /// Strongly-ordered memory
     StronglyOrdered,
@@ -484,6 +490,7 @@ impl MemAttr {
 
 /// Cacheability of a region
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum CachePolicy {
     /// Normal memory, Outer Write-Through Transient
     WriteThroughTransient(RwAllocPolicy),
@@ -512,6 +519,7 @@ impl CachePolicy {
 
 /// Cache allocation policy
 #[derive(Copy, Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum RwAllocPolicy {
     /// Write-allocate
