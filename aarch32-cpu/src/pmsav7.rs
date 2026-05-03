@@ -189,6 +189,7 @@ impl Mpu {
 
 /// Configuration for the PMSAv7 MPU
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Config<'a> {
     /// Background Config Enable
     ///
@@ -202,6 +203,7 @@ pub struct Config<'a> {
 
 /// Configuration for a region in the PMSAv7 MPU
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Region {
     /// The base address of this region.
     ///
@@ -232,6 +234,7 @@ unsafe impl Sync for Region {}
 
 /// Describes the memory ordering and cacheability of a region
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum MemAttr {
     /// Strongly-ordered memory
     StronglyOrdered,
@@ -348,6 +351,7 @@ impl MemAttr {
 
 /// A representation of Memory Attributes suitable for sticking into the RACR register
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 struct MemAttrBits {
     tex: u3,
     c: bool,
