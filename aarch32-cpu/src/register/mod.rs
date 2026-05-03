@@ -101,6 +101,8 @@ pub mod tpidrprw;
 pub mod tpidruro;
 pub mod tpidrurw;
 pub mod ttbr0;
+#[cfg(any(test, doc, arm_architecture = "v7-a", arm_architecture = "v8-r"))]
+pub mod vbar;
 pub mod vmpidr;
 pub mod vpidr;
 pub mod vsctlr;
@@ -202,6 +204,8 @@ pub use tpidrprw::Tpidrprw;
 pub use tpidruro::Tpidruro;
 pub use tpidrurw::Tpidrurw;
 pub use ttbr0::Ttbr0;
+#[cfg(any(test, doc, arm_architecture = "v7-a", arm_architecture = "v8-r"))]
+pub use vbar::Vbar;
 pub use vmpidr::Vmpidr;
 pub use vpidr::Vpidr;
 pub use vsctlr::Vsctlr;

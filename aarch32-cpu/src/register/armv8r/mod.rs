@@ -72,7 +72,6 @@ pub mod prlar7;
 pub mod prlar8;
 pub mod prlar9;
 pub mod prselr;
-pub mod vbar;
 
 pub use hmpuir::Hmpuir;
 pub use hprbar::Hprbar;
@@ -146,4 +145,3 @@ pub use prlar7::Prlar7;
 pub use prlar8::Prlar8;
 pub use prlar9::Prlar9;
 pub use prselr::Prselr;
-pub use vbar::Vbar;
