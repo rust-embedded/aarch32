@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [v0.4.2]
+
 ### Changed
 
 - Take `CARGO_CFG_TARGET_*` variables into account for detecting targets.
@@ -57,7 +59,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.4.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.4.2...HEAD
+[v0.4.2]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.4.1...arm-targets-v0.4.2
+[v0.4.1]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.4.0...arm-targets-v0.4.1
 [v0.4.0]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.3.0...arm-targets-v0.4.0
 [v0.3.0]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.2.0...arm-targets-v0.3.0
 [v0.2.0]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.1.0...arm-targets-v0.2.0

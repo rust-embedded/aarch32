@@ -7,9 +7,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [aarch32-cpu v0.3.0]
+
+### Added
+
 - Added `Iciallu` register which allows invalidating the instruction cache.
+- Added `asm::fiq_enable` and `asm::fiq_disable`
+- Added `stacks::stack_used_bytes` to count how much stack has been used
+- Added `svc1!`-`svc6!` macros for making syscalls
+- Added `hvc!` and `hvc1!`-`hvc6!` macros for making hypercalls
+- Added `mmu::L1Table` type for basic MMU L1 page-tables
+- Added `Prlar::limit_address` method
+- Added `Prbar::base_address` method
 - `register::vbar` and `register::Vbar` are also available for ARMv7-A now.
 - Added `defmt` implementations for PMSA types.
+
+### Changed
+
+- Updated `bitbybit` crate to version 2
+- Updated `SysRegRead::read_raw` and `SysRegRead64::read_raw` to now be safe operations
+- Updated `Dfsr` datatype to support a range of Arm architecture versions
+- Updated Arm Generic Timer support - now works on Armv7-A as well
+- Updated Hypervisor support - now works on Armv7-A as well
+
+### Removed
+
+- Removed `__sync_synchronize` function
 
 ## [aarch32-cpu v0.2.0]
 
@@ -70,7 +93,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-cpu-v0.2.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-cpu-v0.3.0...HEAD
+[aarch32-cpu v0.3.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-cpu-v0.2.0...aarch32-cpu-v0.3.0
 [aarch32-cpu v0.2.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-cpu-v0.1.0...aarch32-cpu-v0.2.0
 [aarch32-cpu v0.1.0]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-v0.3.0...aarch32-cpu-v0.1.0
 [cortex-ar v0.3.0]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-v0.2.0...cortex-ar-v0.3.0
