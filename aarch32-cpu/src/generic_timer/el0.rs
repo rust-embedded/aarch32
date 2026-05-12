@@ -1,5 +1,7 @@
 //! Code and types for Generic Timer support at EL0 on Armv8-R.
 
+use core::marker::PhantomData;
+
 use crate::register;
 
 /// Represents our Generic Physical Timer when we are running at EL0.
@@ -7,7 +9,12 @@ use crate::register;
 /// Note that for most of these APIs to work, EL0 needs to have been granted
 /// access using methods like
 /// [El1PhysicalTimer::el0_access_physical_counter](crate::generic_timer::El1PhysicalTimer::el0_access_physical_counter).
-pub struct El0PhysicalTimer();
+///
+/// This type is not [Send] because it is a per-core type and should not be moved across
+/// cores on an SMP system.
+pub struct El0PhysicalTimer {
+    _phantom: PhantomData<*const u8>,
+}
 
 impl El0PhysicalTimer {
     /// Create an EL0 Timer handle for the Physical Timer.
@@ -17,11 +24,13 @@ impl El0PhysicalTimer {
     ///
     /// # Safety
     ///
-    /// Only create one of these at any given time, as they access shared
-    /// mutable state within the processor and do read-modify-writes on that
-    /// state.
+    /// Only create one Physical Timer handle (at any EL) at any given time, as
+    /// they access shared mutable state within the processor and do
+    /// read-modify-writes on that state.
     pub unsafe fn new() -> El0PhysicalTimer {
-        El0PhysicalTimer()
+        El0PhysicalTimer {
+            _phantom: PhantomData,
+        }
     }
 }
 
@@ -80,17 +89,25 @@ impl super::GenericTimer for El0PhysicalTimer {
 /// Note that for most of these APIs to work, EL0 needs to have been granted
 /// access using methods like
 /// [El1VirtualTimer::el0_access_virtual_counter](crate::generic_timer::El1VirtualTimer::el0_access_virtual_counter).
-pub struct El0VirtualTimer();
+///
+/// This type is not [Send] because it is a per-core type and should not be moved across
+/// cores on an SMP system.
+pub struct El0VirtualTimer {
+    _phantom: PhantomData<*const u8>,
+}
 
 impl El0VirtualTimer {
     /// Create an EL0 Timer handle for the Virtual Timer.
     ///
     /// # Safety
     ///
-    /// Only create one of these at any given time, as they access shared
-    /// mutable state within the processor and do read-modify-writes on that state.
+    /// Only create one Virtual Timer handle (at any EL) at any given time, as
+    /// they access shared mutable state within the processor and do
+    /// read-modify-writes on that state.
     pub unsafe fn new() -> El0VirtualTimer {
-        El0VirtualTimer()
+        El0VirtualTimer {
+            _phantom: PhantomData,
+        }
     }
 }
 

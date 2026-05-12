@@ -5,6 +5,12 @@ use crate::register;
 use super::{El1PhysicalTimer, El1VirtualTimer, GenericTimer};
 
 /// Represents our Physical Timer when we are running at EL2.
+///
+/// This works exactly like [El1PhysicalTimer], but it gives you extra methods
+/// for functionality that only processors running at EL2 can access.
+///
+/// This type is not [Send] because it is a per-core type and should not be moved across
+/// cores on an SMP system.
 pub struct El2PhysicalTimer(El1PhysicalTimer);
 
 impl El2PhysicalTimer {
@@ -12,8 +18,9 @@ impl El2PhysicalTimer {
     ///
     /// # Safety
     ///
-    /// Only create one of these at any given time, as they access shared
-    /// mutable state within the processor and do read-modify-writes on that state.
+    /// Only create one Physical Timer handle (at any EL) at any given time, as
+    /// they access shared mutable state within the processor and do
+    /// read-modify-writes on that state.
     pub unsafe fn new() -> El2PhysicalTimer {
         unsafe { El2PhysicalTimer(El1PhysicalTimer::new()) }
     }
@@ -76,15 +83,22 @@ impl GenericTimer for El2PhysicalTimer {
 }
 
 /// Represents our Virtual Timer when we are running at EL1.
+///
+/// This works exactly like [El1VirtualTimer], but it gives you extra methods
+/// for functionality that only processors running at EL2 can access.
+///
+/// This type is not [Send] because it is a per-core type and should not be moved
+/// across cores on an SMP system.
 pub struct El2VirtualTimer(El1VirtualTimer);
 
 impl El2VirtualTimer {
-    /// Create an EL2 Generic Timer handle
+    /// Create an EL2 Virtual Timer handle
     ///
     /// # Safety
     ///
-    /// Only create one of these at any given time, as they access shared
-    /// mutable state within the processor and do read-modify-writes on that state.
+    /// Only create one Virtual Timer handle (at any EL) at any given time, as
+    /// they access shared mutable state within the processor and do
+    /// read-modify-writes on that state.
     pub unsafe fn new() -> El2VirtualTimer {
         unsafe { El2VirtualTimer(El1VirtualTimer::new()) }
     }
