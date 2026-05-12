@@ -7,7 +7,10 @@ use core::sync::atomic::{AtomicU32, Ordering::Relaxed};
 
 use aarch32_cpu::generic_timer::GenericTimer;
 use aarch32_rt::{entry, exception, irq};
-use arm_gic::gicv3::{GicCpuInterface, Group, InterruptGroup};
+use arm_gic::{
+    InterruptGroup,
+    gicv3::{GicCpuInterface, Group},
+};
 use semihosting::println;
 
 use mps3_an536_el2::HYP_TIMER_PPI;

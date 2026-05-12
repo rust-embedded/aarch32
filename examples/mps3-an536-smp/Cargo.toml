@@ -17,7 +17,7 @@ version = "0.0.0"
 [dependencies]
 aarch32-cpu = { path = "../../aarch32-cpu", features = ["critical-section-multi-core"] }
 aarch32-rt = { path = "../../aarch32-rt" }
-arm-gic = { version = "0.7.1" }
+arm-gic = "0.8.1"
 critical-section = "1.2.0"
 heapless = "0.9.1"
 libm = "0.2.15"
