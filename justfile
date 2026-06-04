@@ -40,15 +40,15 @@ build-all: \
 	(build-tier3-no-atomics "thumbv6-none-eabi") \
 	(build-tier3-no-atomics "armv6-none-eabihf") \
 	(build-tier2 "armv7r-none-eabi") \
-	(build-tier3 "thumbv7r-none-eabi") \
+	(build-tier2 "thumbv7r-none-eabi") \
 	(build-tier2 "armv7r-none-eabihf") \
-	(build-tier3 "thumbv7r-none-eabihf") \
+	(build-tier2 "thumbv7r-none-eabihf") \
 	(build-tier2 "armv7a-none-eabi") \
-	(build-tier3 "thumbv7a-none-eabi") \
+	(build-tier2 "thumbv7a-none-eabi") \
 	(build-tier2 "armv7a-none-eabihf") \
-	(build-tier3 "thumbv7a-none-eabihf") \
+	(build-tier2 "thumbv7a-none-eabihf") \
 	(build-tier2 "armv8r-none-eabihf") \
-	(build-tier3 "thumbv8r-none-eabihf") \
+	(build-tier2 "thumbv8r-none-eabihf") \
 
 # Build the arm-targets library
 build-arm-targets:
@@ -79,17 +79,17 @@ build-all-examples: \
 	(build-versatileab-tier3 "thumbv5te-none-eabi") \
 	(build-versatileab-tier3 "armv6-none-eabi") \
 	(build-versatileab-tier3 "armv6-none-eabihf") \
+	(build-versatileab-tier3 "thumbv6-none-eabi") \
 	(build-versatileab-tier2 "armv7r-none-eabi") \
-	(build-versatileab-tier3 "thumbv7r-none-eabi") \
+	(build-versatileab-tier2 "thumbv7r-none-eabi") \
 	(build-versatileab-tier2 "armv7r-none-eabihf") \
-	(build-versatileab-tier3 "thumbv7r-none-eabihf") \
+	(build-versatileab-tier2 "thumbv7r-none-eabihf") \
 	(build-versatileab-tier2 "armv7a-none-eabi") \
-	(build-versatileab-tier3 "thumbv7a-none-eabi") \
+	(build-versatileab-tier2 "thumbv7a-none-eabi") \
 	(build-versatileab-tier2 "armv7a-none-eabihf") \
-	(build-versatileab-tier3 "thumbv7a-none-eabihf") \
-	(build-mps3-tier2 "armv8r-none-eabihf") \
-	(build-mps3-tier3 "thumbv8r-none-eabihf") \
-	# (build-versatileab-tier3 "thumbv6-none-eabi") \
+	(build-versatileab-tier2 "thumbv7a-none-eabihf") \
+	(build-mps3-tier2        "armv8r-none-eabihf") \
+	(build-mps3-tier2        "thumbv8r-none-eabihf") \
 
 # Builds the Versatile AB examples, building core from source
 build-versatileab-tier3 target:

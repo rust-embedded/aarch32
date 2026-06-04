@@ -44,13 +44,14 @@ jobs:
         run: |
           just build-tier2 ${{ matrix.target }}
 
-  # These targets need build-std
-  build-tier3:
+  build-tier2-nightly:
     runs-on: ubuntu-24.04
     needs: setup
     strategy:
       matrix:
         target:
+          # These targets made Tier 2 on 2026-06-04
+          # They'll move to build-tier2 once they reach stable
           - thumbv7r-none-eabi
           - thumbv7r-none-eabihf
           - thumbv7a-none-eabi
@@ -63,12 +64,12 @@ jobs:
         uses: taiki-e/install-action@just
       - name: Install Rust
         run: |
-          rustup install stable
-          rustup default stable
-          rustup component add rust-src
+          rustup install nightly-2026-06-04
+          rustup default nightly-2026-06-04
+          rustup target add ${{ matrix.target }}
       - name: Build
         run: |
-          just build-tier3 ${{ matrix.target }}
+          just build-tier2 ${{ matrix.target }}
 
   # These targets need build-std, and have no atomics so we have to skip
   # the 'critical-section-multi-core' feature
@@ -119,7 +120,7 @@ jobs:
   # Gather all the above build jobs together for the purposes of getting an overall pass-fail
   build-all:
     runs-on: ubuntu-24.04
-    needs: [build-tier2, build-tier3-no-atomics, build-tier3, build-arm-targets]
+    needs: [build-tier2, build-tier3-no-atomics, build-tier2-nightly, build-arm-targets]
     steps:
       - run: /bin/true
 
