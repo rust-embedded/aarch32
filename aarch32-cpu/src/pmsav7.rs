@@ -5,6 +5,8 @@
 //!
 //! [armv7]: https://developer.arm.com/documentation/ddi0406/latest
 
+use core::marker::PhantomData;
+
 use crate::register;
 
 use arbitrary_int::{u2, u3};
@@ -23,7 +25,12 @@ pub enum Error {
 }
 
 /// Represents our PMSAv7 MPU
-pub struct Mpu();
+///
+/// This type is not [Send] because it is a per-core type and should not be moved across
+/// cores on an SMP system.
+pub struct Mpu {
+    _phantom: PhantomData<*const u8>,
+}
 
 impl Mpu {
     /// Create an MPU handle
@@ -33,7 +40,9 @@ impl Mpu {
     /// Only create one of these at any given time, as they access shared
     /// mutable state within the processor and do read-modify-writes on that state.
     pub unsafe fn new() -> Mpu {
-        Mpu()
+        Mpu {
+            _phantom: PhantomData,
+        }
     }
 
     /// How many MPU instruction regions are there?
