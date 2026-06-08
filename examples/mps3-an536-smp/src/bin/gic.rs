@@ -7,8 +7,8 @@ use core::cell::RefCell;
 use core::sync::atomic::{AtomicBool, Ordering};
 
 use arm_gic::{
-    IntId,
-    gicv3::{GicCpuInterface, Group, InterruptGroup, SgiTarget, SgiTargetGroup},
+    gicv3::{GicCpuInterface, Group, SgiTarget, SgiTargetGroup},
+    {IntId, InterruptGroup},
 };
 use critical_section::Mutex;
 use semihosting::println;
