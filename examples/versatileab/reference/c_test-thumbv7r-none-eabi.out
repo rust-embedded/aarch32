@@ -1,0 +1,15 @@
+c_code_char_check(p) -> 2
+c_code_unsigned_char_check(p) -> 2
+c_code_signed_char_check(p) -> 2
+c_code_short_check(p) -> 2
+c_code_unsigned_short_check(p) -> 2
+c_code_int_check(p) -> 2
+c_code_unsigned_int_check(p) -> 2
+c_code_long_check(p) -> 2
+c_code_unsigned_long_check(p) -> 2
+c_code_int_ptr_check(p) -> 2
+c_code_float_check(p) -> 2
+c_code_double_check(p) -> 2
+data_in: c_code_data_t { c: 1, s: 1, i: 1, l: 1, f: 1.0, d: 1.0, e: 1 }
+c_code_struct_check(data_in) -> c_code_data_t { c: 2, s: 2, i: 2, l: 2, f: 2.0, d: 2.0, e: 2 }
+called c_code_struct_ref_check, data_in is c_code_data_t { c: 2, s: 2, i: 2, l: 2, f: 2.0, d: 2.0, e: 2 }

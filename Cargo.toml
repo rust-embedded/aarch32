@@ -10,5 +10,6 @@ members = [
   "aarch32-cpu",
   "aarch32-rt",
   "aarch32-rt-macros",
+  "examples/c-code",
 ]
 resolver = "2"
