@@ -764,9 +764,72 @@ core::arch::global_asm!(
     "#,
 );
 
-/// This macro expands to code to turn on the FPU
-#[cfg(all(target_arch = "arm", any(target_abi = "eabihf", feature = "eabi-fpu")))]
-macro_rules! fpu_enable {
+/// This is for ARMv7 and ARMv8 systems with an FPU
+///
+/// It just disables Thumb Exceptions and turns on the FPU
+#[cfg(all(
+    target_arch = "arm",
+    any(
+        arm_architecture = "v7-a",
+        arm_architecture = "v7-r",
+        arm_architecture = "v8-r"
+    ),
+    any(target_abi = "eabihf", feature = "eabi-fpu")
+))]
+macro_rules! system_init {
+    () => {
+        r#"
+        // Allow VFP coprocessor access
+        mrc     p15, 0, r0, c1, c0, 2
+        orr     r0, r0, #0xF00000
+        mcr     p15, 0, r0, c1, c0, 2
+        // Enable VFP
+        mov     r0, #0x40000000
+        vmsr    fpexc, r0
+        // Clear Thumb Exception bit
+        mrc     p15, 0, r0, c1, c0, 0
+        bic     r0, #0x40000000
+        mcr     p15, 0, r0, c1, c0, 0
+        "#
+    };
+}
+
+/// This is for ARMv7 and ARMv8 systems without an FPU
+///
+/// It just disables Thumb Exceptions
+#[cfg(all(
+    target_arch = "arm",
+    any(
+        arm_architecture = "v7-a",
+        arm_architecture = "v7-r",
+        arm_architecture = "v8-r"
+    ),
+    not(any(target_abi = "eabihf", feature = "eabi-fpu"))
+))]
+macro_rules! system_init {
+    () => {
+        r#"
+        // Clear Thumb Exception bit
+        mrc     p15, 0, r0, c1, c0, 0
+        bic     r0, #0x40000000
+        mcr     p15, 0, r0, c1, c0, 0
+        "#
+    };
+}
+
+/// This is for ARMv6 and earlier systems with an FPU
+///
+/// It enables the FPU
+#[cfg(all(
+    target_arch = "arm",
+    not(any(
+        arm_architecture = "v7-a",
+        arm_architecture = "v7-r",
+        arm_architecture = "v8-r"
+    )),
+    any(target_abi = "eabihf", feature = "eabi-fpu")
+))]
+macro_rules! system_init {
     () => {
         r#"
         // Allow VFP coprocessor access
@@ -780,22 +843,26 @@ macro_rules! fpu_enable {
     };
 }
 
-/// This macro expands to code that does nothing because there is no FPU
+/// This is for ARMv6 and earlier systems without an FPU
+///
+/// It does nothing
 #[cfg(all(
-    target_arch = "arm",
+    not(any(
+        arm_architecture = "v7-a",
+        arm_architecture = "v7-r",
+        arm_architecture = "v8-r"
+    )),
     not(any(target_abi = "eabihf", feature = "eabi-fpu"))
 ))]
-macro_rules! fpu_enable {
+macro_rules! system_init {
     () => {
         r#"
-        // no FPU - do nothing
+        // No system init required
         "#
     };
 }
 
-// Start-up code for Armv7-R (and Armv8-R once we've left EL2)
-// Stack location and sizes are taken from sections defined in linker script
-// We set up our stacks and `kmain` in system mode.
+// Shared library routines for all architectures
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
@@ -849,11 +916,6 @@ core::arch::global_asm!(
         ldr	    r1, =_sys_stack_size
         muls    r1, r1, r0
         subs    sp, r2, r1
-        // Clear the Thumb Exception bit because all vector table is written in Arm assembly
-        // even on Thumb targets.
-        mrc     p15, 0, r1, c1, c0, 0
-        bic     r1, #{te_bit}
-        mcr     p15, 0, r1, c1, c0, 0
         // return to caller
         bx      r3
     .size _stack_setup_preallocated, . - _stack_setup_preallocated
@@ -943,11 +1005,6 @@ core::arch::global_asm!(
             .with_f(true)
             .raw_value()
     },
-    te_bit = const {
-        aarch32_cpu::register::Sctlr::new_with_raw_value(0)
-            .with_te(true)
-            .raw_value()
-    }
 );
 
 // Start-up code for CPUs that boot into EL1
@@ -973,7 +1030,7 @@ core::arch::global_asm!(
         mov     r0, #0
         bl      _stack_setup_preallocated
     "#,
-    fpu_enable!(),
+    system_init!(),
     r#"
         // Zero all registers before calling kmain
         mov     r0, 0
@@ -1052,9 +1109,9 @@ core::arch::global_asm!(
         // Set up stacks.
         mov     r0, #0
         bl      _stack_setup_preallocated
-        "#,
-        fpu_enable!(),
-        r#"
+    "#,
+    system_init!(),
+    r#"
         // Zero all registers before calling kmain
         mov     r0, 0
         mov     r1, 0
@@ -1127,7 +1184,7 @@ core::arch::global_asm!(
         orr     r0, {irq_fiq}
         msr     CPSR, r0
     "#,
-    fpu_enable!(),
+    system_init!(),
     r#"
         // Zero all registers before calling kmain
         mov     r0, 0
