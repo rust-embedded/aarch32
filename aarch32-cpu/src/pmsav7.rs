@@ -69,6 +69,7 @@ impl Mpu {
         };
 
         let mem_attr = mem_attr_bits.decode()?;
+        let access_perms = AccessPerms::from_bits(racr.ap())?;
 
         Some(Region {
             base,
@@ -77,6 +78,7 @@ impl Mpu {
             enabled: rsr.enabled(),
             no_exec: racr.nx(),
             mem_attr,
+            access_perms,
         })
     }
 
@@ -97,6 +99,7 @@ impl Mpu {
             s: racr.s(),
         };
         let mem_attr = mem_attr_bits.decode()?;
+        let access_perms = AccessPerms::from_bits(racr.ap())?;
 
         Some(Region {
             base,
@@ -105,6 +108,7 @@ impl Mpu {
             enabled: rsr.enabled(),
             no_exec: racr.nx(),
             mem_attr,
+            access_perms,
         })
     }
 
@@ -137,7 +141,7 @@ impl Mpu {
                 out.set_b(mem_attr_bits.b);
                 out.set_s(mem_attr_bits.s);
                 out.set_nx(region.no_exec);
-                // out.with_ap(region.access_perms);
+                out.set_ap(region.access_perms.to_bits());
                 out
             });
         }
@@ -162,7 +166,7 @@ impl Mpu {
                 out.set_b(mem_attr_bits.b);
                 out.set_s(mem_attr_bits.s);
                 out.set_nx(region.no_exec);
-                // out.with_ap(region.access_perms);
+                out.set_ap(region.access_perms.to_bits());
                 out
             });
         }
@@ -226,6 +230,8 @@ pub struct Region {
     pub no_exec: bool,
     /// Attributes for this region
     pub mem_attr: MemAttr,
+    /// Access permissions for this region
+    pub access_perms: AccessPerms,
 }
 
 // Creating a static Region is fine - the pointers within it
@@ -401,6 +407,66 @@ pub enum CachePolicy {
     WriteThroughNoWriteAlloc = 0b10,
     /// Write-Back Cacheable, no Write-Allocate
     WriteBackNoWriteAlloc = 0b11,
+}
+
+/// Describes the access permissions of a memory region
+///
+/// Access permission bits control read and write access to the corresponding memory region.
+/// Permissions are specified for priviledged accesses (PL1) and for user accesses (PL0).
+/// Accesses to a memory region without the required permissions generate a Permission fault.
+///
+/// Note that the execute-never (XN) attribute provides an additional permission check on memory
+/// regions, see [Region::no_exec].
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum AccessPerms {
+    /// All accesses generate a Permission fault
+    /// - PL1: No access
+    /// - PL0: No access
+    NoAccess,
+    /// All write accesses generate Permission faults
+    /// - PL1: Read-only
+    /// - PL0: Read-only
+    ReadOnly,
+    /// Full access
+    /// - PL1: Read/Write
+    /// - PL0: Read/Write
+    ReadWrite,
+    /// PL1 read-only, all other accesses generate Permission faults
+    /// - PL1: Read-only
+    /// - PL0: No access
+    PrivReadOnly,
+    /// All unprivileged accesses generate Permission faults
+    /// - PL1: Read/Write
+    /// - PL0: No access
+    PrivReadWrite,
+    /// User mode write accesses generate Permission faults
+    /// - PL1: Read/Write
+    /// - PL0: Read-only
+    PrivReadWriteUserReadOnly,
+}
+impl AccessPerms {
+    const fn to_bits(&self) -> u3 {
+        u3::new(match self {
+            Self::NoAccess => 0b000,
+            Self::PrivReadWrite => 0b001,
+            Self::PrivReadWriteUserReadOnly => 0b010,
+            Self::ReadWrite => 0b011,
+            Self::PrivReadOnly => 0b101,
+            Self::ReadOnly => 0b110,
+        })
+    }
+    const fn from_bits(ap: u3) -> Option<Self> {
+        match ap.value() {
+            0b000 => Some(Self::NoAccess),
+            0b001 => Some(Self::PrivReadWrite),
+            0b010 => Some(Self::PrivReadWriteUserReadOnly),
+            0b011 => Some(Self::ReadWrite),
+            0b101 => Some(Self::PrivReadOnly),
+            0b110 => Some(Self::ReadOnly),
+            _ => None,
+        }
+    }
 }
 
 #[cfg(test)]
