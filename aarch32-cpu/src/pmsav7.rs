@@ -326,7 +326,7 @@ impl MemAttr {
                 s: *shareable,
             },
             MemAttr::WriteBackWriteAlloc { shareable } => MemAttrBits {
-                tex: u3::from_u8(0b000),
+                tex: u3::from_u8(0b001),
                 c: true,
                 b: true,
                 s: *shareable,
