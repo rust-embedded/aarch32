@@ -286,8 +286,8 @@ pub enum MemAttr {
 }
 
 impl MemAttr {
-    /// Convert this memory attribute to an 8-bit value we can write to MAIRx
-    const fn to_bits(&self) -> MemAttrBits {
+    /// Convert this memory attribute to an 8-bit value we can write to RACR
+    pub const fn to_bits(&self) -> MemAttrBits {
         match self {
             MemAttr::StronglyOrdered => MemAttrBits {
                 tex: u3::from_u8(0b000),
@@ -358,11 +358,15 @@ impl MemAttr {
 /// A representation of Memory Attributes suitable for sticking into the RACR register
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
-struct MemAttrBits {
-    tex: u3,
-    c: bool,
-    b: bool,
-    s: bool,
+pub struct MemAttrBits {
+    /// TEX attribute, defining the outer cache attribute
+    pub tex: u3,
+    /// C bit, defining the inner cache attribute
+    pub c: bool,
+    /// B bit, defining the inner cache attribute
+    pub b: bool,
+    /// S bit, shareable bit for normal memory regions
+    pub s: bool,
 }
 
 impl MemAttrBits {
@@ -446,7 +450,8 @@ pub enum AccessPerms {
     PrivReadWriteUserReadOnly,
 }
 impl AccessPerms {
-    const fn to_bits(&self) -> u3 {
+    /// Convert these access permissions to a 3-bit value we can write to RACR
+    pub const fn to_bits(&self) -> u3 {
         u3::new(match self {
             Self::NoAccess => 0b000,
             Self::PrivReadWrite => 0b001,
