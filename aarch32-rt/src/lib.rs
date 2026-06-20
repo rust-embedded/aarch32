@@ -531,35 +531,24 @@
 #[cfg(target_arch = "arm")]
 use aarch32_cpu::register::{cpsr::ProcessorMode, Cpsr};
 
-#[cfg(all(
-    any(arm_architecture = "v7-a", arm_architecture = "v8-r"),
-    not(feature = "el2-mode")
+#[cfg(any(
+    arm_architecture = "v7-a",
+    all(arm_architecture = "v8-r", not(feature = "el2-mode")),
 ))]
 use aarch32_cpu::register::Hactlr;
 
 pub use aarch32_rt_macros::{entry, exception, irq};
 
-#[cfg(all(target_arch = "arm", arm_architecture = "v8-r", feature = "el2-mode"))]
+#[cfg(all(arm_architecture = "v8-r", feature = "el2-mode"))]
 mod arch_v8_hyp;
 
 #[cfg(all(
-    target_arch = "arm",
-    any(
-        arm_architecture = "v7-a",
-        arm_architecture = "v7-r",
-        all(arm_architecture = "v8-r", not(feature = "el2-mode"))
-    ),
+    armv7_or_higher,
+    not(all(arm_architecture = "v8-r", feature = "el2-mode"))
 ))]
 mod arch_v7;
 
-#[cfg(all(
-    target_arch = "arm",
-    not(any(
-        arm_architecture = "v7-a",
-        arm_architecture = "v7-r",
-        arm_architecture = "v8-r"
-    ))
-))]
+#[cfg(armv6_or_lower)]
 mod arch_v4;
 
 pub mod sections;
@@ -767,15 +756,7 @@ core::arch::global_asm!(
 /// This is for ARMv7 and ARMv8 systems with an FPU
 ///
 /// It just disables Thumb Exceptions and turns on the FPU
-#[cfg(all(
-    target_arch = "arm",
-    any(
-        arm_architecture = "v7-a",
-        arm_architecture = "v7-r",
-        arm_architecture = "v8-r"
-    ),
-    any(target_abi = "eabihf", feature = "eabi-fpu")
-))]
+#[cfg(all(armv7_or_higher, any(target_abi = "eabihf", feature = "eabi-fpu")))]
 macro_rules! system_init {
     () => {
         r#"
@@ -797,15 +778,7 @@ macro_rules! system_init {
 /// This is for ARMv7 and ARMv8 systems without an FPU
 ///
 /// It just disables Thumb Exceptions
-#[cfg(all(
-    target_arch = "arm",
-    any(
-        arm_architecture = "v7-a",
-        arm_architecture = "v7-r",
-        arm_architecture = "v8-r"
-    ),
-    not(any(target_abi = "eabihf", feature = "eabi-fpu"))
-))]
+#[cfg(all(armv7_or_higher, not(any(target_abi = "eabihf", feature = "eabi-fpu"))))]
 macro_rules! system_init {
     () => {
         r#"
@@ -820,15 +793,7 @@ macro_rules! system_init {
 /// This is for ARMv6 and earlier systems with an FPU
 ///
 /// It enables the FPU
-#[cfg(all(
-    target_arch = "arm",
-    not(any(
-        arm_architecture = "v7-a",
-        arm_architecture = "v7-r",
-        arm_architecture = "v8-r"
-    )),
-    any(target_abi = "eabihf", feature = "eabi-fpu")
-))]
+#[cfg(all(armv6_or_lower, any(target_abi = "eabihf", feature = "eabi-fpu")))]
 macro_rules! system_init {
     () => {
         r#"
@@ -846,14 +811,7 @@ macro_rules! system_init {
 /// This is for ARMv6 and earlier systems without an FPU
 ///
 /// It does nothing
-#[cfg(all(
-    not(any(
-        arm_architecture = "v7-a",
-        arm_architecture = "v7-r",
-        arm_architecture = "v8-r"
-    )),
-    not(any(target_abi = "eabihf", feature = "eabi-fpu"))
-))]
+#[cfg(all(armv6_or_lower, not(any(target_abi = "eabihf", feature = "eabi-fpu"))))]
 macro_rules! system_init {
     () => {
         r#"
@@ -1007,13 +965,8 @@ core::arch::global_asm!(
     },
 );
 
-// Start-up code for CPUs that boot into EL1
-//
-// Go straight to our default routine
-#[cfg(all(
-    target_arch = "arm",
-    not(any(arm_architecture = "v7-a", arm_architecture = "v8-r"))
-))]
+// Start-up code for CPUs that always boot into EL1
+#[cfg(any(armv6_or_lower, arm_architecture = "v7-r",))]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
@@ -1055,15 +1008,10 @@ core::arch::global_asm!(
     "#
 );
 
-// Start-up code for Armv8-R to switch to EL1.
-//
-// There's only one Armv8-R CPU (the Cortex-R52) and the FPU is mandatory, so we
-// always enable it.
-//
-// We boot into EL2, set up a stack pointer, and run `kmain` in EL1.
-#[cfg(all(
-    any(arm_architecture = "v7-a", arm_architecture = "v8-r"),
-    not(feature = "el2-mode")
+// Start-up code for CPUs that *might* boot into EL2 but that we want in EL1.
+#[cfg(any(
+    arm_architecture = "v7-a",
+    all(arm_architecture = "v8-r", not(feature = "el2-mode")),
 ))]
 core::arch::global_asm!(
     r#"
@@ -1158,9 +1106,6 @@ core::arch::global_asm!(
 
 // Start-up code for Armv8-R to stay in EL2.
 //
-// There's only one Armv8-R CPU (the Cortex-R52) and the FPU is mandatory, so we
-// always enable it.
-//
 // We boot into EL2, set up a HYP stack pointer, and run `kmain` in EL2.
 #[cfg(all(arm_architecture = "v8-r", feature = "el2-mode"))]
 core::arch::global_asm!(
@@ -1213,7 +1158,7 @@ core::arch::global_asm!(
 ///
 /// Only required on Armv4T and Armv5TE, because Armv6K onwards support atomics.
 #[unsafe(no_mangle)]
-#[cfg(any(arm_architecture = "v4t", arm_architecture = "v5te"))]
+#[cfg(armv5te_or_lower)]
 pub extern "C" fn __sync_synchronize() {
     // we don't have a barrier instruction - the linux kernel just uses an empty inline asm block
     // so we do the same.

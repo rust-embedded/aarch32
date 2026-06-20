@@ -10,21 +10,11 @@ pub mod cache;
 pub mod interrupt;
 pub mod register;
 
-#[cfg(any(
-    doc,
-    arm_architecture = "v7-a",
-    arm_architecture = "v7-r",
-    arm_architecture = "v8-r"
-))]
+#[cfg(any(doc, armv7_or_higher))]
 #[path = "asmv7.rs"]
 pub mod asm;
 
-#[cfg(not(any(
-    doc,
-    arm_architecture = "v7-a",
-    arm_architecture = "v7-r",
-    arm_architecture = "v8-r"
-)))]
+#[cfg(not(any(doc, armv7_or_higher)))]
 #[path = "asmv4.rs"]
 pub mod asm;
 
