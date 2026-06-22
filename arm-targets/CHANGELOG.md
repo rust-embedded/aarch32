@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- New `armvXXX_or_higher` and `armvXXX_or_lower` flags for Legacy/R/A architectures.
+
 ## [v0.4.2]
 
 ### Changed

@@ -34,8 +34,19 @@
 //! ```console
 //! $ cargo install arm-targets
 //! $ arm-targets
+//! // These are the features this crate enables:
 //! cargo:rustc-check-cfg=cfg(arm_isa, values("a64", "a32", "t32"))
-//! cargo:rustc-check-cfg=cfg(arm_architecture, values("v4t", "v5te", "v6-m", "v7-m", "v7e-m", "v8-m.base", "v8-m.main", "v7-r", "v8-r", "v7-a", "v8-a"))
+//! cargo:rustc-check-cfg=cfg(armv4t_or_higher)
+//! cargo:rustc-check-cfg=cfg(armv5te_or_higher)
+//! cargo:rustc-check-cfg=cfg(armv6_or_higher)
+//! cargo:rustc-check-cfg=cfg(armv7_or_higher)
+//! cargo:rustc-check-cfg=cfg(armv8_or_higher)
+//! cargo:rustc-check-cfg=cfg(armv4t_or_lower)
+//! cargo:rustc-check-cfg=cfg(armv5te_or_lower)
+//! cargo:rustc-check-cfg=cfg(armv6_or_lower)
+//! cargo:rustc-check-cfg=cfg(armv7_or_lower)
+//! cargo:rustc-check-cfg=cfg(armv8_or_lower)
+//! cargo:rustc-check-cfg=cfg(arm_architecture, values("v4t", "v5te", "v6", "v6-m", "v7-m", "v7e-m", "v8-m.base", "v8-m.main", "v7-r", "v8-r", "v7-a", "v8-a"))
 //! cargo:rustc-check-cfg=cfg(arm_profile, values("a", "r", "m", "legacy"))
 //! cargo:rustc-check-cfg=cfg(arm_abi, values("eabi", "eabihf"))
 //! ```
@@ -99,7 +110,62 @@ impl TargetInfo {
 
         if let Some(arch) = self.arch() {
             println!(r#"cargo:rustc-cfg=arm_architecture="{}""#, arch);
+            match arch {
+                Arch::Armv4T => {
+                    println!(r#"cargo:rustc-cfg=armv4t_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv4t_or_lower"#);
+                    println!(r#"cargo:rustc-cfg=armv5te_or_lower"#);
+                    println!(r#"cargo:rustc-cfg=armv6_or_lower"#);
+                    println!(r#"cargo:rustc-cfg=armv7_or_lower"#);
+                    println!(r#"cargo:rustc-cfg=armv8_or_lower"#);
+                }
+                Arch::Armv5TE => {
+                    println!(r#"cargo:rustc-cfg=armv4t_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv5te_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv5te_or_lower"#);
+                    println!(r#"cargo:rustc-cfg=armv6_or_lower"#);
+                    println!(r#"cargo:rustc-cfg=armv7_or_lower"#);
+                    println!(r#"cargo:rustc-cfg=armv8_or_lower"#);
+                }
+                Arch::Armv6 | Arch::Armv6M => {
+                    println!(r#"cargo:rustc-cfg=armv4t_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv5te_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv6_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv6_or_lower"#);
+                    println!(r#"cargo:rustc-cfg=armv7_or_lower"#);
+                    println!(r#"cargo:rustc-cfg=armv8_or_lower"#);
+                }
+                Arch::Armv7R | Arch::Armv7A => {
+                    println!(r#"cargo:rustc-cfg=armv4t_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv5te_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv6_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv7_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv7_or_lower"#);
+                    println!(r#"cargo:rustc-cfg=armv8_or_lower"#);
+                }
+                Arch::Armv8R | Arch::Armv8A => {
+                    println!(r#"cargo:rustc-cfg=armv4t_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv5te_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv6_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv7_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv8_or_higher"#);
+                    println!(r#"cargo:rustc-cfg=armv8_or_lower"#);
+                }
+                Arch::Armv7M | Arch::Armv7EM | Arch::Armv8MBase | Arch::Armv8MMain => {
+                    // don't claim M-profile architectures are compatible with full Armv7 or similar
+                }
+            }
         }
+        println!(r#"cargo:rustc-check-cfg=cfg(armv4t_or_higher)"#);
+        println!(r#"cargo:rustc-check-cfg=cfg(armv5te_or_higher)"#);
+        println!(r#"cargo:rustc-check-cfg=cfg(armv6_or_higher)"#);
+        println!(r#"cargo:rustc-check-cfg=cfg(armv7_or_higher)"#);
+        println!(r#"cargo:rustc-check-cfg=cfg(armv8_or_higher)"#);
+        println!(r#"cargo:rustc-check-cfg=cfg(armv4t_or_lower)"#);
+        println!(r#"cargo:rustc-check-cfg=cfg(armv5te_or_lower)"#);
+        println!(r#"cargo:rustc-check-cfg=cfg(armv6_or_lower)"#);
+        println!(r#"cargo:rustc-check-cfg=cfg(armv7_or_lower)"#);
+        println!(r#"cargo:rustc-check-cfg=cfg(armv8_or_lower)"#);
         println!(
             r#"cargo:rustc-check-cfg=cfg(arm_architecture, values({}))"#,
             Arch::values()
