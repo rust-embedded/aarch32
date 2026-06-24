@@ -37,6 +37,8 @@ eabi-fpu = []
 fpu-d32 = []
 # Leave the CPU in HYP mode (EL2), and handle exceptions in HYP mode
 el2-mode = []
+# Use SVC stack for interrupts (not SYS stack)
+svc-stack-interrupt = []
 
 [build-dependencies]
 arm-targets = { version = "0.4.0", path = "../arm-targets" }
