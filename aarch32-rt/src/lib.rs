@@ -24,6 +24,10 @@
 //!   If your program is using all 32 double-precision registers (e.g. if you
 //!   have set the `+d32` target feature) then you need to enable this option
 //!   otherwise important FPU state may be lost when an exception occurs.
+//
+//! - `el2-mode`: Leave the processor in EL2/PL2 mode on boot-up, and expect to
+//!   handle interrupts in HYP mode using ELR_hyp. Useful if you want to write a
+//!   hypervisor or other low-level firmware.
 //!
 //! - `svc-stack-interrupt`: Use the SVC stack when an interrupt occurs, instead
 //!   of using the SYS stack. Useful if you are writing an RTOS and your SYS
