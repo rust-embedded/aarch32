@@ -55,11 +55,9 @@ fn main() -> ! {
         .unwrap();
 
     println!("Enabling interrupts...");
-    dump_sctlr();
     unsafe {
         aarch32_cpu::interrupt::enable();
     }
-    dump_sctlr();
 
     // Send it
     println!("Send lo-prio SGI");
@@ -82,11 +80,6 @@ fn main() -> ! {
     println!("IRQ test completed OK");
 
     mps3_an536::exit(0);
-}
-
-fn dump_sctlr() {
-    let sctlr = aarch32_cpu::register::Sctlr::read();
-    println!("{:?}", sctlr);
 }
 
 #[unsafe(link_section = ".irq_entries")]

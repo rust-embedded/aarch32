@@ -5,8 +5,6 @@ Hcr { tcpac: false, trvm: false, hcd: false, tge: false, tvm: false, tpu: false,
 Configure Timer Interrupt...
 Timer Hz = 62500000
 Enabling interrupts...
-SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=0 RR=0 V=0 I=0 Z=1 SW=0 C=0 A=0 M=0 }
-SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=0 RR=0 V=0 I=0 Z=1 SW=0 C=0 A=0 M=0 }
 > IRQ
 Hyp timer tick!
 < IRQ
