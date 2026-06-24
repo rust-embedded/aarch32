@@ -5,6 +5,12 @@ use crate::register;
 use super::{El0PhysicalTimer, El0VirtualTimer, GenericTimer};
 
 /// Represents our Physical Timer when we are running at EL1.
+///
+/// This works exactly like [El0PhysicalTimer], but it gives you extra methods
+/// for functionality that only processors running at EL1 can access.
+///
+/// This type is not [Send] because it is a per-core type and should not be moved across
+/// cores on an SMP system.
 pub struct El1PhysicalTimer(pub(crate) El0PhysicalTimer);
 
 impl El1PhysicalTimer {
@@ -12,8 +18,9 @@ impl El1PhysicalTimer {
     ///
     /// # Safety
     ///
-    /// Only create one of these at any given time, as they access shared
-    /// mutable state within the processor and do read-modify-writes on that state.
+    /// Only create one Physical Timer handle (at any EL) at any given time, as
+    /// they access shared mutable state within the processor and do
+    /// read-modify-writes on that state.
     pub unsafe fn new() -> El1PhysicalTimer {
         unsafe { El1PhysicalTimer(El0PhysicalTimer::new()) }
     }
@@ -80,6 +87,12 @@ impl GenericTimer for El1PhysicalTimer {
 }
 
 /// Represents our Virtual Timer when we are running at EL1.
+///
+/// This works exactly like [El0VirtualTimer], but it gives you extra methods
+/// for functionality that only processors running at EL1 can access.
+///
+/// This type is not [Send] because it is a per-core type and should not be moved across
+/// cores on an SMP system.
 pub struct El1VirtualTimer(El0VirtualTimer);
 
 impl El1VirtualTimer {
@@ -87,8 +100,9 @@ impl El1VirtualTimer {
     ///
     /// # Safety
     ///
-    /// Only create one of these at any given time, as they access shared
-    /// mutable state within the processor and do read-modify-writes on that state.
+    /// Only create one Virtual Timer handle (at any EL) at any given time, as
+    /// they access shared mutable state within the processor and do
+    /// read-modify-writes on that state.
     pub unsafe fn new() -> El1VirtualTimer {
         unsafe { El1VirtualTimer(El0VirtualTimer::new()) }
     }

@@ -1,10 +1,18 @@
 //! Code and types for Generic Timer support at EL2 on Armv8-R.
 
+use core::marker::PhantomData;
+
 use crate::register;
 
 use super::{El1PhysicalTimer, El1VirtualTimer, GenericTimer};
 
 /// Represents our Physical Timer when we are running at EL2.
+///
+/// This works exactly like [El1PhysicalTimer], but it gives you extra methods
+/// for functionality that only processors running at EL2 can access.
+///
+/// This type is not [Send] because it is a per-core type and should not be moved across
+/// cores on an SMP system.
 pub struct El2PhysicalTimer(El1PhysicalTimer);
 
 impl El2PhysicalTimer {
@@ -12,8 +20,9 @@ impl El2PhysicalTimer {
     ///
     /// # Safety
     ///
-    /// Only create one of these at any given time, as they access shared
-    /// mutable state within the processor and do read-modify-writes on that state.
+    /// Only create one Physical Timer handle (at any EL) at any given time, as
+    /// they access shared mutable state within the processor and do
+    /// read-modify-writes on that state.
     pub unsafe fn new() -> El2PhysicalTimer {
         unsafe { El2PhysicalTimer(El1PhysicalTimer::new()) }
     }
@@ -76,15 +85,22 @@ impl GenericTimer for El2PhysicalTimer {
 }
 
 /// Represents our Virtual Timer when we are running at EL1.
+///
+/// This works exactly like [El1VirtualTimer], but it gives you extra methods
+/// for functionality that only processors running at EL2 can access.
+///
+/// This type is not [Send] because it is a per-core type and should not be moved
+/// across cores on an SMP system.
 pub struct El2VirtualTimer(El1VirtualTimer);
 
 impl El2VirtualTimer {
-    /// Create an EL2 Generic Timer handle
+    /// Create an EL2 Virtual Timer handle
     ///
     /// # Safety
     ///
-    /// Only create one of these at any given time, as they access shared
-    /// mutable state within the processor and do read-modify-writes on that state.
+    /// Only create one Virtual Timer handle (at any EL) at any given time, as
+    /// they access shared mutable state within the processor and do
+    /// read-modify-writes on that state.
     pub unsafe fn new() -> El2VirtualTimer {
         unsafe { El2VirtualTimer(El1VirtualTimer::new()) }
     }
@@ -146,8 +162,16 @@ impl GenericTimer for El2VirtualTimer {
     }
 }
 
-/// Represents our Hypervisor-specific Physical Timer when we are running at EL1.
-pub struct El2HypPhysicalTimer();
+/// Represents our Hypervisor-specific Physical Timer.
+///
+/// This is designed for use by a hypervisor, whilst an EL1 application
+/// concurrently uses the Physical Timer and/or the Virtual Timer.
+///
+/// This type is not [Send] because it is a per-core type and should not be moved across
+/// cores on an SMP system.
+pub struct El2HypPhysicalTimer {
+    _phantom: PhantomData<*const u8>,
+}
 
 impl El2HypPhysicalTimer {
     /// Create a Timer handle for the EL2-specific Hyp Physical Timer.
@@ -155,9 +179,13 @@ impl El2HypPhysicalTimer {
     /// # Safety
     ///
     /// Only create one of these at any given time, as they access shared
-    /// mutable state within the processor and do read-modify-writes on that state.
+    /// mutable state within the processor and do read-modify-writes on that
+    /// state. This timer is distinct from the Physical Timer and the Virtual
+    /// Timer, and so can exist concurrently.
     pub unsafe fn new() -> El2HypPhysicalTimer {
-        El2HypPhysicalTimer()
+        El2HypPhysicalTimer {
+            _phantom: PhantomData,
+        }
     }
 }
 
