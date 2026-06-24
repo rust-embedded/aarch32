@@ -5,6 +5,7 @@ exclude = [
   "examples/mps3-an536",
   "examples/mps3-an536-smp",
   "examples/mps3-an536-el2",
+  "examples/c-code",
 ]
 members = [
   "aarch32-cpu",

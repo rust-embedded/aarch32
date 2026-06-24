@@ -18,6 +18,7 @@ version = "0.0.0"
 aarch32-cpu = { path = "../../aarch32-cpu", features = ["critical-section-single-core"] }
 aarch32-rt = { path = "../../aarch32-rt" }
 arbitrary-int = "2.1.1"
+c-code = { version = "0.1.0", path = "../c-code" }
 derive-mmio = "0.6.1"
 libm = "0.2.15"
 pl190-vic = "0.1.2"

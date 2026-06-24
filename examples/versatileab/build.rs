@@ -9,7 +9,7 @@ use std::io::Write;
 fn main() {
     arm_targets::process();
     write("memory.x", include_bytes!("memory.x"));
-    // Use the cortex-m-rt linker script
+    // Use the aarch32-rt linker script
     println!("cargo:rustc-link-arg=-Tlink.x");
 }
 
