@@ -179,6 +179,8 @@ test-qemu-v4t:
 	FAIL=0
 	./tests.sh examples/versatileab armv4t-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
 	./tests.sh examples/versatileab thumbv4t-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
+	./tests.sh examples/versatileab armv4t-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	./tests.sh examples/versatileab thumbv4t-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
 test-qemu-v5te:
@@ -186,6 +188,8 @@ test-qemu-v5te:
 	FAIL=0
 	./tests.sh examples/versatileab armv5te-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
 	./tests.sh examples/versatileab thumbv5te-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
+	./tests.sh examples/versatileab armv5te-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	./tests.sh examples/versatileab thumbv5te-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
 test-qemu-v6:
@@ -194,6 +198,9 @@ test-qemu-v6:
 	./tests.sh examples/versatileab armv6-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
 	./tests.sh examples/versatileab armv6-none-eabihf -Zbuild-std=core {{verbose}} --release || FAIL=1
 	./tests.sh examples/versatileab thumbv6-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
+	./tests.sh examples/versatileab armv6-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	./tests.sh examples/versatileab armv6-none-eabihf -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	./tests.sh examples/versatileab thumbv6-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
 test-qemu-v7a:
@@ -203,6 +210,10 @@ test-qemu-v7a:
 	./tests.sh examples/versatileab thumbv7a-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
 	./tests.sh examples/versatileab armv7a-none-eabihf {{verbose}} --release || FAIL=1
 	./tests.sh examples/versatileab thumbv7a-none-eabihf -Zbuild-std=core {{verbose}} --release || FAIL=1
+	./tests.sh examples/versatileab armv7a-none-eabi {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	./tests.sh examples/versatileab thumbv7a-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	./tests.sh examples/versatileab armv7a-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	./tests.sh examples/versatileab thumbv7a-none-eabihf -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
 	RUSTFLAGS=-Ctarget-feature=+d32 ./tests.sh examples/versatileab armv7a-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	RUSTFLAGS=-Ctarget-feature=+d32 ./tests.sh examples/versatileab thumbv7a-none-eabihf -Zbuild-std=core --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
@@ -214,6 +225,10 @@ test-qemu-v7r:
 	./tests.sh examples/versatileab thumbv7r-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
 	./tests.sh examples/versatileab armv7r-none-eabihf {{verbose}} --release || FAIL=1
 	./tests.sh examples/versatileab thumbv7r-none-eabihf -Zbuild-std=core {{verbose}} --release || FAIL=1
+	./tests.sh examples/versatileab armv7r-none-eabi {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	./tests.sh examples/versatileab thumbv7r-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	./tests.sh examples/versatileab armv7r-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	./tests.sh examples/versatileab thumbv7r-none-eabihf -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
 test-qemu-v8r:
@@ -221,6 +236,8 @@ test-qemu-v8r:
 	FAIL=0
 	./tests.sh examples/mps3-an536 armv8r-none-eabihf {{verbose}} --release || FAIL=1
 	./tests.sh examples/mps3-an536 thumbv8r-none-eabihf -Zbuild-std=core {{verbose}} --release || FAIL=1
+	./tests.sh examples/mps3-an536 armv8r-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	./tests.sh examples/mps3-an536 thumbv8r-none-eabihf -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
 	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536 armv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536 thumbv8r-none-eabihf -Zbuild-std=core --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
@@ -230,6 +247,8 @@ test-qemu-v8r-smp:
 	FAIL=0
 	./tests.sh examples/mps3-an536-smp armv8r-none-eabihf {{verbose}} --release || FAIL=1
 	./tests.sh examples/mps3-an536-smp thumbv8r-none-eabihf -Zbuild-std=core {{verbose}} --release || FAIL=1
+	./tests.sh examples/mps3-an536-smp armv8r-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	./tests.sh examples/mps3-an536-smp thumbv8r-none-eabihf -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
 	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536-smp armv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536-smp thumbv8r-none-eabihf -Zbuild-std=core --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi

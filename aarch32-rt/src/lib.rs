@@ -17,12 +17,21 @@
 //! ## Features
 //!
 //! - `eabi-fpu`: Enables the FPU, even if you selected a soft-float ABI target.
+//!
 //! - `fpu-d32`: Make the interrupt context store routines save the upper
 //!   double-precision registers.
 //!
 //!   If your program is using all 32 double-precision registers (e.g. if you
 //!   have set the `+d32` target feature) then you need to enable this option
 //!   otherwise important FPU state may be lost when an exception occurs.
+//
+//! - `el2-mode`: Leave the processor in EL2/PL2 mode on boot-up, and expect to
+//!   handle interrupts in HYP mode using ELR_hyp. Useful if you want to write a
+//!   hypervisor or other low-level firmware.
+//!
+//! - `svc-stack-interrupt`: Use the SVC stack when an interrupt occurs, instead
+//!   of using the SYS stack. Useful if you are writing an RTOS and your SYS
+//!   stack is actually the USR stack for the running task.
 //!
 //! ## Information about the Run-Time
 //!
@@ -396,7 +405,11 @@
 //! ### IRQ Handler
 //!
 //! The symbol `_irq_handler` should be an `extern "C"` function. It is called
-//! in SYS mode (not IRQ mode!) when an [Interrupt] occurs.
+//! in SYS mode or SVC mode (not IRQ mode!) when an [Interrupt] occurs. Use the
+//! `svc-stack-interrupt` feature to select SVC mode instead of the default SYS
+//! mode. You might want to use `svc-stack-interrupt` if you are running an RTOS
+//! and you don't want to push a bunch of state into the running thread's stack
+//! when an interrupt occurs.
 //!
 //! [Interrupt]:
 //!     https://developer.arm.com/documentation/ddi0406/c/System-Level-Architecture/The-System-Level-Programmers--Model/Exception-descriptions/IRQ-exception?lang=en
@@ -478,8 +491,8 @@
 //! * `_asm_irq_handler` - a naked function to call when an Undefined Exception
 //!   occurs. Our linker script PROVIDEs a default function at
 //!   `_asm_default_irq_handler` but you can override it. The provided default
-//!   handler will call `_irq_handler` in SYS mode (not IRQ mode), saving state
-//!   as required.
+//!   handler will call `_irq_handler` in SYS mode or SVC mode (but not IRQ
+//!   mode), saving state as required.
 //!
 //! * `_asm_fiq_handler` - a naked function to call when a Fast Interrupt
 //!   Request (FIQ) occurs. Our linker script PROVIDEs a default function at

@@ -10,7 +10,7 @@ use arm_gic::{
     gicv3::{GicCpuInterface, Group, SgiTarget, SgiTargetGroup},
     {IntId, InterruptGroup},
 };
-use mps3_an536 as _;
+use mps3_an536_el2 as _;
 use semihosting::println;
 
 const SGI_INTID_LO: IntId = IntId::sgi(3);
@@ -21,7 +21,7 @@ const SGI_INTID_HI: IntId = IntId::sgi(4);
 /// It is called by the start-up code in `aarch32-rt`.
 #[entry]
 fn main() -> ! {
-    let mut board = mps3_an536::Board::new().unwrap();
+    let mut board = mps3_an536_el2::Board::new().unwrap();
 
     // Only interrupts with a higher priority (numerically lower) will be signalled.
     GicCpuInterface::set_priority_mask(0x80);
@@ -82,7 +82,7 @@ fn main() -> ! {
 
     println!("IRQ test completed OK");
 
-    mps3_an536::exit(0);
+    mps3_an536_el2::exit(0);
 }
 
 // The `link_section` is just to check the macro can cope with it

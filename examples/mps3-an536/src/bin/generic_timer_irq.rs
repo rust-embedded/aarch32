@@ -44,11 +44,9 @@ fn main() -> ! {
     );
 
     println!("Enabling interrupts...");
-    dump_sctlr();
     unsafe {
         aarch32_cpu::interrupt::enable();
     }
-    dump_sctlr();
 
     let mut count: u32 = 0;
     loop {
@@ -61,11 +59,6 @@ fn main() -> ! {
             mps3_an536::exit(0);
         }
     }
-}
-
-fn dump_sctlr() {
-    let sctlr = aarch32_cpu::register::Sctlr::read();
-    println!("{:?}", sctlr);
 }
 
 #[irq]
