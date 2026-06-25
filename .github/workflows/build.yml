@@ -224,6 +224,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Install Just
         uses: taiki-e/install-action@just
+      - name: Install GCC and libclang1
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi libclang1
       - name: Install Rust
         run: |
           rustup toolchain install 1.92
@@ -288,7 +292,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64
+          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
       - name: Install custom QEMU into /opt
         run: |
           curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
@@ -310,7 +314,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64
+          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
       - name: Install custom QEMU into /opt
         run: |
           curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
@@ -332,7 +336,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64
+          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
       - name: Install custom QEMU into /opt
         run: |
           curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
@@ -354,7 +358,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64
+          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
       - name: Install custom QEMU into /opt
         run: |
           curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
@@ -376,7 +380,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64
+          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
       - name: Install custom QEMU into /opt
         run: |
           curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
@@ -398,7 +402,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64
+          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
       - name: Install custom QEMU into /opt
         run: |
           curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
@@ -420,7 +424,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64
+          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
       - name: Install custom QEMU into /opt
         run: |
           curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
@@ -442,7 +446,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64
+          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
       - name: Install custom QEMU into /opt
         run: |
           curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /

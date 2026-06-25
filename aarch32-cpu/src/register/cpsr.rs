@@ -74,14 +74,7 @@ impl Cpsr {
     /// On Armv4T and Armv5TE this will be an Arm function, even on the
     /// `thumb*` targets, as Thumb-1 cannot do an MRS.
     #[cfg_attr(not(feature = "check-asm"), inline)]
-    #[cfg_attr(
-        any(
-            arm_architecture = "v4t",
-            arm_architecture = "v5te",
-            arm_architecture = "v6"
-        ),
-        instruction_set(arm::a32)
-    )]
+    #[cfg_attr(armv6_or_lower, instruction_set(arm::a32))]
     pub fn read() -> Self {
         let r: u32;
 
@@ -111,14 +104,7 @@ impl Cpsr {
     /// On Armv4T and Armv5TE this will be an Arm function, even on the
     /// `thumb*` targets, as Thumb-1 cannot do an MSR.
     #[cfg_attr(not(feature = "check-asm"), inline)]
-    #[cfg_attr(
-        any(
-            arm_architecture = "v4t",
-            arm_architecture = "v5te",
-            arm_architecture = "v6"
-        ),
-        instruction_set(arm::a32)
-    )]
+    #[cfg_attr(armv6_or_lower, instruction_set(arm::a32))]
     pub unsafe fn write(_value: Self) {
         // Safety: This is risky, but we're in an unsafe function
         #[cfg(target_arch = "arm")]

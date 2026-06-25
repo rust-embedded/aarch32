@@ -17,12 +17,21 @@
 //! ## Features
 //!
 //! - `eabi-fpu`: Enables the FPU, even if you selected a soft-float ABI target.
+//!
 //! - `fpu-d32`: Make the interrupt context store routines save the upper
 //!   double-precision registers.
 //!
 //!   If your program is using all 32 double-precision registers (e.g. if you
 //!   have set the `+d32` target feature) then you need to enable this option
 //!   otherwise important FPU state may be lost when an exception occurs.
+//
+//! - `el2-mode`: Leave the processor in EL2/PL2 mode on boot-up, and expect to
+//!   handle interrupts in HYP mode using ELR_hyp. Useful if you want to write a
+//!   hypervisor or other low-level firmware.
+//!
+//! - `svc-stack-interrupt`: Use the SVC stack when an interrupt occurs, instead
+//!   of using the SYS stack. Useful if you are writing an RTOS and your SYS
+//!   stack is actually the USR stack for the running task.
 //!
 //! ## Information about the Run-Time
 //!
@@ -396,7 +405,11 @@
 //! ### IRQ Handler
 //!
 //! The symbol `_irq_handler` should be an `extern "C"` function. It is called
-//! in SYS mode (not IRQ mode!) when an [Interrupt] occurs.
+//! in SYS mode or SVC mode (not IRQ mode!) when an [Interrupt] occurs. Use the
+//! `svc-stack-interrupt` feature to select SVC mode instead of the default SYS
+//! mode. You might want to use `svc-stack-interrupt` if you are running an RTOS
+//! and you don't want to push a bunch of state into the running thread's stack
+//! when an interrupt occurs.
 //!
 //! [Interrupt]:
 //!     https://developer.arm.com/documentation/ddi0406/c/System-Level-Architecture/The-System-Level-Programmers--Model/Exception-descriptions/IRQ-exception?lang=en
@@ -478,8 +491,8 @@
 //! * `_asm_irq_handler` - a naked function to call when an Undefined Exception
 //!   occurs. Our linker script PROVIDEs a default function at
 //!   `_asm_default_irq_handler` but you can override it. The provided default
-//!   handler will call `_irq_handler` in SYS mode (not IRQ mode), saving state
-//!   as required.
+//!   handler will call `_irq_handler` in SYS mode or SVC mode (but not IRQ
+//!   mode), saving state as required.
 //!
 //! * `_asm_fiq_handler` - a naked function to call when a Fast Interrupt
 //!   Request (FIQ) occurs. Our linker script PROVIDEs a default function at
@@ -531,35 +544,24 @@
 #[cfg(target_arch = "arm")]
 use aarch32_cpu::register::{cpsr::ProcessorMode, Cpsr};
 
-#[cfg(all(
-    any(arm_architecture = "v7-a", arm_architecture = "v8-r"),
-    not(feature = "el2-mode")
+#[cfg(any(
+    arm_architecture = "v7-a",
+    all(arm_architecture = "v8-r", not(feature = "el2-mode")),
 ))]
 use aarch32_cpu::register::Hactlr;
 
 pub use aarch32_rt_macros::{entry, exception, irq};
 
-#[cfg(all(target_arch = "arm", arm_architecture = "v8-r", feature = "el2-mode"))]
+#[cfg(all(arm_architecture = "v8-r", feature = "el2-mode"))]
 mod arch_v8_hyp;
 
 #[cfg(all(
-    target_arch = "arm",
-    any(
-        arm_architecture = "v7-a",
-        arm_architecture = "v7-r",
-        all(arm_architecture = "v8-r", not(feature = "el2-mode"))
-    ),
+    armv7_or_higher,
+    not(all(arm_architecture = "v8-r", feature = "el2-mode"))
 ))]
 mod arch_v7;
 
-#[cfg(all(
-    target_arch = "arm",
-    not(any(
-        arm_architecture = "v7-a",
-        arm_architecture = "v7-r",
-        arm_architecture = "v8-r"
-    ))
-))]
+#[cfg(armv6_or_lower)]
 mod arch_v4;
 
 pub mod sections;
@@ -764,9 +766,48 @@ core::arch::global_asm!(
     "#,
 );
 
-/// This macro expands to code to turn on the FPU
-#[cfg(all(target_arch = "arm", any(target_abi = "eabihf", feature = "eabi-fpu")))]
-macro_rules! fpu_enable {
+/// This is for ARMv7 and ARMv8 systems with an FPU
+///
+/// It just disables Thumb Exceptions and turns on the FPU
+#[cfg(all(armv7_or_higher, any(target_abi = "eabihf", feature = "eabi-fpu")))]
+macro_rules! system_init {
+    () => {
+        r#"
+        // Allow VFP coprocessor access
+        mrc     p15, 0, r0, c1, c0, 2
+        orr     r0, r0, #0xF00000
+        mcr     p15, 0, r0, c1, c0, 2
+        // Enable VFP
+        mov     r0, #0x40000000
+        vmsr    fpexc, r0
+        // Clear Thumb Exception bit
+        mrc     p15, 0, r0, c1, c0, 0
+        bic     r0, #0x40000000
+        mcr     p15, 0, r0, c1, c0, 0
+        "#
+    };
+}
+
+/// This is for ARMv7 and ARMv8 systems without an FPU
+///
+/// It just disables Thumb Exceptions
+#[cfg(all(armv7_or_higher, not(any(target_abi = "eabihf", feature = "eabi-fpu"))))]
+macro_rules! system_init {
+    () => {
+        r#"
+        // Clear Thumb Exception bit
+        mrc     p15, 0, r0, c1, c0, 0
+        bic     r0, #0x40000000
+        mcr     p15, 0, r0, c1, c0, 0
+        "#
+    };
+}
+
+/// This is for ARMv6 and earlier systems with an FPU
+///
+/// It enables the FPU
+#[cfg(all(armv6_or_lower, any(target_abi = "eabihf", feature = "eabi-fpu")))]
+macro_rules! system_init {
     () => {
         r#"
         // Allow VFP coprocessor access
@@ -780,22 +821,19 @@ macro_rules! fpu_enable {
     };
 }
 
-/// This macro expands to code that does nothing because there is no FPU
-#[cfg(all(
-    target_arch = "arm",
-    not(any(target_abi = "eabihf", feature = "eabi-fpu"))
-))]
-macro_rules! fpu_enable {
+/// This is for ARMv6 and earlier systems without an FPU
+///
+/// It does nothing
+#[cfg(all(armv6_or_lower, not(any(target_abi = "eabihf", feature = "eabi-fpu"))))]
+macro_rules! system_init {
     () => {
         r#"
-        // no FPU - do nothing
+        // No system init required
         "#
     };
 }
 
-// Start-up code for Armv7-R (and Armv8-R once we've left EL2)
-// Stack location and sizes are taken from sections defined in linker script
-// We set up our stacks and `kmain` in system mode.
+// Shared library routines for all architectures
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
@@ -849,11 +887,6 @@ core::arch::global_asm!(
         ldr	    r1, =_sys_stack_size
         muls    r1, r1, r0
         subs    sp, r2, r1
-        // Clear the Thumb Exception bit because all vector table is written in Arm assembly
-        // even on Thumb targets.
-        mrc     p15, 0, r1, c1, c0, 0
-        bic     r1, #{te_bit}
-        mcr     p15, 0, r1, c1, c0, 0
         // return to caller
         bx      r3
     .size _stack_setup_preallocated, . - _stack_setup_preallocated
@@ -943,20 +976,10 @@ core::arch::global_asm!(
             .with_f(true)
             .raw_value()
     },
-    te_bit = const {
-        aarch32_cpu::register::Sctlr::new_with_raw_value(0)
-            .with_te(true)
-            .raw_value()
-    }
 );
 
-// Start-up code for CPUs that boot into EL1
-//
-// Go straight to our default routine
-#[cfg(all(
-    target_arch = "arm",
-    not(any(arm_architecture = "v7-a", arm_architecture = "v8-r"))
-))]
+// Start-up code for CPUs that always boot into EL1
+#[cfg(any(armv6_or_lower, arm_architecture = "v7-r",))]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
@@ -973,7 +996,7 @@ core::arch::global_asm!(
         mov     r0, #0
         bl      _stack_setup_preallocated
     "#,
-    fpu_enable!(),
+    system_init!(),
     r#"
         // Zero all registers before calling kmain
         mov     r0, 0
@@ -998,15 +1021,10 @@ core::arch::global_asm!(
     "#
 );
 
-// Start-up code for Armv8-R to switch to EL1.
-//
-// There's only one Armv8-R CPU (the Cortex-R52) and the FPU is mandatory, so we
-// always enable it.
-//
-// We boot into EL2, set up a stack pointer, and run `kmain` in EL1.
-#[cfg(all(
-    any(arm_architecture = "v7-a", arm_architecture = "v8-r"),
-    not(feature = "el2-mode")
+// Start-up code for CPUs that *might* boot into EL2 but that we want in EL1.
+#[cfg(any(
+    arm_architecture = "v7-a",
+    all(arm_architecture = "v8-r", not(feature = "el2-mode")),
 ))]
 core::arch::global_asm!(
     r#"
@@ -1052,9 +1070,9 @@ core::arch::global_asm!(
         // Set up stacks.
         mov     r0, #0
         bl      _stack_setup_preallocated
-        "#,
-        fpu_enable!(),
-        r#"
+    "#,
+    system_init!(),
+    r#"
         // Zero all registers before calling kmain
         mov     r0, 0
         mov     r1, 0
@@ -1101,9 +1119,6 @@ core::arch::global_asm!(
 
 // Start-up code for Armv8-R to stay in EL2.
 //
-// There's only one Armv8-R CPU (the Cortex-R52) and the FPU is mandatory, so we
-// always enable it.
-//
 // We boot into EL2, set up a HYP stack pointer, and run `kmain` in EL2.
 #[cfg(all(arm_architecture = "v8-r", feature = "el2-mode"))]
 core::arch::global_asm!(
@@ -1127,7 +1142,7 @@ core::arch::global_asm!(
         orr     r0, {irq_fiq}
         msr     CPSR, r0
     "#,
-    fpu_enable!(),
+    system_init!(),
     r#"
         // Zero all registers before calling kmain
         mov     r0, 0
@@ -1156,7 +1171,7 @@ core::arch::global_asm!(
 ///
 /// Only required on Armv4T and Armv5TE, because Armv6K onwards support atomics.
 #[unsafe(no_mangle)]
-#[cfg(any(arm_architecture = "v4t", arm_architecture = "v5te"))]
+#[cfg(armv5te_or_lower)]
 pub extern "C" fn __sync_synchronize() {
     // we don't have a barrier instruction - the linux kernel just uses an empty inline asm block
     // so we do the same.

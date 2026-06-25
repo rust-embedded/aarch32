@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `svc-stack-interrupt` feature to use SVC stack on interrupt, not SYS stack
+
 ## [aarch32-rt v0.3.0]
 
 ### Added

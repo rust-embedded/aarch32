@@ -18,6 +18,7 @@ version = "0.0.0"
 aarch32-cpu = { path = "../../aarch32-cpu", features = ["critical-section-multi-core"] }
 aarch32-rt = { path = "../../aarch32-rt" }
 arm-gic = "0.8.1"
+c-code = { version = "0.1.0", path = "../c-code" }
 critical-section = "1.2.0"
 heapless = "0.9.1"
 libm = "0.2.15"
@@ -29,3 +30,4 @@ arm-targets = {version = "0.4.0", path = "../../arm-targets"}
 [features]
 eabi-fpu = ["aarch32-rt/eabi-fpu"]
 fpu-d32 = ["aarch32-rt/fpu-d32"]
+svc-stack-interrupt = ["aarch32-rt/svc-stack-interrupt"]

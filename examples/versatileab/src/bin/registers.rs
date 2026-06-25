@@ -29,7 +29,7 @@ fn chip_info() {
 #[cfg(arm_architecture = "v7-r")]
 fn mpu_pmsa_v7() {
     use aarch32_cpu::{
-        pmsav7::{CachePolicy, Config, MemAttr, Mpu, Region, RegionSize},
+        pmsav7::{AccessPerms, CachePolicy, Config, MemAttr, Mpu, Region, RegionSize},
         register::Mpuir,
     };
 
@@ -66,6 +66,7 @@ fn mpu_pmsa_v7() {
                 outer: CachePolicy::NonCacheable,
                 shareable: true,
             },
+            access_perms: AccessPerms::ReadWrite,
         }],
         iregions: &[],
     })

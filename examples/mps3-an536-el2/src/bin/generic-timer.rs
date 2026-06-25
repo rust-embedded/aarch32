@@ -50,11 +50,9 @@ fn main() -> ! {
     let _ = hyp_timer;
 
     println!("Enabling interrupts...");
-    dump_sctlr();
     unsafe {
         aarch32_cpu::interrupt::enable();
     }
-    dump_sctlr();
 
     loop {
         aarch32_cpu::asm::wfi();
@@ -68,11 +66,6 @@ fn main() -> ! {
     println!("EL2 timer test completed OK");
 
     mps3_an536_el2::exit(0);
-}
-
-fn dump_sctlr() {
-    let sctlr = aarch32_cpu::register::Sctlr::read();
-    println!("{:?}", sctlr);
 }
 
 #[irq]
