@@ -6,6 +6,8 @@
 //!
 //! [armv8r]: https://developer.arm.com/documentation/ddi0568/latest/
 
+use core::marker::PhantomData;
+
 use arbitrary_int::{u26, u3};
 
 use crate::register;
@@ -28,7 +30,12 @@ pub enum Error {
 }
 
 /// Represents our PMSAv8-32 EL1 MPU
-pub struct El1Mpu();
+///
+/// This type is not [Send] because it is a per-core type and should not be moved across
+/// cores on an SMP system.
+pub struct El1Mpu {
+    _phantom: PhantomData<*const u8>,
+}
 
 impl El1Mpu {
     /// Create an MPU handle
@@ -38,7 +45,9 @@ impl El1Mpu {
     /// Only create one of these at any given time, as they access shared
     /// mutable state within the processor and do read-modify-writes on that state.
     pub unsafe fn new() -> El1Mpu {
-        El1Mpu()
+        El1Mpu {
+            _phantom: PhantomData,
+        }
     }
 
     /// How many MPU regions are there?
@@ -199,7 +208,12 @@ impl El1Mpu {
 }
 
 /// Represents our PMSAv8-32 EL2 MPU
-pub struct El2Mpu();
+///
+/// This type is not [Send] because it is a per-core type and should not be moved across
+/// cores on an SMP system.
+pub struct El2Mpu {
+    _phantom: PhantomData<*const u8>,
+}
 
 impl El2Mpu {
     /// Create an EL2 MPU handle
@@ -209,7 +223,9 @@ impl El2Mpu {
     /// Only create one of these at any given time, as they access shared
     /// mutable state within the processor and do read-modify-writes on that state.
     pub unsafe fn new() -> El2Mpu {
-        El2Mpu()
+        El2Mpu {
+            _phantom: PhantomData,
+        }
     }
 
     /// How many EL2 MPU regions are there?
@@ -407,6 +423,7 @@ pub struct El1Region {
 
 // Creating a static Region is fine - the pointers within it
 // only go to the MPU and aren't accessed via Rust code
+unsafe impl Send for El1Region {}
 unsafe impl Sync for El1Region {}
 
 /// Configuration for the PMSAv8-32 EL2 MPU
@@ -454,6 +471,7 @@ pub struct El2Region {
 
 // Creating a static El2Region is fine - the pointers within it
 // only go to the MPU and aren't accessed via Rust code
+unsafe impl Send for El2Region {}
 unsafe impl Sync for El2Region {}
 
 /// Describes the memory ordering and cacheability of a region
