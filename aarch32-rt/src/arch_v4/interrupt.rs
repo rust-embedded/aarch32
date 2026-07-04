@@ -30,29 +30,29 @@ core::arch::global_asm!(
     .global _asm_default_irq_handler
     .type _asm_default_irq_handler, %function
     _asm_default_irq_handler:
-        sub     lr, lr, 4                 // make sure we jump back to the right place
-        stmfd   sp!, {{ lr }}             // save adjusted LR to IRQ stack (1)
-        mrs     lr, spsr                  // The hardware has copied the interrupted task's CPSR to SPSR_irq - grab it (2) and
-        push    {{ lr }}                  //   save it to IRQ stack using LR (3)
-        msr     cpsr_c, {handler_mode}    // switch to handler mode (4)
-        push    {{ lr }}                  // Save LR of handler mode before using it for stack alignment (5)
-        and     lr, sp, 7                 // align SP down to eight byte boundary using LR
+        sub     lr, lr, 4                 // Make sure we jump back to the right place
+        stmfd   sp!, {{ lr }}             // Save adjusted LR to IRQ stack (1)
+        mrs     lr, spsr                  // Grab SPSR (2)
+        push    {{ lr }}                  // Push SPSR value (3)
+        msr     cpsr_c, {handler_mode}    // Switch to handler mode (4)
+        push    {{ lr }}                  // Push LR of handler mode before using it for stack alignment (5)
+        and     lr, sp, 7                 // Align SP down to eight byte boundary using LR
         sub     sp, lr                    // SP now aligned - only push 64-bit values from here (6)
-        push    {{ r0-r3, r12, lr }}      // push alignment amount (in LR) and preserved registers (7)
+        push    {{ r0-r3, r12, lr }}      // Push preserved registers and alignment amount (7)
      "#,
     crate::fpu_context!("save"),
     r#"
-        bl      _irq_handler              // call C handler in the selected handler mode (they may choose to re-enable interrupts)
+        bl      _irq_handler              // Call C handler in the selected handler mode (they may choose to re-enable interrupts)
     "#,
     crate::fpu_context!("restore"),
     r#"
-        pop     {{ r0-r3, r12, lr }}      // restore alignment amount (in LR) and preserved registers to undo (7)
-        add     sp, lr                    // restore SP alignment using LR to undo (6)
-        pop     {{ lr }}                  // Restore the actual link register of handler mode to undo (5)
-        msr     cpsr_c, {irq_mode}        // switch back to IRQ mode (with IRQ masked) to undo (4)
-        pop     {{ lr }}                  // load SPSR to undo (3)
-        msr     spsr, lr                  // restore SPSR to undo (2)
-        ldmfd   sp!, {{ pc }}^            // return from exception (^ => restore SPSR to CPSR) to undo (1)
+        pop     {{ r0-r3, r12, lr }}      // Pop alignment amount (in LR) and preserved registers to undo (7)
+        add     sp, lr                    // Restore SP alignment using LR to undo (6)
+        pop     {{ lr }}                  // Pop the actual link register of handler mode to undo (5)
+        msr     cpsr_c, {irq_mode}        // Switch back to IRQ mode (with IRQ masked) to undo (4)
+        pop     {{ lr }}                  // Grab saved SPSR to undo (3)
+        msr     spsr, lr                  // Restore SPSR using LR to undo (2)
+        ldmfd   sp!, {{ pc }}^            // Return from exception to undo (1) (^ => restore SPSR to CPSR)
     .size _asm_default_irq_handler, . - _asm_default_irq_handler
     .popsection
     "#,

@@ -32,24 +32,24 @@ core::arch::global_asm!(
     .global _asm_default_irq_handler
     .type _asm_default_irq_handler, %function
     _asm_default_irq_handler:
-        sub     lr, lr, 4                 // make sure we jump back to the right place
-        srsfd   sp!, #{handler_mode}      // store return state to the handler stack (1)
-        cps     #{handler_mode}           // switch to handler mode (2)
-        push    {{ lr }}                  // save adjusted LR to handler mode stack (3)
-        and     lr, sp, 7                 // align SP down to eight byte boundary using LR
+        sub     lr, lr, 4                 // Make sure we jump back to the right place
+        srsfd   sp!, #{handler_mode}      // Store return state to the handler stack (1)
+        cps     #{handler_mode}           // Switch to handler mode (2)
+        push    {{ lr }}                  // Push adjusted LR to handler mode stack (3)
+        and     lr, sp, 7                 // Align SP down to eight byte boundary using LR
         sub     sp, lr                    // SP now aligned - only push 64-bit values from here (4)
-        push    {{ r0-r3, r12, lr }}      // push alignment amount (in LR) and preserved registers (5)
+        push    {{ r0-r3, r12, lr }}      // Push alignment amount (in LR) and preserved registers (5)
      "#,
     crate::fpu_context!("save"),
     r#"
-        bl      _irq_handler              // call C handler (they may choose to re-enable interrupts)
+        bl      _irq_handler              // Call C handler (they may choose to re-enable interrupts)
     "#,
     crate::fpu_context!("restore"),
     r#"
-        pop     {{ r0-r3, r12, lr }}      // restore alignment amount (in LR) and preserved registers to undo (5)
-        add     sp, lr                    // restore SP alignment using LR to undo (4)
-        pop     {{ lr }}                  // restore adjusted LR to undo (3)
-        rfefd   sp!                       // return from exception to undo (2) and (1) together
+        pop     {{ r0-r3, r12, lr }}      // Pop alignment amount (in LR) and preserved registers to undo (5)
+        add     sp, lr                    // Restore SP alignment using LR to undo (4)
+        pop     {{ lr }}                  // Pop adjusted LR to undo (3)
+        rfefd   sp!                       // Return from exception to undo (2) and (1) together
     .size _asm_default_irq_handler, . - _asm_default_irq_handler
     .popsection
     "#,

@@ -5,7 +5,6 @@ core::arch::global_asm!(
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3
 
-
     // Called from the vector table when we have an undefined exception.
     // Saves state and calls a C-compatible handler like
     // `extern "C" fn _data_abort_handler(addr: usize);`
@@ -14,26 +13,26 @@ core::arch::global_asm!(
     .global _asm_default_data_abort_handler
     .type _asm_default_data_abort_handler, %function
     _asm_default_data_abort_handler:
-        sub     lr, lr, #8                // Subtract 8 from LR, see p.1214 of the ARMv7-A architecture manual.
-        srsfd   sp!, #{abt_mode}          // store return state to ABT stack
-        push    {{ r12 }}                 // Save preserved register R12 - can now use it
-        and     r12, sp, 7               // align SP down to eight byte boundary using R12
-        sub     sp, r12                   // SP now aligned - only push 64-bit values from here
-        push    {{ r0-r4, r12 }}          // push alignment amount, and preserved registers - can now use R0-R3 (R4 is just padding)
+        sub     lr, lr, #8                // Make sure we jump back to the right place
+        srsfd   sp!, #{abt_mode}          // Store return state to ABT stack (1)
+        push    {{ r12 }}                 // Push preserved register R12 (2)
+        and     r12, sp, 7                // Align SP down to eight byte boundary using R12
+        sub     sp, r12                   // SP now aligned - only push 64-bit values from here (3)
+        push    {{ r0-r4, r12 }}          // Push alignment amount, and preserved registers (R4 is just padding) (4)
     "#,
     crate::fpu_context!("save"),
     r#"
         mov     r0, lr                    // Pass the faulting instruction address to the handler.
-        bl      _data_abort_handler       // call C handler
-        mov     lr, r0                    // if we get back here, assume they returned a new LR in r0
+        bl      _data_abort_handler       // Call C handler
+        mov     lr, r0                    // If we get back here, assume they returned a new LR in r0
     "#,
     crate::fpu_context!("restore"),
     r#"
-        pop     {{ r0-r4, r12 }}          // restore preserved registers, dummy value, and alignment amount
-        add     sp, r12                   // restore SP alignment using R12
-        pop     {{ r12 }}                 // restore R12
-        str     lr, [sp]                  // overwrite the saved LR with the one from the C handler
-        rfefd   sp!                       // return from exception
+        pop     {{ r0-r4, r12 }}          // Pop preserved registers, dummy value, and alignment amount to undo (4)
+        add     sp, r12                   // Restore SP alignment using R12 to undo (3)
+        pop     {{ r12 }}                 // Pop R12 to undo (2)
+        str     lr, [sp]                  // Overwrite the saved LR with the one from the C handler
+        rfefd   sp!                       // Return from exception to undo (1)
     .size _asm_default_data_abort_handler, . - _asm_default_data_abort_handler
     .popsection
     "#,
@@ -53,26 +52,26 @@ core::arch::global_asm!(
     .global _asm_default_prefetch_abort_handler
     .type _asm_default_prefetch_abort_handler, %function
     _asm_default_prefetch_abort_handler:
-        sub     lr, lr, #4                // Subtract 8 from LR, see p.1212 of the ARMv7-A architecture manual.
-        srsfd   sp!, #{abt_mode}          // store return state to ABT stack
-        push    {{ r12 }}                 // save R12 - can now use it
-        and     r12, sp, 7                // align SP down to eight byte boundary using R12
-        sub     sp, r12                   // SP now aligned - only push 64-bit values from here
-        push    {{ r0-r4, r12 }}          // push alignment amount, and preserved registers - can now use R0-R3 (R4 is just padding)
+        sub     lr, lr, #4                // Make sure we jump back to the right place
+        srsfd   sp!, #{abt_mode}          // Store return state to ABT stack (1)
+        push    {{ r12 }}                 // Push preserved register R12 (2)
+        and     r12, sp, 7                // Align SP down to eight byte boundary using R12
+        sub     sp, r12                   // SP now aligned - only push 64-bit values from here (3)
+        push    {{ r0-r4, r12 }}          // Push reserved registers and alignment amount (R4 is just padding) (4)
     "#,
     crate::fpu_context!("save"),
     r#"
         mov     r0, lr                    // Pass the faulting instruction address to the handler.
-        bl      _prefetch_abort_handler   // call C handler
-        mov     lr, r0                    // if we get back here, assume they returned a new LR in r0
+        bl      _prefetch_abort_handler   // Call C handler
+        mov     lr, r0                    // If we get back here, assume they returned a new LR in r0
     "#,
     crate::fpu_context!("restore"),
     r#"
-        pop     {{ r0-r4, r12 }}          // restore preserved registers, dummy value, and alignment amount
-        add     sp, r12                   // restore SP alignment using R12
-        pop     {{ r12 }}                 // restore R12
-        str     lr, [sp]                  // overwrite the saved LR with the one from the C handler
-        rfefd   sp!                       // return from exception
+        pop     {{ r0-r4, r12 }}          // Pop preserved registers, dummy value, and alignment amount to undo (4)
+        add     sp, r12                   // Restore SP alignment using R12 to undo (3)
+        pop     {{ r12 }}                 // Pop R12 to undo (2)
+        str     lr, [sp]                  // Overwrite the saved LR with the one from the C handler to undo (1)
+        rfefd   sp!                       // Return from exception
     .size _asm_default_prefetch_abort_handler, . - _asm_default_prefetch_abort_handler
     .popsection
    "#,

@@ -15,22 +15,22 @@ core::arch::global_asm!(
     .global _asm_default_hvc_handler
     .type _asm_default_hvc_handler, %function
     _asm_default_hvc_handler:
-        push    {{ r12, lr }}             // give us R12 and LR to work with
-        push    {{ r0-r5 }}               // push frame to stack
-        mov     r12, sp                   // r12 = pointer to Frame
+        push    {{ r12, lr }}             // Push preserved registers R12 and LR (1)
+        push    {{ r0-r5 }}               // Push HVC frame to stack (2)
+        mov     r12, sp                   // R12 = pointer to Frame
     "#,
     crate::fpu_context!("save"),
     r#"
-        mrc     p15, 4, r0, c5, c2, 0     // r0 = HSR value
-        mov     r1, r12                   // r1 = frame pointer
+        mrc     p15, 4, r0, c5, c2, 0     // R0 = HSR value
+        mov     r1, r12                   // R1 = frame pointer
         bl      _hvc_handler
         mov     r12, r0
     "#,
     crate::fpu_context!("restore"),
     r#"
-        pop     {{ r0-r5 }}               // restore frame
-        mov     r0, r12                   // replace return value
-        pop     {{ r12, lr }}             // pop state from stack
+        pop     {{ r0-r5 }}               // Pop HVC frame (2)
+        mov     r0, r12                   // Replace return value
+        pop     {{ r12, lr }}             // Pop R12 and LR from stack to undo (1)
         eret                              // Return from the asm handler
     .size _asm_default_hvc_handler, . - _asm_default_hvc_handler
     .popsection

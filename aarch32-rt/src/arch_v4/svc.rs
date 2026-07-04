@@ -14,13 +14,13 @@ core::arch::global_asm!(
     .global _asm_default_svc_handler
     .type _asm_default_svc_handler, %function
     _asm_default_svc_handler:
-        push    {{ r12, lr }}             // save LR and R12 - can now use R12 (but leave LR alone for SVC code lookup)
-        mrs     r12, spsr                 // grab SPSR using R12
-        push    {{ r12 }}                 // save SPSR value
-        and     r12, sp, 7                // align SP down to eight byte boundary using R12
-        sub     sp, r12                   // SP now aligned - only push 64-bit values from here
-        push    {{ r0-r6, r12 }}          // push alignment amount, and stacked SVC argument registers (must be even number of regs for alignment)
-        mov     r12, sp                   // save SP for integer frame
+        stmfd   sp!, {{ r12, lr }}        // Save LR and R12 (1)
+        mrs     r12, spsr                 // Grab SPSR (2)
+        push    {{ r12 }}                 // Push SPSR value (3)
+        and     r12, sp, 7                // Align SP down to eight byte boundary using R12
+        sub     sp, r12                   // SP now aligned - only push 64-bit values from here (4)
+        push    {{ r0-r6, r12 }}          // Push SVC frame registers and alignment amount (5)
+        mov     r12, sp                   // Save SP for integer frame
     "#,
     crate::fpu_context!("save"),
     r#"
@@ -33,18 +33,18 @@ core::arch::global_asm!(
         ldr     r0, [lr,#-4]              // No: Load word and...
         bic     r0, r0, #0xFF000000       // ...extract 3-byte immediate
     2:
-        mov     r1, r12                   // pass the stacked integer registers in r1
-        bl      _svc_handler
-        mov     lr, r0                    // move r0 out of the way - restore_fpu_context will trash it
+        mov     r1, r12                   // Pass the stacked integer registers in r1
+        bl      _svc_handler              // Call C handler in SVC mode
+        mov     lr, r0                    // Move r0 out of the way - restore_fpu_context will trash it
     "#,
     crate::fpu_context!("restore"),
     r#"
-        pop     {{ r0-r6, r12 }}          // restore stacked registers and alignment amount
-        mov     r0, lr                    // replace R0 with return value from _svc_handler
-        add     sp, r12                   // restore SP alignment using R12
-        pop     {{ lr }}                  // restore SPSR using LR
-        msr     spsr, lr                  //
-        ldmfd   sp!, {{ r12, pc }}^       // restore R12 and return from exception (^ => restore SPSR to CPSR)
+        pop     {{ r0-r6, r12 }}          // Pop SVC frame registers and alignment amount to undo (5)
+        mov     r0, lr                    // Replace R0 with return value from _svc_handler
+        add     sp, r12                   // Restore SP alignment using R12 to undo (4)
+        pop     {{ r12 }}                 // Grab saved SPSR to undo (3)
+        msr     spsr, r12                 // Restore SPSR using R12 to undo (2)
+        ldmfd   sp!, {{ r12, pc }}^       // Restore R12 and return from exception (^ => restore SPSR to CPSR) to undo (1)
     .size _asm_default_svc_handler, . - _asm_default_svc_handler
     .popsection
     "#,

@@ -20,32 +20,31 @@ core::arch::global_asm!(
     .global _asm_default_svc_handler
     .type _asm_default_svc_handler, %function
     _asm_default_svc_handler:
-        push    {{ r12, lr }}             // give us R12 and LR to work with
-        mrs     lr, elr_hyp               // grab elr
-        mrs     r12, spsr_hyp             // grab spsr
-        push    {{ r12, lr }}             // push them to stack
-        mov     r12, sp                   // align SP down to eight byte boundary using R12
-        and     r12, r12, 7               //
-        sub     sp, r12                   // SP now aligned - only push 64-bit values from here
-        push    {{ r0-r6, r12 }}          // push frame and alignment amount to stack
-        mov     r12, sp                   // r12 = pointer to Frame
+        push    {{ r12, lr }}             // Push R12 and LR (1)
+        mrs     lr, elr_hyp               // Grab ELR (2)
+        mrs     r12, spsr_hyp             // Grab SPSR (3)
+        push    {{ r12, lr }}             // Push them to stack (4)
+        and     r12, sp, 7                // Align SP down to eight byte boundary using R12
+        sub     sp, r12                   // SP now aligned - only push 64-bit values from here (5)
+        push    {{ r0-r6, r12 }}          // Push SVC frame and alignment amount to stack (6)
+        mov     r12, sp                   // R12 = pointer to Frame
     "#,
     crate::fpu_context!("save"),
     r#"
-        mrc     p15, 4, r0, c5, c2, 0     // r0 = HSR value
-        mov     r1, r12                   // r1 = frame pointer
+        mrc     p15, 4, r0, c5, c2, 0     // R0 = HSR value
+        mov     r1, r12                   // R1 = frame pointer
         bl      _hvc_handler
-        mov     lr, r0                    // copy return value into LR, because we're about to use r0 in the FPU restore
+        mov     lr, r0                    // Copy return value into LR, because we're about to use r0 in the FPU restore
     "#,
     crate::fpu_context!("restore"),
     r#"
-        pop     {{ r0-r6, r12 }}          // restore frame and alignment
-        mov     r0, lr                    // copy return value from lr back to r0, overwriting saved r0
-        add     sp, r12                   // restore SP alignment using R12
-        pop     {{ r12, lr }}             // pop elr and spsr from stack
-        msr     elr_hyp, lr               // restore elr
-        msr     spsr_hyp, r12             // restore spsr
-        pop     {{ r12, lr }}             // pop R12 and LR from stack
+        pop     {{ r0-r6, r12 }}          // Pop SVC frame and alignment to undo (6)
+        mov     r0, lr                    // Copy return value from LR back to R0, overwriting saved R0
+        add     sp, r12                   // Restore SP alignment using R12 to undo (5)
+        pop     {{ r12, lr }}             // Pop ELR and SPSR from stack to undo (4)
+        msr     spsr_hyp, r12             // Restore SPSR to undo (3)
+        msr     elr_hyp, lr               // Restore ELR to undo (2)
+        pop     {{ r12, lr }}             // Pop R12 and LR from stack to undo (1)
         eret                              // Return from the asm handler
     .size _asm_default_svc_handler, . - _asm_default_svc_handler
     "#,
