@@ -16,7 +16,16 @@ core::arch::global_asm!(
         mov     r0, #0
         bl      _stack_setup_preallocated
     "#,
-    crate::system_init!(),
+    #[cfg(any(target_abi = "eabihf", feature = "eabi-fpu"))]
+    r#"
+        // Allow VFP coprocessor access
+        mrc     p15, 0, r0, c1, c0, 2
+        orr     r0, r0, #0xF00000
+        mcr     p15, 0, r0, c1, c0, 2
+        // Enable VFP
+        mov     r0, #0x40000000
+        vmsr    fpexc, r0
+    "#,
     r#"
         // Zero all registers before calling kmain
         mov     r0, 0
