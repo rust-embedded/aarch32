@@ -143,7 +143,9 @@ impl TargetInfo {
                     println!(r#"cargo:rustc-cfg=armv7_or_lower"#);
                     println!(r#"cargo:rustc-cfg=armv8_or_lower"#);
                 }
-                Arch::Armv8R | Arch::Armv8A => {
+                Arch::Armv8R | Arch::Armv8A
+                    if self.isa() == Some(Isa::A32) || self.isa() == Some(Isa::T32) =>
+                {
                     println!(r#"cargo:rustc-cfg=armv4t_or_higher"#);
                     println!(r#"cargo:rustc-cfg=armv5te_or_higher"#);
                     println!(r#"cargo:rustc-cfg=armv6_or_higher"#);
@@ -151,8 +153,8 @@ impl TargetInfo {
                     println!(r#"cargo:rustc-cfg=armv8_or_higher"#);
                     println!(r#"cargo:rustc-cfg=armv8_or_lower"#);
                 }
-                Arch::Armv7M | Arch::Armv7EM | Arch::Armv8MBase | Arch::Armv8MMain => {
-                    // don't claim M-profile architectures are compatible with full Armv7 or similar
+                _ => {
+                    // don't claim M-profile or AArch64 architectures are compatible with full Armv7 or similar
                 }
             }
         }

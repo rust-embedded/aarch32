@@ -9,211 +9,184 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      rust-versions: ${{ steps.set-matrix.outputs.rust_versions }}
+      msrv-targets: ${{ steps.set-matrix.outputs.msrv_targets }}
       stable-targets: ${{ steps.set-matrix.outputs.stable_targets }}
+      nightly-tier2-targets: ${{ steps.set-matrix.outputs.nightly_tier2_targets }}
+      nightly-tier3-targets: ${{ steps.set-matrix.outputs.nightly_tier3_targets }}
+      nightly-tier3-noatomic-targets: ${{ steps.set-matrix.outputs.nightly_tier3_noatomic_targets }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install Just
+        uses: taiki-e/install-action@just
       - id: set-matrix
         run: |
-          echo 'rust_versions=["stable", "1.83"]' >> "$GITHUB_OUTPUT"
-          echo 'stable_targets=["armv7a-none-eabi","armv7a-none-eabihf","armv7r-none-eabi","armv7r-none-eabihf","armv8r-none-eabihf"]' >> "$GITHUB_OUTPUT"
+          just github_info >> "$GITHUB_OUTPUT"
 
-  # Build the workspace for a target architecture
-  build-tier2:
+  # Build the workspace for a target architecture using the MSRV
+  build-tier2-msrv:
     runs-on: ubuntu-24.04
     needs: setup
     strategy:
       matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
-        target: ${{ fromJSON(needs.setup.outputs.stable-targets) }}
-        exclude:
-          - rust: 1.83
-            target: armv7a-none-eabihf
-          - rust: 1.83
-            target: armv8r-none-eabihf
+        target: ${{ fromJSON(needs.setup.outputs.msrv-targets) }}
+        action:
+          - build
+          - clippy
+          - doc
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Just
         uses: taiki-e/install-action@just
       - name: Install Rust
         run: |
-          rustup install ${{ matrix.rust }}
-          rustup default ${{ matrix.rust }}
-          rustup target add ${{ matrix.target }}
-      - name: Build
+          rustup install 1.83
+          rustup target add ${{ matrix.target }} --toolchain=1.83
+      - name: Run just
         run: |
-          just build-tier2 ${{ matrix.target }}
+          RUSTUP_TOOLCHAIN=1.83 just ${{ matrix.action }}-tier2 ${{ matrix.target }}
 
+  # Build the workspace for a target architecture using latest stable
+  build-tier2-stable:
+    runs-on: ubuntu-24.04
+    needs: setup
+    strategy:
+      matrix:
+        target: ${{ fromJSON(needs.setup.outputs.stable-targets) }}
+        action:
+          - build
+          - clippy
+          - doc
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Rust
+        run: |
+          rustup install stable
+          rustup target add ${{ matrix.target }} --toolchain=stable
+      - name: Run just
+        run: |
+          RUSTUP_TOOLCHAIN=stable just ${{ matrix.action }}-tier2 ${{ matrix.target }}
+
+  # Build the workspace for all tier2 target architectures using rust-toolchain.toml
   build-tier2-nightly:
     runs-on: ubuntu-24.04
     needs: setup
     strategy:
       matrix:
-        target:
-          # These targets made Tier 2 on 2026-06-04
-          # They'll move to build-tier2 once they reach stable
-          - thumbv7r-none-eabi
-          - thumbv7r-none-eabihf
-          - thumbv7a-none-eabi
-          - thumbv7a-none-eabihf
-          - thumbv8r-none-eabihf
+        target: ${{ fromJSON(needs.setup.outputs.nightly-tier2-targets) }}
+        action:
+          - build
+          - clippy
+          - doc
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Just
         uses: taiki-e/install-action@just
-      - name: Install Rust
+      - name: Run just
         run: |
-          rustup install nightly-2026-06-04
-          rustup default nightly-2026-06-04
-          rustup target add ${{ matrix.target }}
-      - name: Build
-        run: |
-          just build-tier2 ${{ matrix.target }}
+          just ${{ matrix.action }}-tier2 ${{ matrix.target }}
 
-  # These targets need build-std, and have no atomics so we have to skip
-  # the 'critical-section-multi-core' feature
+  # Build the workspace for all tier3 target architectures using rust-toolchain.toml
+  build-tier3-nightly:
+    runs-on: ubuntu-24.04
+    needs: setup
+    strategy:
+      matrix:
+        target: ${{ fromJSON(needs.setup.outputs.nightly-tier3-targets) }}
+        action:
+          - build
+          - clippy
+          - doc
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Run just
+        run: |
+          just ${{ matrix.action }}-tier3 ${{ matrix.target }}
+
+  # Build the workspace for all tier3 non atomic target architectures using rust-toolchain.toml
   build-tier3-no-atomics:
     runs-on: ubuntu-24.04
     needs: setup
     strategy:
       matrix:
-        target:
-          - armv4t-none-eabi
-          - thumbv4t-none-eabi
-          - armv5te-none-eabi
-          - thumbv5te-none-eabi
+        target: ${{ fromJSON(needs.setup.outputs.nightly-tier3-noatomic-targets) }}
+        action:
+          - build
+          - clippy
+          - doc
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Just
         uses: taiki-e/install-action@just
-      - name: Install Rust
+      - name: Run just
         run: |
-          rustup install stable
-          rustup default stable
-          rustup component add rust-src
-      - name: Build
-        run: |
-          just build-tier3-no-atomics ${{ matrix.target }}
+          just ${{ matrix.action }}-tier3-no-atomics ${{ matrix.target }}
 
-  # Build the host-only stuff
+  # Build the host-only stuff on stable and MSRV
   build-arm-targets:
     runs-on: ubuntu-24.04
     needs: setup
     strategy:
       matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
+        rust:
+          - 1.83
+          - stable
+          - ""
+        action:
+          - build
+          - clippy
+          - doc
+        exclude:
+          - rust: 1.83
+            action: clippy
+          - rust: stable
+            action: clippy
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Just
         uses: taiki-e/install-action@just
       - name: Install Rust
         run: |
           rustup install ${{ matrix.rust }}
-          rustup default ${{ matrix.rust }}
-      - name: Build
+      - name: Run just
         run: |
-          just build-arm-targets
+          RUSTUP_TOOLCHAIN=${{ matrix.rust }} just ${{ matrix.action }}-arm-targets
 
   # Gather all the above build jobs together for the purposes of getting an overall pass-fail
   build-all:
     runs-on: ubuntu-24.04
-    needs: [build-tier2, build-tier3-no-atomics, build-tier2-nightly, build-arm-targets]
-    steps:
-      - run: /bin/true
-
-  # Build the docs for the workspace
-  docs:
-    runs-on: ubuntu-24.04
-    needs: setup
-    strategy:
-      matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
-        target: ${{ fromJSON(needs.setup.outputs.stable-targets) }}
-        exclude:
-          - rust: 1.83
-            target: armv7a-none-eabihf
-          - rust: 1.83
-            target: armv8r-none-eabihf
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Rust
-        run: |
-          rustup install ${{ matrix.rust }}
-          rustup default ${{ matrix.rust }}
-          rustup target add ${{ matrix.target }}
-      - name: Build docs
-        run: |
-          cargo doc --target ${{ matrix.target }}
-          cargo doc --target ${{ matrix.target }} --all-features
-
-  # Build the docs for the host tools
-  docs-host:
-    runs-on: ubuntu-24.04
-    needs: setup
-    strategy:
-      matrix:
-        rust: ${{ fromJSON(needs.setup.outputs.rust-versions) }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Rust
-        run: |
-          rustup install ${{ matrix.rust }}
-          rustup default ${{ matrix.rust }}
-      - name: Build docs
-        run: |
-          cd arm-targets
-          cargo doc
-
-  # Gather all the above doc jobs together for the purposes of getting an overall pass-fail
-  docs-all:
-    runs-on: ubuntu-24.04
-    needs: [docs, docs-host]
+    needs:
+      - build-tier2-msrv
+      - build-tier2-stable
+      - build-tier2-nightly
+      - build-tier3-nightly
+      - build-tier3-no-atomics
+      - build-arm-targets
     steps:
       - run: /bin/true
 
   # Format the workspace
-  fmt-all:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Just
-        uses: taiki-e/install-action@just
-      - name: Install Rust
-        run: |
-          rustup install stable
-          rustup default stable
-          rustup component add rustfmt
-      - name: Format
-        run: |
-          just fmt-check
-
-  # Run clippy on the workpace
-  clippy:
+  fmt-check:
     runs-on: ubuntu-24.04
     needs: setup
-    strategy:
-      matrix:
-        target: ${{ fromJSON(needs.setup.outputs.stable-targets) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Just
         uses: taiki-e/install-action@just
-      - name: Install Rust
+      - name: Run just
         run: |
-          rustup toolchain install 1.92
-          rustup default 1.92
-          rustup target add ${{ matrix.target }}
-          rustup component add clippy
-      - name: Clippy
-        run: |
-          just clippy-target ${{ matrix.target }}
+          just fmt-check
 
   # Run clippy on the examples
   clippy-examples:
@@ -221,72 +194,48 @@ jobs:
     needs: setup
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Just
         uses: taiki-e/install-action@just
       - name: Install GCC and libclang1
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-arm-none-eabi libclang1
-      - name: Install Rust
-        run: |
-          rustup toolchain install 1.92
-          rustup default 1.92
-          rustup target add armv7r-none-eabihf
-          rustup target add armv8r-none-eabihf
-          rustup component add clippy
-      - name: Clippy
+      - name: Run just
         run: |
           just clippy-examples
 
-  # Run clippy on the host tools
-  clippy-host:
+  # Run the unit tests
+  test-cargo:
     runs-on: ubuntu-24.04
     needs: setup
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Just
         uses: taiki-e/install-action@just
-      - name: Install Rust
+      - name: Run just
         run: |
-          rustup toolchain install 1.92
-          rustup default 1.92
-          rustup component add clippy
-      - name: Clippy
-        run: |
-          just clippy-host
-
-  # Gather all the above clippy jobs together for the purposes of getting an overall pass-fail
-  clippy-all:
-    runs-on: ubuntu-24.04
-    needs: [clippy, clippy-examples, clippy-host]
-    steps:
-      - run: /bin/true
-
-  # Run the unit tests
-  unit-test-all:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Just
-        uses: taiki-e/install-action@just
-      - name: Install Rust
-        run: |
-          rustup install stable
-          rustup default stable
-      - run: |
           just test-cargo
 
-  # Run some programs in QEMU 9 for Armv4T
-  # These tests build with nightly as pinned by the rust-toolchain.toml file, because they include Tier 3 targets
-  test-qemu-v4t:
+  # Run some programs in QEMU 9
+  test-qemu:
     runs-on: ubuntu-24.04
-    needs: [build-all]
+    needs: setup
+    strategy:
+      matrix:
+        recipe:
+          - test-qemu-v4t
+          - test-qemu-v5te
+          - test-qemu-v6
+          - test-qemu-v7r
+          - test-qemu-v7a
+          - test-qemu-v8r
+          - test-qemu-v8r-smp
+          - test-qemu-v8r-el2
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Just
         uses: taiki-e/install-action@just
       - name: Install Dependencies
@@ -299,183 +248,23 @@ jobs:
       - name: Run tests in QEMU
         run: |
           export PATH=/opt/qemu/bin:$PATH
-          just test-qemu-v4t
-
-  # Run some programs in QEMU 9 for Armv4T
-  # These tests build with nightly as pinned by the rust-toolchain.toml file, because they include Tier 3 targets
-  test-qemu-v5te:
-    runs-on: ubuntu-24.04
-    needs: [build-all]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Just
-        uses: taiki-e/install-action@just
-      - name: Install Dependencies
-        run: |
-          sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
-      - name: Install custom QEMU into /opt
-        run: |
-          curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
-      - name: Run tests in QEMU
-        run: |
-          export PATH=/opt/qemu/bin:$PATH
-          just test-qemu-v5te
-
-  # Run some programs in QEMU 9 for Armv6
-  # These tests build with nightly as pinned by the rust-toolchain.toml file, because they include Tier 3 targets
-  test-qemu-v6:
-    runs-on: ubuntu-24.04
-    needs: [build-all]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Just
-        uses: taiki-e/install-action@just
-      - name: Install Dependencies
-        run: |
-          sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
-      - name: Install custom QEMU into /opt
-        run: |
-          curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
-      - name: Run tests in QEMU
-        run: |
-          export PATH=/opt/qemu/bin:$PATH
-          just test-qemu-v6
-
-  # Run some programs in QEMU 9 for Armv7-A
-  # These tests build with nightly as pinned by the rust-toolchain.toml file, because they include Tier 3 targets
-  test-qemu-v7a:
-    runs-on: ubuntu-24.04
-    needs: [build-all]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Just
-        uses: taiki-e/install-action@just
-      - name: Install Dependencies
-        run: |
-          sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
-      - name: Install custom QEMU into /opt
-        run: |
-          curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
-      - name: Run tests in QEMU
-        run: |
-          export PATH=/opt/qemu/bin:$PATH
-          just test-qemu-v7a
-
-  # Run some programs in QEMU 9 for Armv7-R
-  # These tests build with nightly as pinned by the rust-toolchain.toml file, because they include Tier 3 targets
-  test-qemu-v7r:
-    runs-on: ubuntu-24.04
-    needs: [build-all]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Just
-        uses: taiki-e/install-action@just
-      - name: Install Dependencies
-        run: |
-          sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
-      - name: Install custom QEMU into /opt
-        run: |
-          curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
-      - name: Run tests in QEMU
-        run: |
-          export PATH=/opt/qemu/bin:$PATH
-          just test-qemu-v7r
-
-  # Run some programs in QEMU 9 for Armv8-R
-  # These tests build with nightly as pinned by the rust-toolchain.toml file, because they include Tier 3 targets
-  test-qemu-v8r:
-    runs-on: ubuntu-24.04
-    needs: [build-all]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Just
-        uses: taiki-e/install-action@just
-      - name: Install Dependencies
-        run: |
-          sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
-      - name: Install custom QEMU into /opt
-        run: |
-          curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
-      - name: Run tests in QEMU
-        run: |
-          export PATH=/opt/qemu/bin:$PATH
-          just test-qemu-v8r
-
-  # Run some SMP programs in QEMU 9 for Armv8-R
-  # These tests build with nightly as pinned by the rust-toolchain.toml file, because they include Tier 3 targets
-  test-qemu-v8r-smp:
-    runs-on: ubuntu-24.04
-    needs: [build-all]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Just
-        uses: taiki-e/install-action@just
-      - name: Install Dependencies
-        run: |
-          sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
-      - name: Install custom QEMU into /opt
-        run: |
-          curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
-      - name: Run tests in QEMU
-        run: |
-          export PATH=/opt/qemu/bin:$PATH
-          just test-qemu-v8r-smp
-
-  # Run some EL2 programs in QEMU 9 for Armv8-R
-  # These tests build with nightly as pinned by the rust-toolchain.toml file, because they include Tier 3 targets
-  test-qemu-v8r-el2:
-    runs-on: ubuntu-24.04
-    needs: [build-all]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Just
-        uses: taiki-e/install-action@just
-      - name: Install Dependencies
-        run: |
-          sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
-      - name: Install custom QEMU into /opt
-        run: |
-          curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
-      - name: Run tests in QEMU
-        run: |
-          export PATH=/opt/qemu/bin:$PATH
-          just test-qemu-v8r-el2
-
-  # Gather all the above QEMU jobs together for the purposes of getting an overall pass-fail
-  test-qemu-all:
-    runs-on: ubuntu-24.04
-    needs:
-      [
-        test-qemu-v4t,
-        test-qemu-v5te,
-        test-qemu-v6,
-        test-qemu-v7a,
-        test-qemu-v7r,
-        test-qemu-v8r,
-        test-qemu-v8r-smp,
-        test-qemu-v8r-el2,
-      ]
-    steps:
-      - run: /bin/true
+          just ${{ matrix.recipe }}
 
   # Gather all the above xxx-all jobs together for the purposes of getting an overall pass-fail
   all:
     runs-on: ubuntu-24.04
-    needs: [docs-all, build-all, fmt-all, unit-test-all, test-qemu-all] # not gating on clippy-all
-    if: failure()
+    if: always()
+    # not gating on clippy-all
+    needs:
+      - build-all
+      - fmt-check
+      - test-cargo
+      - test-qemu
+    timeout-minutes: 2
     steps:
-      - run: exit 1
+      - name: Ensure all required jobs succeed
+        run: |
+          echo "Our needs:"
+          echo '${{ toJSON(needs) }}'
+          echo "Checking..."
+          echo '${{ toJSON(needs) }}' | jq -e 'to_entries | all(.value.result == "success")'

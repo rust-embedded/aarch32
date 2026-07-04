@@ -16,6 +16,7 @@ version = "0.3.0"
 
 [lib]
 proc-macro = true
+doc = false
 
 [dependencies]
 quote = "1.0"

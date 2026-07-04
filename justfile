@@ -3,17 +3,19 @@
 # You need to install `just` from https://github.com/casey/just to use
 # this file
 
-# We only need this for some targets but we set it globally to avoid
-# dependencies like proc-macro2 from being rebuilt
-export RUSTC_BOOTSTRAP := "1"
-
-
 # If you run with `just --set v 1` then we make cargo run in verbose mode
 v := "0"
 verbose := if v == "1" { "--verbose" } else { "" }
 
 # Our default target. It does everything that you might want to do pre-checkin.
-check: build-all build-all-examples fmt-check clippy-examples clippy-targets clippy-host test
+check: build-all build-all-examples doc-all fmt-check clippy-all test
+
+github_info:
+	echo 'msrv_targets=["armv7a-none-eabi","armv7r-none-eabi","armv7r-none-eabihf"]'
+	echo 'stable_targets=["armv7a-none-eabi","armv7a-none-eabihf","armv7r-none-eabi","armv7r-none-eabihf","armv8r-none-eabihf"]'
+	echo 'nightly_tier2_targets=["armv7r-none-eabi","thumbv7r-none-eabi","armv7r-none-eabihf","thumbv7r-none-eabihf","armv7a-none-eabi","thumbv7a-none-eabi","armv7a-none-eabihf","thumbv7a-none-eabihf","armv8r-none-eabihf","thumbv8r-none-eabihf"]'
+	echo 'nightly_tier3_targets=["armv6-none-eabi","thumbv6-none-eabi","armv6-none-eabihf"]'
+	echo 'nightly_tier3_noatomic_targets=["armv4t-none-eabi","thumbv4t-none-eabi","armv5te-none-eabi","thumbv5te-none-eabi"]'
 
 # Cleans up all the target folders
 clean:
@@ -36,9 +38,9 @@ build-all: \
 	(build-tier3-no-atomics "thumbv4t-none-eabi") \
 	(build-tier3-no-atomics "armv5te-none-eabi") \
 	(build-tier3-no-atomics "thumbv5te-none-eabi") \
-	(build-tier3-no-atomics "armv6-none-eabi") \
-	(build-tier3-no-atomics "thumbv6-none-eabi") \
-	(build-tier3-no-atomics "armv6-none-eabihf") \
+	(build-tier3 "armv6-none-eabi") \
+	(build-tier3 "thumbv6-none-eabi") \
+	(build-tier3 "armv6-none-eabihf") \
 	(build-tier2 "armv7r-none-eabi") \
 	(build-tier2 "thumbv7r-none-eabi") \
 	(build-tier2 "armv7r-none-eabihf") \
@@ -52,7 +54,7 @@ build-all: \
 
 # Build the arm-targets library
 build-arm-targets:
-		cd arm-targets && cargo build {{verbose}}
+	cd arm-targets && cargo build {{verbose}}
 
 # Builds our workspace with various features, building core from source, but skipping anything that requires atomics
 build-tier3-no-atomics target:
@@ -111,6 +113,48 @@ build-mps3-tier2 target:
 	cd examples/mps3-an536-smp && cargo build --target={{target}} {{verbose}}
 	cd examples/mps3-an536-el2 && cargo build --target={{target}} {{verbose}}
 
+# Documents our workspace for all targets
+doc-all: \
+	doc-arm-targets \
+	(doc-tier3-no-atomics "armv4t-none-eabi") \
+	(doc-tier3-no-atomics "thumbv4t-none-eabi") \
+	(doc-tier3-no-atomics "armv5te-none-eabi") \
+	(doc-tier3-no-atomics "thumbv5te-none-eabi") \
+	(doc-tier3 "armv6-none-eabi") \
+	(doc-tier3 "thumbv6-none-eabi") \
+	(doc-tier3 "armv6-none-eabihf") \
+	(doc-tier2 "armv7r-none-eabi") \
+	(doc-tier2 "thumbv7r-none-eabi") \
+	(doc-tier2 "armv7r-none-eabihf") \
+	(doc-tier2 "thumbv7r-none-eabihf") \
+	(doc-tier2 "armv7a-none-eabi") \
+	(doc-tier2 "thumbv7a-none-eabi") \
+	(doc-tier2 "armv7a-none-eabihf") \
+	(doc-tier2 "thumbv7a-none-eabihf") \
+	(doc-tier2 "armv8r-none-eabihf") \
+	(doc-tier2 "thumbv8r-none-eabihf") \
+
+# Document the arm-targets library
+doc-arm-targets:
+	cd arm-targets && RUSTDOCFLAGS=-Dwarnings cargo doc {{verbose}}
+
+# Documents our workspace with various features, building core from source, but skipping anything that requires atomics
+doc-tier3-no-atomics target:
+    RUSTDOCFLAGS=-Dwarnings cargo doc --target {{target}} -Zbuild-std=core {{verbose}}
+    RUSTDOCFLAGS=-Dwarnings cargo doc --target {{target}} -Zbuild-std=core --features "serde, defmt, critical-section-single-core, check-asm" {{verbose}}
+
+# Documents our workspace with various features, building core from source
+doc-tier3 target:
+    RUSTDOCFLAGS=-Dwarnings cargo doc --target {{target}} -Zbuild-std=core {{verbose}}
+    RUSTDOCFLAGS=-Dwarnings cargo doc --target {{target}} -Zbuild-std=core --features "serde, defmt, critical-section-multi-core, check-asm" {{verbose}}
+    RUSTDOCFLAGS=-Dwarnings cargo doc --target {{target}} -Zbuild-std=core --features "serde, defmt, critical-section-single-core, check-asm" {{verbose}}
+
+# Documents our workspace with various features
+doc-tier2 target:
+    RUSTDOCFLAGS=-Dwarnings cargo doc --target {{target}} {{verbose}}
+    RUSTDOCFLAGS=-Dwarnings cargo doc --target {{target}} --features "serde, defmt, critical-section-multi-core, check-asm" {{verbose}}
+    RUSTDOCFLAGS=-Dwarnings cargo doc --target {{target}} --features "serde, defmt, critical-section-single-core, check-asm" {{verbose}}
+
 # Formats all the code
 fmt:
 	# The cross-compiled workspace
@@ -136,16 +180,33 @@ fmt-check:
 	cd examples/mps3-an536-el2 && cargo fmt --check {{verbose}}
 
 # Checks all the cross-compiled workspace passes the clippy lints
-clippy-targets: \
-	(clippy-target "armv7r-none-eabi") \
-	(clippy-target "armv7r-none-eabihf") \
-	(clippy-target "armv7a-none-eabi") \
-	(clippy-target "armv7a-none-eabihf") \
-	(clippy-target "armv8r-none-eabihf") \
+clippy-all: \
+	clippy-arm-targets \
+	clippy-examples \
+	(clippy-tier3-no-atomics "armv4t-none-eabi") \
+	(clippy-tier3-no-atomics "thumbv4t-none-eabi") \
+	(clippy-tier3-no-atomics "armv5te-none-eabi") \
+	(clippy-tier3-no-atomics "thumbv5te-none-eabi") \
+	(clippy-tier3 "armv6-none-eabi") \
+	(clippy-tier3 "thumbv6-none-eabi") \
+	(clippy-tier3 "armv6-none-eabihf") \
+	(clippy-tier2 "armv7r-none-eabi") \
+	(clippy-tier2 "thumbv7r-none-eabi") \
+	(clippy-tier2 "armv7r-none-eabihf") \
+	(clippy-tier2 "thumbv7r-none-eabihf") \
+	(clippy-tier2 "armv7a-none-eabi") \
+	(clippy-tier2 "thumbv7a-none-eabi") \
+	(clippy-tier2 "armv7a-none-eabihf") \
+	(clippy-tier2 "thumbv7a-none-eabihf") \
+	(clippy-tier2 "armv8r-none-eabihf") \
+	(clippy-tier2 "thumbv8r-none-eabihf") \
 
-# Checks all the cross-compiled workspace passes the clippy lints
-clippy-target target:
-	cargo clippy --target={{target}} {{verbose}}
+# Checks the arm-targets code passes the clippy lints
+clippy-arm-targets:
+	# The cross-compiled workspace
+	cargo clippy {{verbose}}
+	# The host-compiled helper library
+	cd arm-targets && cargo clippy {{verbose}}
 
 # Checks the examples pass the clippy lints
 clippy-examples:
@@ -154,12 +215,22 @@ clippy-examples:
 	cd examples/mps3-an536-smp && cargo clippy --target=armv8r-none-eabihf {{verbose}}
 	cd examples/mps3-an536-el2 && cargo clippy --target=armv8r-none-eabihf {{verbose}}
 
-# Checks the host code passes the clippy lints
-clippy-host:
-	# The cross-compiled workspace
-	cargo clippy {{verbose}}
-	# The host-compiled helper library
-	cd arm-targets && cargo clippy {{verbose}}
+# Checks all the cross-compiled workspace passes the clippy lints
+clippy-tier3-no-atomics target:
+    cargo clippy --target {{target}} -Zbuild-std=core {{verbose}}
+    cargo clippy --target {{target}} -Zbuild-std=core --features "serde, defmt, critical-section-single-core, check-asm" {{verbose}}
+
+# Checks all the cross-compiled workspace passes the clippy lints
+clippy-tier3 target:
+    cargo clippy --target {{target}} -Zbuild-std=core {{verbose}}
+    cargo clippy --target {{target}} -Zbuild-std=core --features "serde, defmt, critical-section-multi-core, check-asm" {{verbose}}
+    cargo clippy --target {{target}} -Zbuild-std=core --features "serde, defmt, critical-section-single-core, check-asm" {{verbose}}
+
+# Checks all the cross-compiled workspace passes the clippy lints
+clippy-tier2 target:
+    cargo build --target {{target}} {{verbose}}
+    cargo build --target {{target}} --features "serde, defmt, critical-section-multi-core, check-asm" {{verbose}}
+    cargo build --target {{target}} --features "serde, defmt, critical-section-single-core, check-asm" {{verbose}}
 
 # Run all the tests
 test: test-cargo test-qemu

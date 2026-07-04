@@ -134,7 +134,7 @@ pub enum DfsrStatus {
     Debug = 0b00010,
     /// Access Flag fault on Section
     AccessFlagFaultFirstLevel = 0b00011,
-    /// Cache maintenance operation fault[2]
+    /// Cache maintenance operation fault
     CacheMaintenance = 0b00100,
     /// Translation fault on Section
     TranslationFaultFirstLevel = 0b00101,

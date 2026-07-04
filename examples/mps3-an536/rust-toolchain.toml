@@ -1,7 +1,0 @@
-[toolchain]
-channel = "nightly-2026-06-04"
-targets = [
-	"armv8r-none-eabihf",
-	"thumbv8r-none-eabihf",
-]
-components = ["rust-src", "clippy", "rustfmt"]

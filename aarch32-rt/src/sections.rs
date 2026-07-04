@@ -120,13 +120,13 @@ impl Section {
     }
 }
 
-/// Iterator over all the [`Region`] variants
+/// Iterator over all the [`Section`] variants
 pub struct SectionIter {
     next: Option<Section>,
 }
 
 impl SectionIter {
-    /// Create a new [`RegionIter`]
+    /// Create a new [`SectionIter`]
     pub fn new() -> Self {
         Self {
             next: Some(Section::VectorTable),
