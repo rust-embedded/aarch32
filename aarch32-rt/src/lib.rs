@@ -541,16 +541,22 @@
 
 #![no_std]
 
-#[cfg(target_arch = "arm")]
-use aarch32_cpu::register::{cpsr::ProcessorMode, Cpsr};
+// *****************************************************************************
+// Public Modules
+// *****************************************************************************
 
-#[cfg(any(
-    arm_architecture = "v7-a",
-    all(arm_architecture = "v8-r", not(feature = "el2-mode")),
-))]
-use aarch32_cpu::register::Hactlr;
+pub mod sections;
+pub mod stacks;
+
+// *****************************************************************************
+// Public Imports
+// *****************************************************************************
 
 pub use aarch32_rt_macros::{entry, exception, irq};
+
+// *****************************************************************************
+// Private Modules
+// *****************************************************************************
 
 #[cfg(all(arm_architecture = "v8-r", feature = "el2-mode"))]
 mod arch_v8_hyp;
@@ -564,46 +570,16 @@ mod arch_v7;
 #[cfg(armv6_or_lower)]
 mod arch_v4;
 
-pub mod sections;
-pub mod stacks;
+// *****************************************************************************
+// Private Imports
+// *****************************************************************************
 
-/// Our default exception handler.
-///
-/// We end up here if an exception fires and the weak 'PROVIDE' in the link.x
-/// file hasn't been over-ridden.
-#[unsafe(no_mangle)]
-pub extern "C" fn _default_handler() {
-    loop {
-        core::hint::spin_loop();
-    }
-}
-
-// The Interrupt Vector Table, and some default assembly-language handler.
-//
-// Needs to be aligned to 5bits/2^5 to be stored correctly in VBAR
-//
-// Need to be assembled as Arm-mode because the Thumb Exception bit is cleared
 #[cfg(target_arch = "arm")]
-core::arch::global_asm!(
-    r#"
-    .pushsection .vector_table,"ax",%progbits
-    .arm
-    .global _vector_table
-    .type _vector_table, %function
-    .align 5
-    _vector_table:
-        ldr     pc, =_start
-        ldr     pc, =_asm_undefined_handler
-        ldr     pc, =_asm_svc_handler
-        ldr     pc, =_asm_prefetch_abort_handler
-        ldr     pc, =_asm_data_abort_handler
-        ldr     pc, =_asm_hvc_handler
-        ldr     pc, =_asm_irq_handler
-        ldr     pc, =_asm_fiq_handler
-    .size _vector_table, . - _vector_table
-    .popsection
-    "#
-);
+use aarch32_cpu::register::{cpsr::ProcessorMode, Cpsr};
+
+// *****************************************************************************
+// Types
+// *****************************************************************************
 
 /// Arguments stacked on interrupt
 ///
@@ -619,6 +595,10 @@ pub struct Frame {
     pub r4: u32,
     pub r5: u32,
 }
+
+// *****************************************************************************
+// Macros
+// *****************************************************************************
 
 /// This macro expands to code for saving FPU context on entry to an exception
 /// handler. It pushes a multiple of eight bytes to preserve AAPCS alignment.
@@ -750,26 +730,11 @@ macro_rules! restore_fpu_context {
     };
 }
 
-// Generic FIQ placeholder that's just a spin-loop
-#[cfg(target_arch = "arm")]
-core::arch::global_asm!(
-    r#"
-    .pushsection .text._asm_default_fiq_handler
-
-    // Our default FIQ handler
-    .global _asm_default_fiq_handler
-    .type _asm_default_fiq_handler, %function
-    _asm_default_fiq_handler:
-        b       _asm_default_fiq_handler
-    .size    _asm_default_fiq_handler, . - _asm_default_fiq_handler
-    .popsection
-    "#,
-);
-
 /// This is for ARMv7 and ARMv8 systems with an FPU
 ///
 /// It just disables Thumb Exceptions and turns on the FPU
 #[cfg(all(armv7_or_higher, any(target_abi = "eabihf", feature = "eabi-fpu")))]
+#[macro_export]
 macro_rules! system_init {
     () => {
         r#"
@@ -792,6 +757,7 @@ macro_rules! system_init {
 ///
 /// It just disables Thumb Exceptions
 #[cfg(all(armv7_or_higher, not(any(target_abi = "eabihf", feature = "eabi-fpu"))))]
+#[macro_export]
 macro_rules! system_init {
     () => {
         r#"
@@ -807,6 +773,7 @@ macro_rules! system_init {
 ///
 /// It enables the FPU
 #[cfg(all(armv6_or_lower, any(target_abi = "eabihf", feature = "eabi-fpu")))]
+#[macro_export]
 macro_rules! system_init {
     () => {
         r#"
@@ -825,6 +792,7 @@ macro_rules! system_init {
 ///
 /// It does nothing
 #[cfg(all(armv6_or_lower, not(any(target_abi = "eabihf", feature = "eabi-fpu"))))]
+#[macro_export]
 macro_rules! system_init {
     () => {
         r#"
@@ -832,6 +800,37 @@ macro_rules! system_init {
         "#
     };
 }
+
+// *****************************************************************************
+// Functions
+// *****************************************************************************
+
+// The Interrupt Vector Table, and some default assembly-language handler.
+//
+// Needs to be aligned to 5bits/2^5 to be stored correctly in VBAR
+//
+// Need to be assembled as Arm-mode because the Thumb Exception bit is cleared
+#[cfg(target_arch = "arm")]
+core::arch::global_asm!(
+    r#"
+    .pushsection .vector_table,"ax",%progbits
+    .arm
+    .global _vector_table
+    .type _vector_table, %function
+    .align 5
+    _vector_table:
+        ldr     pc, =_start
+        ldr     pc, =_asm_undefined_handler
+        ldr     pc, =_asm_svc_handler
+        ldr     pc, =_asm_prefetch_abort_handler
+        ldr     pc, =_asm_data_abort_handler
+        ldr     pc, =_asm_hvc_handler
+        ldr     pc, =_asm_irq_handler
+        ldr     pc, =_asm_fiq_handler
+    .size _vector_table, . - _vector_table
+    .popsection
+    "#
+);
 
 // Shared library routines for all architectures
 #[cfg(target_arch = "arm")]
@@ -978,194 +977,40 @@ core::arch::global_asm!(
     },
 );
 
-// Start-up code for CPUs that always boot into EL1
-#[cfg(any(armv6_or_lower, arm_architecture = "v7-r",))]
-core::arch::global_asm!(
-    r#"
-    // Work around https://github.com/rust-lang/rust/issues/127269
-    .fpu vfp2
-
-    .pushsection .text.default_start
-    .arm
-    .global _default_start
-    .type _default_start, %function
-    _default_start:
-        // Init .data and .bss
-        bl      _init_segments
-        // Set up stacks.
-        mov     r0, #0
-        bl      _stack_setup_preallocated
-    "#,
-    system_init!(),
-    r#"
-        // Zero all registers before calling kmain
-        mov     r0, 0
-        mov     r1, 0
-        mov     r2, 0
-        mov     r3, 0
-        mov     r4, 0
-        mov     r5, 0
-        mov     r6, 0
-        mov     r7, 0
-        mov     r8, 0
-        mov     r9, 0
-        mov     r10, 0
-        mov     r11, 0
-        mov     r12, 0
-        // Jump to application
-        bl      kmain
-        // In case the application returns, loop forever
-        b       .
-    .size _default_start, . - _default_start
-    .popsection
-    "#
-);
-
-// Start-up code for CPUs that *might* boot into EL2 but that we want in EL1.
-#[cfg(any(
-    arm_architecture = "v7-a",
-    all(arm_architecture = "v8-r", not(feature = "el2-mode")),
-))]
-core::arch::global_asm!(
-    r#"
-    // Work around https://github.com/rust-lang/rust/issues/127269
-    .fpu vfp2
-    .cpu cortex-r52
-
-    .pushsection .text.default_start
-    .arm
-    .global _default_start
-    .type _default_start, %function
-    _default_start:
-        // Are we in EL2? If not, skip the EL2 setup portion
-        mrs     r0, cpsr
-        and     r0, r0, 0x1F
-        cmp     r0, {cpsr_mode_hyp}
-        bne     1f
-        // Set stack pointer
-        ldr     sp, =_hyp_stack_high_end
-        // Set the HVBAR (for EL2) to _vector_table
-        ldr     r1, =_vector_table
-        mcr     p15, 4, r1, c12, c0, 0
-        // Configure HACTLR to let us enter EL1
-        mrc     p15, 4, r1, c1, c0, 1
-        mov     r2, {hactlr_bits}
-        orr     r1, r1, r2
-        mcr     p15, 4, r1, c1, c0, 1
-        // Program the SPSR - enter system mode (0x1F) in Arm mode with IRQ, FIQ masked
-        mov		r1, {sys_mode}
-        msr		spsr_hyp, r1
-        adr		r1, 1f
-        msr		elr_hyp, r1
-        dsb
-        isb
-        eret
-    1:
-        // Set the VBAR (for EL1) to _vector_table. NB: This isn't required on
-        // Armv7-R because that only supports 'low' (default) or 'high'.
-        ldr     r0, =_vector_table
-        mcr     p15, 0, r0, c12, c0, 0
-        // Init .data and .bss
-        bl      _init_segments
-        // Set up stacks.
-        mov     r0, #0
-        bl      _stack_setup_preallocated
-    "#,
-    system_init!(),
-    r#"
-        // Zero all registers before calling kmain
-        mov     r0, 0
-        mov     r1, 0
-        mov     r2, 0
-        mov     r3, 0
-        mov     r4, 0
-        mov     r5, 0
-        mov     r6, 0
-        mov     r7, 0
-        mov     r8, 0
-        mov     r9, 0
-        mov     r10, 0
-        mov     r11, 0
-        mov     r12, 0
-        // Jump to application
-        bl      kmain
-        // In case the application returns, loop forever
-        b       .
-    .size _default_start, . - _default_start
-    .popsection
-    "#,
-    cpsr_mode_hyp = const ProcessorMode::Hyp as u8,
-    hactlr_bits = const {
-        Hactlr::new_with_raw_value(0)
-            .with_cpuactlr(true)
-            .with_cdbgdci(true)
-            .with_flashifregionr(true)
-            .with_periphpregionr(true)
-            .with_qosr(true)
-            .with_bustimeoutr(true)
-            .with_intmonr(true)
-            .with_err(true)
-            .with_testr1(true)
-            .raw_value()
-    },
-    sys_mode = const {
-        Cpsr::new_with_raw_value(0)
-            .with_mode(ProcessorMode::Sys)
-            .with_i(true)
-            .with_f(true)
-            .raw_value()
-    }
-);
-
-// Start-up code for Armv8-R to stay in EL2.
+// Default asm FIQ exception handler (it's just a spin-loop)
 //
-// We boot into EL2, set up a HYP stack pointer, and run `kmain` in EL2.
-#[cfg(all(arm_architecture = "v8-r", feature = "el2-mode"))]
+// We end up here if a FIQ fires and the weak 'PROVIDE' in the link.x
+// file hasn't been over-ridden.
+//
+// Cannot be a Rust/C function because it can only touch registers R8 to R12, SP and LR
+#[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
-    // Work around https://github.com/rust-lang/rust/issues/127269
-    .fpu vfp3
+    .pushsection .text._asm_default_fiq_handler
 
-    .section .text.default_start
-    .global _default_start
-    .type _default_start, %function
-    _default_start:
-        // Init .data and .bss
-        bl      _init_segments
-        // Set stack pointer
-        ldr     sp, =_hyp_stack_high_end
-        // Set the HVBAR (for EL2) to _vector_table
-        ldr     r1, =_vector_table
-        mcr     p15, 4, r1, c12, c0, 0
-        // Mask IRQ and FIQ
-        mrs     r0, CPSR
-        orr     r0, {irq_fiq}
-        msr     CPSR, r0
+    // Our default FIQ handler
+    .global _asm_default_fiq_handler
+    .type _asm_default_fiq_handler, %function
+    _asm_default_fiq_handler:
+        b       _asm_default_fiq_handler
+    .size    _asm_default_fiq_handler, . - _asm_default_fiq_handler
+    .popsection
     "#,
-    system_init!(),
-    r#"
-        // Zero all registers before calling kmain
-        mov     r0, 0
-        mov     r1, 0
-        mov     r2, 0
-        mov     r3, 0
-        mov     r4, 0
-        mov     r5, 0
-        mov     r6, 0
-        mov     r7, 0
-        mov     r8, 0
-        mov     r9, 0
-        mov     r10, 0
-        mov     r11, 0
-        mov     r12, 0
-        // Jump to application
-        bl      kmain
-        // In case the application returns, loop forever
-        b       .
-    .size _default_start, . - _default_start
-    "#,
-    irq_fiq = const aarch32_cpu::register::Cpsr::new_with_raw_value(0).with_i(true).with_f(true).raw_value()
 );
+
+/// Our default exception handler.
+///
+/// We end up here if an exception fires and the weak 'PROVIDE' in the link.x
+/// file hasn't been over-ridden.
+///
+/// The assembly trampolines allow this to be a normal `extern "C"` function,
+/// because they save and restore the necessary state.
+#[unsafe(no_mangle)]
+pub extern "C" fn _default_handler() {
+    loop {
+        core::hint::spin_loop();
+    }
+}
 
 /// LLVM intrinsic for memory barriers
 ///
@@ -1179,3 +1024,7 @@ pub extern "C" fn __sync_synchronize() {
         core::arch::asm!("");
     }
 }
+
+// *****************************************************************************
+// End of file
+// *****************************************************************************
