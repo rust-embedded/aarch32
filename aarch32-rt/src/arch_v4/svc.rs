@@ -22,7 +22,7 @@ core::arch::global_asm!(
         push    {{ r0-r6, r12 }}          // push alignment amount, and stacked SVC argument registers (must be even number of regs for alignment)
         mov     r12, sp                   // save SP for integer frame
     "#,
-    crate::save_fpu_context!(),
+    crate::fpu_context!("save"),
     r#"
         mrs     r0, spsr                  // Load processor status that was banked on entry
         tst     r0, {t_bit}               // SVC occurred from Thumb state?
@@ -37,7 +37,7 @@ core::arch::global_asm!(
         bl      _svc_handler
         mov     lr, r0                    // move r0 out of the way - restore_fpu_context will trash it
     "#,
-    crate::restore_fpu_context!(),
+    crate::fpu_context!("restore"),
     r#"
         pop     {{ r0-r6, r12 }}          // restore stacked registers and alignment amount
         mov     r0, lr                    // replace R0 with return value from _svc_handler

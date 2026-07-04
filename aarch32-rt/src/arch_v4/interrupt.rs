@@ -40,11 +40,11 @@ core::arch::global_asm!(
         sub     sp, lr                    // SP now aligned - only push 64-bit values from here (6)
         push    {{ r0-r3, r12, lr }}      // push alignment amount (in LR) and preserved registers (7)
      "#,
-    crate::save_fpu_context!(),
+    crate::fpu_context!("save"),
     r#"
         bl      _irq_handler              // call C handler in the selected handler mode (they may choose to re-enable interrupts)
     "#,
-    crate::restore_fpu_context!(),
+    crate::fpu_context!("restore"),
     r#"
         pop     {{ r0-r3, r12, lr }}      // restore alignment amount (in LR) and preserved registers to undo (7)
         add     sp, lr                    // restore SP alignment using LR to undo (6)

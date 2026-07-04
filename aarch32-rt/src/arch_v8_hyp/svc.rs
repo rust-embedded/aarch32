@@ -30,14 +30,14 @@ core::arch::global_asm!(
         push    {{ r0-r6, r12 }}          // push frame and alignment amount to stack
         mov     r12, sp                   // r12 = pointer to Frame
     "#,
-    crate::save_fpu_context!(),
+    crate::fpu_context!("save"),
     r#"
         mrc     p15, 4, r0, c5, c2, 0     // r0 = HSR value
         mov     r1, r12                   // r1 = frame pointer
         bl      _hvc_handler
         mov     lr, r0                    // copy return value into LR, because we're about to use r0 in the FPU restore
     "#,
-    crate::restore_fpu_context!(),
+    crate::fpu_context!("restore"),
     r#"
         pop     {{ r0-r6, r12 }}          // restore frame and alignment
         mov     r0, lr                    // copy return value from lr back to r0, overwriting saved r0
