@@ -13,9 +13,6 @@ use semihosting::println;
 #[entry]
 fn main() -> ! {
     chip_info();
-    #[cfg(arm_architecture = "v7-r")]
-    mpu_pmsa_v7();
-    #[cfg(arm_architecture = "v8-r")]
     mpu_pmsa_v8();
     test_changing_sctlr();
     mps3_an536::exit(0);
@@ -24,70 +21,12 @@ fn main() -> ! {
 fn chip_info() {
     println!("{:x?}", aarch32_cpu::register::Midr::read());
     println!("{:x?}", aarch32_cpu::register::Cpsr::read());
-    #[cfg(arm_architecture = "v8-r")]
-    {
-        println!("{:x?}", aarch32_cpu::register::ImpCbar::read());
-        println!("{:x?}", aarch32_cpu::register::Vbar::read());
-        // This only works in EL2 and start-up put us in EL1
-        // println!("{:?}", aarch32_cpu::register::Hvbar::read());
-    }
+    println!("{:x?}", aarch32_cpu::register::ImpCbar::read());
+    println!("{:x?}", aarch32_cpu::register::Vbar::read());
+    // This only works in EL2 and start-up put us in EL1
+    // println!("{:?}", aarch32_cpu::register::Hvbar::read());
 }
 
-#[cfg(arm_architecture = "v7-r")]
-fn mpu_pmsa_v7() {
-    use aarch32_cpu::{
-        pmsav7::{AccessPerms, Cacheable, Config, MemAttr, Mpu, Region, RegionSize},
-        register::Mpuir,
-    };
-
-    // How many regions?
-    let mpuir = Mpuir::read();
-    println!("PMSA-v7 MPUIR: {:?}", mpuir);
-
-    // Make an MPU driver
-    let mut mpu = unsafe { Mpu::new() };
-
-    // Look at the existing config
-    for idx in 0..mpu.num_iregions() {
-        if let Some(region) = mpu.get_iregion(idx) {
-            println!("IRegion {}: {:?}", idx, region);
-        }
-    }
-    for idx in 0..mpu.num_dregions() {
-        if let Some(region) = mpu.get_dregion(idx) {
-            println!("DRegion {}: {:?}", idx, region);
-        }
-    }
-
-    // Load a config (but don't enable it)
-    mpu.configure(&Config {
-        background_config: true,
-        dregions: &[Region {
-            base: 0x2000_0000 as *const u8,
-            size: RegionSize::_16M,
-            subregion_mask: 0x00,
-            enabled: true,
-            no_exec: false,
-            mem_attr: MemAttr::Cacheable {
-                inner: Cacheable::WriteThroughNoWriteAlloc,
-                outer: Cacheable::NonCacheable,
-                shareable: true,
-            },
-            access_perms: AccessPerms::ReadWrite,
-        }],
-        iregions: &[],
-    })
-    .unwrap();
-
-    // Look at the new config
-    for idx in 0..mpu.num_dregions() {
-        if let Some(region) = mpu.get_dregion(idx) {
-            println!("DRegion {}: {:?}", idx, region);
-        }
-    }
-}
-
-#[cfg(arm_architecture = "v8-r")]
 fn mpu_pmsa_v8() {
     use aarch32_cpu::{
         pmsav8::{
