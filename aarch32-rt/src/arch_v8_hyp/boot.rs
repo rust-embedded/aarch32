@@ -22,9 +22,17 @@ core::arch::global_asm!(
         mrs     r0, CPSR
         orr     r0, {irq_fiq}
         msr     CPSR, r0
-    "#,
-    crate::system_init!(),
-    r#"
+        // Clear Thumb Exception bit
+        mrc     p15, 0, r0, c1, c0, 0
+        bic     r0, #0x40000000
+        mcr     p15, 0, r0, c1, c0, 0
+        // Allow VFP coprocessor access
+        mrc     p15, 0, r0, c1, c0, 2
+        orr     r0, r0, #0xF00000
+        mcr     p15, 0, r0, c1, c0, 2
+        // Enable VFP
+        mov     r0, #0x40000000
+        vmsr    fpexc, r0
         // Zero all registers before calling kmain
         mov     r0, 0
         mov     r1, 0
