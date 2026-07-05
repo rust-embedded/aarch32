@@ -21,13 +21,13 @@ core::arch::global_asm!(
         sub     sp, r12                   // SP now aligned - only push 64-bit values from here
         push    {{ r0-r2, r12 }}          // save ELR, SPSR, padding and alignment amount
     "#,
-    crate::save_fpu_context!(),
+    crate::fpu_context!("save"),
     r#"
         mrs     r0, elr_hyp               // Pass the faulting instruction address to the handler.
         bl      _data_abort_handler       // call C handler
         msr     elr_hyp, r0               // if we get back here, assume they returned a new LR in r0
     "#,
-    crate::restore_fpu_context!(),
+    crate::fpu_context!("restore"),
     r#"
         pop     {{ r0-r2, r12 }}          // restore ELR, SPSR, padding and alignment amount
         add     sp, r12                   // restore SP alignment
@@ -59,13 +59,13 @@ core::arch::global_asm!(
         sub     sp, r12                   // SP now aligned - only push 64-bit values from here
         push    {{ r0-r2, r12 }}          // save ELR, SPSR, padding and alignment amount
     "#,
-    crate::save_fpu_context!(),
+    crate::fpu_context!("save"),
     r#"
         mrs     r0, elr_hyp               // Pass the faulting instruction address to the handler.
         bl      _prefetch_abort_handler   // call C handler
         msr     elr_hyp, r0               // if we get back here, assume they returned a new LR in r0
     "#,
-    crate::restore_fpu_context!(),
+    crate::fpu_context!("restore"),
     r#"
         pop     {{ r0-r2, r12 }}          // restore ELR, SPSR, padding and alignment amount
         add     sp, r12                   // restore SP alignment

@@ -19,14 +19,14 @@ core::arch::global_asm!(
         push    {{ r0-r5 }}               // push frame to stack
         mov     r12, sp                   // r12 = pointer to Frame
     "#,
-    crate::save_fpu_context!(),
+    crate::fpu_context!("save"),
     r#"
         mrc     p15, 4, r0, c5, c2, 0     // r0 = HSR value
         mov     r1, r12                   // r1 = frame pointer
         bl      _hvc_handler
         mov     r12, r0
     "#,
-    crate::restore_fpu_context!(),
+    crate::fpu_context!("restore"),
     r#"
         pop     {{ r0-r5 }}               // restore frame
         mov     r0, r12                   // replace return value

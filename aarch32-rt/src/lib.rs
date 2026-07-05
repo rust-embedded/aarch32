@@ -600,38 +600,24 @@ pub struct Frame {
 // Macros
 // *****************************************************************************
 
-/// This macro expands to code for saving FPU context on entry to an exception
-/// handler. It pushes a multiple of eight bytes to preserve AAPCS alignment.
-/// It may damage R0-R3.
+/// This macro expands to nothing.
 ///
-/// It should match `restore_fpu_context!`
-///
-/// On entry to this block, we assume that we are in exception context.
+/// It's a placeholder for the FPU saving/restoring routine, used on
+/// targets without FPU support.
 #[cfg(not(any(target_abi = "eabihf", feature = "eabi-fpu")))]
 #[macro_export]
-macro_rules! save_fpu_context {
-    () => {
+macro_rules! fpu_context {
+    ("save") => {
+        ""
+    };
+    ("restore") => {
         ""
     };
 }
 
-/// This macro expands to code for restoring context on exit from an exception
-/// handler.
-///
-/// It should match `save_fpu_context!`.
-#[cfg(not(any(target_abi = "eabihf", feature = "eabi-fpu")))]
-#[macro_export]
-macro_rules! restore_fpu_context {
-    () => {
-        ""
-    };
-}
-
-/// This macro expands to code for saving FPU context on entry to an exception
+/// This macro expands to code for saving/restoring FPU context in an exception
 /// handler. It pushes a multiple of eight bytes to preserve AAPCS alignment.
 /// It may damage R0-R3.
-///
-/// It should match `restore_fpu_context!`
 ///
 /// On entry to this block, we assume that we are in exception context.
 ///
@@ -647,32 +633,19 @@ macro_rules! restore_fpu_context {
     not(feature = "fpu-d32")
 ))]
 #[macro_export]
-macro_rules! save_fpu_context {
-    () => {
+macro_rules! fpu_context {
+    // save all D16 FPU context, except D8-D15
+    ("save") => {
         r#"
-        // save all D16 FPU context, except D8-D15
         vpush   {{ d0-d7 }}
         vmrs    r0, FPSCR
         vmrs    r1, FPEXC
         push    {{ r0-r1 }}
         "#
     };
-}
-
-/// This macro expands to code for restoring context on exit from an exception
-/// handler. It restores FPU state, assuming 16 DP registers (a 'D16' or
-/// 'D16SP' FPU configuration).
-///
-/// It should match `save_fpu_context!`.
-#[cfg(all(
-    any(target_abi = "eabihf", feature = "eabi-fpu"),
-    not(feature = "fpu-d32")
-))]
-#[macro_export]
-macro_rules! restore_fpu_context {
-    () => {
+    // restore all D16 FPU context, except D8-D15
+    ("restore") => {
         r#"
-        // restore all D16 FPU context, except D8-D15
         pop     {{ r0-r1 }}
         vmsr    FPEXC, r1
         vmsr    FPSCR, r0
@@ -681,26 +654,24 @@ macro_rules! restore_fpu_context {
     };
 }
 
-/// This macro expands to code for saving FPU context on entry to an exception
-/// handler. It pushes a multiple of eight bytes to preserve AAPCS alignment.
-/// It may damage R0-R3.
-///
-/// It should match `restore_fpu_context!`
+/// This macro expands to code for saving/restoring FPU context in an exception
+/// handler. It pushes a multiple of eight bytes to preserve AAPCS alignment. It
+/// may damage R0-R3.
 ///
 /// On entry to this block, we assume that we are in exception context.
 ///
 /// This version saves FPU state assuming 32 DP registers (a 'D32' FPU
 /// configuration).
 ///
-/// EABI specifies D8-D15 as callee-save, and so we don't
-/// preserve them because any C function we call to handle the exception will
-/// preserve/restore them itself as required.
+/// EABI specifies D8-D15 as callee-save, and so we don't preserve them because
+/// any C function we call to handle the exception will preserve/restore them
+/// itself as required.
 #[cfg(all(any(target_abi = "eabihf", feature = "eabi-fpu"), feature = "fpu-d32"))]
 #[macro_export]
-macro_rules! save_fpu_context {
-    () => {
+macro_rules! fpu_context {
+    // save all D32 FPU context, except D8-D15
+    ("save") => {
         r#"
-        // save all D32 FPU context, except D8-D15
         vpush   {{ d0-d7 }}
         vpush   {{ d16-d31 }}
         vmrs    r0, FPSCR
@@ -708,19 +679,9 @@ macro_rules! save_fpu_context {
         push    {{ r0-r1 }}
         "#
     };
-}
-
-/// This macro expands to code for restoring context on exit from an exception
-/// handler. It restores FPU state, assuming 32 DP registers (a 'D32' FPU
-/// configuration).
-///
-/// It should match `save_fpu_context!`.
-#[cfg(all(any(target_abi = "eabihf", feature = "eabi-fpu"), feature = "fpu-d32"))]
-#[macro_export]
-macro_rules! restore_fpu_context {
-    () => {
+    // restore all D32 FPU context, except D8-D15
+    ("restore") => {
         r#"
-        // restore all D32 FPU context, except D8-D15
         pop     {{ r0-r1 }}
         vmsr    FPEXC, r1
         vmsr    FPSCR, r0

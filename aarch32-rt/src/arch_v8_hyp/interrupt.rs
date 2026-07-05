@@ -22,11 +22,11 @@ core::arch::global_asm!(
         sub     sp, r12                   // SP now aligned - only push 64-bit values from here (4)
         push    {{ r0-r2, r12 }}          // save ELR, SPSR, padding and alignment amount (5)
     "#,
-    crate::save_fpu_context!(),
+    crate::fpu_context!("save"),
     r#"
         bl      _irq_handler              // call C handler (they may choose to re-enable interrupts)
     "#,
-    crate::restore_fpu_context!(),
+    crate::fpu_context!("restore"),
     r#"
         pop     {{ r0-r2, r12 }}          // restore ELR, SPSR, padding and alignment amount to undo (5)
         add     sp, r12                   // restore SP alignment to undo (4)

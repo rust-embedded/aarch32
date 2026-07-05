@@ -21,13 +21,13 @@ core::arch::global_asm!(
         sub     sp, r12                   // SP now aligned - only push 64-bit values from here
         push    {{ r0-r4, r12 }}          // push alignment amount, and preserved registers - can now use R0-R3 (R4 is just padding)
     "#,
-    crate::save_fpu_context!(),
+    crate::fpu_context!("save"),
     r#"
         mov     r0, lr                    // Pass the faulting instruction address to the handler.
         bl      _data_abort_handler       // call C handler
         mov     lr, r0                    // if we get back here, assume they returned a new LR in r0
     "#,
-    crate::restore_fpu_context!(),
+    crate::fpu_context!("restore"),
     r#"
         pop     {{ r0-r4, r12 }}          // restore preserved registers, dummy value, and alignment amount
         add     sp, r12                   // restore SP alignment using R12
@@ -61,13 +61,13 @@ core::arch::global_asm!(
         sub     sp, r12                   // SP now aligned - only push 64-bit values from here
         push    {{ r0-r4, r12 }}          // push alignment amount, and preserved registers - can now use R0-R3 (R4 is just padding)
     "#,
-    crate::save_fpu_context!(),
+    crate::fpu_context!("save"),
     r#"
         mov     r0, lr                    // Pass the faulting instruction address to the handler.
         bl      _prefetch_abort_handler   // call C handler
         mov     lr, r0                    // if we get back here, assume they returned a new LR in r0
     "#,
-    crate::restore_fpu_context!(),
+    crate::fpu_context!("restore"),
     r#"
         pop     {{ r0-r4, r12 }}          // restore preserved registers, dummy value, and alignment amount
         add     sp, r12                   // restore SP alignment using R12
