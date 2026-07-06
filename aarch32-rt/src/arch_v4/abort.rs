@@ -13,28 +13,28 @@ core::arch::global_asm!(
     .global _asm_default_data_abort_handler
     .type _asm_default_data_abort_handler, %function
     _asm_default_data_abort_handler:
-        sub     lr, lr, #8                // Subtract 8 from LR, see p.1214 of the ARMv7-A architecture manual.
-        push    {{ r12 }}                 // Save preserved register R12 - can now use it
-        mrs     r12, spsr                 // grab SPSR
-        push    {{ r12 }}                 // save SPSR value
-        and     r12, sp, 7                // align SP down to eight byte boundary using R12
-        sub     sp, r12                   // SP now aligned - only push 64-bit values from here
-        push    {{ r0-r4, r12 }}          // push alignment amount, and preserved registers - can now use R0-R3 (R4 is just padding)
+        sub     lr, lr, #8                // Make sure we jump back to the right place
+        push    {{ r12 }}                 // Push preserved register R12 (1)
+        mrs     r12, spsr                 // Grab SPSR (2)
+        push    {{ r12 }}                 // Push SPSR value (3)
+        and     r12, sp, 7                // Align SP down to eight byte boundary using R12 
+        sub     sp, r12                   // SP now aligned - only push 64-bit values from here (4)
+        push    {{ r0-r4, r12 }}          // Push preserved registers and alignment amount (R4 is just padding) (5)
     "#,
     crate::fpu_context!("save"),
     r#"
         mov     r0, lr                    // Pass the faulting instruction address to the handler.
-        bl      _data_abort_handler       // call C handler
-        mov     lr, r0                    // if we get back here, assume they returned a new LR in r0
+        bl      _data_abort_handler       // Call C handler
+        mov     lr, r0                    // If we get back here, assume they returned a new LR in r0
     "#,
     crate::fpu_context!("restore"),
     r#"
-        pop     {{ r0-r4, r12 }}          // restore preserved registers, dummy value, and alignment amount
-        add     sp, r12                   // restore SP alignment using R12
-        pop     {{ r12 }}                 // restore SPSR using R12
-        msr     spsr, r12                 //
-        pop     {{ r12 }}                 // restore R12
-        movs    pc, lr                    // return from exception
+        pop     {{ r0-r4, r12 }}          // Pop preserved registers, dummy value, and alignment amount to undo (5)
+        add     sp, r12                   // Restore SP alignment using R12 to undo (4)
+        pop     {{ r12 }}                 // Pop saved SPSR value to undo (3)
+        msr     spsr, r12                 // Restore SPSR using R12 to undo (2)
+        pop     {{ r12 }}                 // Pop R12 to undo (1)
+        movs    pc, lr                    // Return from exception
     .size _asm_default_data_abort_handler, . - _asm_default_data_abort_handler
     .popsection
     "#
@@ -53,28 +53,28 @@ core::arch::global_asm!(
     .global _asm_default_prefetch_abort_handler
     .type _asm_default_prefetch_abort_handler, %function
     _asm_default_prefetch_abort_handler:
-        sub     lr, lr, #4                // Subtract 4 from LR, see p.1212 of the ARMv7-A architecture manual.
-        push    {{ r12 }}                 // Save preserved register R12 - can now use it
-        mrs     r12, spsr                 // grab SPSR
-        push    {{ r12 }}                 // save SPSR value
-        and     r12, sp, 7                // align SP down to eight byte boundary using R12
-        sub     sp, r12                   // SP now aligned - only push 64-bit values from here
-        push    {{ r0-r4, r12 }}          // push alignment amount, and preserved registers - can now use R0-R3 (R4 is just padding)
+        sub     lr, lr, #4                // Make sure we jump back to the right place
+        push    {{ r12 }}                 // Push preserved register R12 (1)
+        mrs     r12, spsr                 // Grab SPSR (2)
+        push    {{ r12 }}                 // Push SPSR value (3)
+        and     r12, sp, 7                // Align SP down to eight byte boundary using R12
+        sub     sp, r12                   // SP now aligned - only push 64-bit values from here (4)
+        push    {{ r0-r4, r12 }}          // Push preserved registers and alignment amount (R4 is just padding) (5)
     "#,
     crate::fpu_context!("save"),
     r#"
         mov     r0, lr                    // Pass the faulting instruction address to the handler.
-        bl      _prefetch_abort_handler   // call C handler
-        mov     lr, r0                    // if we get back here, assume they returned a new LR in r0
+        bl      _prefetch_abort_handler   // Call C handler
+        mov     lr, r0                    // If we get back here, assume they returned a new LR in r0
     "#,
     crate::fpu_context!("restore"),
     r#"
-        pop     {{ r0-r4, r12 }}          // restore preserved registers, dummy value, and alignment amount
-        add     sp, r12                   // restore SP alignment using R12
-        pop     {{ r12 }}                 // restore SPSR using R12
-        msr     spsr, r12                 //
-        pop     {{ r12 }}                 // restore R12
-        movs    pc, lr                    // return from exception
+        pop     {{ r0-r4, r12 }}          // Pop preserved registers, dummy value, and alignment amount to undo (5)
+        add     sp, r12                   // Restore SP alignment using R12 to undo (4)
+        pop     {{ r12 }}                 // Grab saved SPSR to undo (3)
+        msr     spsr, r12                 // Restore SPSR using R12 to undo (2)
+        pop     {{ r12 }}                 // Pop R12 to undo (1)
+        movs    pc, lr                    // Return from exception
     .size _asm_default_prefetch_abort_handler, . - _asm_default_prefetch_abort_handler
     .popsection
     "#,
