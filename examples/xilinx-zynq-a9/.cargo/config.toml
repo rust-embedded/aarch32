@@ -1,0 +1,14 @@
+[target.armv7a-none-eabihf]
+runner = "qemu-system-arm -machine xilinx-zynq-a9 -cpu cortex-a9 -semihosting -nographic -audio none -kernel"
+
+[target.thumbv7a-none-eabihf]
+runner = "qemu-system-arm -machine xilinx-zynq-a9 -cpu cortex-a9 -semihosting -nographic -audio none -kernel"
+
+[target.armv7a-none-eabi]
+runner = "qemu-system-arm -machine xilinx-zynq-a9 -cpu cortex-a9 -semihosting -nographic -audio none -kernel"
+
+[target.thumbv7a-none-eabi]
+runner = "qemu-system-arm -machine xilinx-zynq-a9 -cpu cortex-a9 -semihosting -nographic -audio none -kernel"
+
+[build]
+target = "armv7a-none-eabihf"

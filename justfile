@@ -30,6 +30,8 @@ clean:
 	rm -rf examples/mps3-an536/target-d32
 	cd examples/mps3-an536-smp && cargo clean
 	rm -rf examples/mps3-an536-smp/target-d32
+	cd examples/xilinx-zynq-a9 && cargo clean
+	rm -rf examples/xilinx-zynq-a9/target-d32
 
 # Builds our workspace for all targets
 build-all: \
@@ -92,6 +94,10 @@ build-all-examples: \
 	(build-versatileab-tier2 "thumbv7a-none-eabihf") \
 	(build-mps3-tier2        "armv8r-none-eabihf") \
 	(build-mps3-tier2        "thumbv8r-none-eabihf") \
+	(build-zynq-tier2        "armv7a-none-eabi") \
+	(build-zynq-tier2        "thumbv7a-none-eabi") \
+	(build-zynq-tier2        "armv7a-none-eabihf") \
+	(build-zynq-tier2        "thumbv7a-none-eabihf") \
 
 # Builds the Versatile AB examples, building core from source
 build-versatileab-tier3 target:
@@ -112,6 +118,14 @@ build-mps3-tier2 target:
 	cd examples/mps3-an536 && cargo build --target={{target}} {{verbose}}
 	cd examples/mps3-an536-smp && cargo build --target={{target}} {{verbose}}
 	cd examples/mps3-an536-el2 && cargo build --target={{target}} {{verbose}}
+
+# Builds the Xilinx Zynq-A9 examples, building core from source
+build-zynq-tier3 target:
+	cd examples/xilinx-zynq-a9 && cargo build --target={{target}} -Zbuild-std=core {{verbose}}
+
+# Builds the Xilinx Zynq-A9 examples, assuming core has been prebuilt
+build-zynq-tier2 target:
+	cd examples/xilinx-zynq-a9 && cargo build --target={{target}} {{verbose}}
 
 # Documents our workspace for all targets
 doc-all: \
@@ -166,6 +180,7 @@ fmt:
 	cd examples/mps3-an536 && cargo fmt {{verbose}}
 	cd examples/mps3-an536-smp && cargo fmt {{verbose}}
 	cd examples/mps3-an536-el2 && cargo fmt {{verbose}}
+	cd examples/xilinx-zynq-a9 && cargo fmt {{verbose}}
 
 # Checks all the code is formatted
 fmt-check:
@@ -178,6 +193,7 @@ fmt-check:
 	cd examples/mps3-an536 && cargo fmt --check {{verbose}}
 	cd examples/mps3-an536-smp && cargo fmt --check {{verbose}}
 	cd examples/mps3-an536-el2 && cargo fmt --check {{verbose}}
+	cd examples/xilinx-zynq-a9 && cargo fmt --check {{verbose}}
 
 # Checks all the cross-compiled workspace passes the clippy lints
 clippy-all: \
@@ -214,6 +230,7 @@ clippy-examples:
 	cd examples/mps3-an536 && cargo clippy --target=armv8r-none-eabihf {{verbose}}
 	cd examples/mps3-an536-smp && cargo clippy --target=armv8r-none-eabihf {{verbose}}
 	cd examples/mps3-an536-el2 && cargo clippy --target=armv8r-none-eabihf {{verbose}}
+	cd examples/xilinx-zynq-a9 && cargo clippy --target=armv7a-none-eabi {{verbose}}
 
 # Checks all the cross-compiled workspace passes the clippy lints
 clippy-tier3-no-atomics target:
@@ -243,7 +260,7 @@ test-cargo:
 	cd arm-targets && cargo test {{verbose}}
 
 # Run the integration tests in QEMU
-test-qemu: test-qemu-v4t test-qemu-v5te test-qemu-v6 test-qemu-v7a test-qemu-v7r test-qemu-v8r test-qemu-v8r-smp test-qemu-v8r-el2
+test-qemu: test-qemu-v4t test-qemu-v5te test-qemu-v6 test-qemu-v7a test-qemu-v7a-zynq test-qemu-v7r test-qemu-v8r test-qemu-v8r-smp test-qemu-v8r-el2
 
 test-qemu-v4t:
 	#!/bin/bash
@@ -287,6 +304,15 @@ test-qemu-v7a:
 	./tests.sh examples/versatileab thumbv7a-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
 	RUSTFLAGS=-Ctarget-feature=+d32 ./tests.sh examples/versatileab armv7a-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	RUSTFLAGS=-Ctarget-feature=+d32 ./tests.sh examples/versatileab thumbv7a-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
+	if [ "${FAIL}" == "1" ]; then exit 1; fi
+
+test-qemu-v7a-zynq:
+	#!/bin/bash
+	FAIL=0
+	./tests.sh examples/xilinx-zynq-a9 armv7a-none-eabi {{verbose}} --release || FAIL=1
+	./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
+	./tests.sh examples/xilinx-zynq-a9 armv7a-none-eabihf {{verbose}} --release || FAIL=1
+	./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabihf -Zbuild-std=core {{verbose}} --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
 test-qemu-v7r:
