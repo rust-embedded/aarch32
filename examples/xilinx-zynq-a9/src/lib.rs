@@ -33,18 +33,10 @@ pub fn want_panic() {
 /// Init the hardware
 ///
 /// Includes enabling the MMU (if we have one)
+/// Supports  ARMv7-a only   #[cfg(arm_architecture = "v7-a")]
 pub fn init() {
-    #[cfg(arm_architecture = "v7-a")]
     mmu::set_mmu();
-
-    #[cfg(arm_architecture = "v7-a")]
     mmu::enable_mmu_and_cache();
-
-    #[cfg(arm_architecture = "v7-r")]
-    aarch32_cpu::register::Sctlr::modify(|s| {
-        // Enable Cache
-        s.set_c(true);
-    });
 }
 
 /// Exit from QEMU with code

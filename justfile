@@ -119,10 +119,6 @@ build-mps3-tier2 target:
 	cd examples/mps3-an536-smp && cargo build --target={{target}} {{verbose}}
 	cd examples/mps3-an536-el2 && cargo build --target={{target}} {{verbose}}
 
-# Builds the Xilinx Zynq-A9 examples, building core from source
-build-zynq-tier3 target:
-	cd examples/xilinx-zynq-a9 && cargo build --target={{target}} -Zbuild-std=core {{verbose}}
-
 # Builds the Xilinx Zynq-A9 examples, assuming core has been prebuilt
 build-zynq-tier2 target:
 	cd examples/xilinx-zynq-a9 && cargo build --target={{target}} {{verbose}}
@@ -310,10 +306,9 @@ test-qemu-v7a-zynq:
 	#!/bin/bash
 	FAIL=0
 	./tests.sh examples/xilinx-zynq-a9 armv7a-none-eabi {{verbose}} --release || FAIL=1
-	./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
 	./tests.sh examples/xilinx-zynq-a9 armv7a-none-eabihf {{verbose}} --release || FAIL=1
-	./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabihf -Zbuild-std=core {{verbose}} --release || FAIL=1
-	if [ "${FAIL}" == "1" ]; then exit 1; fi
+        ./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabi {{verbose}} --release || FAIL=1
+        if [ "${FAIL}" == "1" ]; then exit 1; fi
 
 test-qemu-v7r:
 	#!/bin/bash
