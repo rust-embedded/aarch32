@@ -21,11 +21,11 @@ name = "aarch32-rt"
 readme = "README.md"
 repository = "https://github.com/rust-embedded/aarch32.git"
 rust-version = "1.93"
-version = "0.3.0"
+version = "0.4.0"
 
 [dependencies]
-aarch32-cpu = { version = "0.3.0", path = "../aarch32-cpu" }
-aarch32-rt-macros = { path = "../aarch32-rt-macros", version = "=0.3.0" }
+aarch32-cpu = { version = "0.4.0", path = "../aarch32-cpu" }
+aarch32-rt-macros = { path = "../aarch32-rt-macros", version = "=0.4.0" }
 
 [features]
 # Enable the FPU on start-up, even on a soft-float EABI target
@@ -41,7 +41,7 @@ el2-mode = []
 svc-stack-interrupt = []
 
 [build-dependencies]
-arm-targets = { version = "0.4.0", path = "../arm-targets" }
+arm-targets = { version = "0.4.3", path = "../arm-targets" }
 
 [package.metadata.docs.rs]
 # This is a list of supported Tier 2 targets, as of latest stable

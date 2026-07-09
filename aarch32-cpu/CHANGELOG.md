@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [aarch32-cpu v0.4.0]
+
+### Changed
+
+- `Mpu`, `ElxPhysicalTimer` and `ElxVirtualTimer` objects are no longer `Send`
+- Fixed `MemAttr::WriteBackWriteAlloc` conversion to raw bits
+- Increased MSRV to 1.93
+
 ## [aarch32-cpu v0.3.0]
 
 ### Added
@@ -93,7 +101,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-cpu-v0.3.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-cpu-v0.4.0...HEAD
+[aarch32-cpu v0.4.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-cpu-v0.3.0...aarch32-cpu-v0.4.0
 [aarch32-cpu v0.3.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-cpu-v0.2.0...aarch32-cpu-v0.3.0
 [aarch32-cpu v0.2.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-cpu-v0.1.0...aarch32-cpu-v0.2.0
 [aarch32-cpu v0.1.0]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-v0.3.0...aarch32-cpu-v0.1.0

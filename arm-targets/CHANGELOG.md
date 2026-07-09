@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [v0.4.3]
+
 ### Added
 
 - New `armvXXX_or_higher` and `armvXXX_or_lower` flags for Legacy/R/A architectures.
+
+### Changed
+
+- Increased MSRV to 1.93
 
 ## [v0.4.2]
 
@@ -63,7 +69,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.4.2...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.4.3...HEAD
+[v0.4.3]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.4.2...arm-targets-v0.4.3
 [v0.4.2]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.4.1...arm-targets-v0.4.2
 [v0.4.1]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.4.0...arm-targets-v0.4.1
 [v0.4.0]: https://github.com/rust-embedded/aarch32/compare/arm-targets-v0.3.0...arm-targets-v0.4.0
