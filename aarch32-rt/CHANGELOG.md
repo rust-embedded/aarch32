@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [aarch32-rt v0.4.0]
+
 ### Added
 
 - `svc-stack-interrupt` feature to use SVC stack on interrupt, not SYS stack
+- Increased MSRV to 1.93
+- Some macros that were for internal use only have been renamed/moved
 
 ## [aarch32-rt v0.3.0]
 
@@ -82,7 +86,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.3.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.4.0...HEAD
+[aarch32-rt v0.4.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.3.0...aarch32-rt-v0.4.0
 [aarch32-rt v0.3.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.2.0...aarch32-rt-v0.3.0
 [aarch32-rt v0.2.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.1.0...aarch32-rt-v0.2.0
 [aarch32-rt v0.1.0]: https://github.com/rust-embedded/aarch32/compare/cortex-r-rt-v0.2.1...aarch32-rt-v0.1.0

@@ -10,6 +10,10 @@ As of *aarch32-rt-macros v0.1.0*, this project is released in lock-step with
 
 ## [Unreleased]
 
+## [aarch32-rt-macros v0.4.0]
+
+- Increased MSRV to 1.93
+
 ## [aarch32-rt-macros v0.3.0]
 
 - Handle outer `unsafe` for whitelisted proc macro attributes. For example, this allows
@@ -33,7 +37,8 @@ As of *aarch32-rt-macros v0.1.0*, this project is released in lock-step with
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.3.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.4.0...HEAD
+[aarch32-rt-macros v0.4.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.3.0...aarch32-rt-v0.4.0
 [aarch32-rt-macros v0.3.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.2.0...aarch32-rt-v0.3.0
 [aarch32-rt-macros v0.2.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.1.0...aarch32-rt-v0.2.0
 [aarch32-rt-macros v0.1.0]: https://github.com/rust-embedded/aarch32/compare/cortex-ar-rt-macros-v0.1.1...aarch32-rt-v0.1.0
