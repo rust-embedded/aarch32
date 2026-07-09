@@ -68,8 +68,7 @@ const fn make_mmu_table() -> L1Table {
     let mut page = 0;
     // Map 128 MiB of DDR SDRAM @ 0x0000_0000
     while page < 128 {
-        let section =
-            L1Section::new_with_addr_and_attrs(0x0000_0000 + (page * ONE_MB), DDR_ATTRS);
+        let section = L1Section::new_with_addr_and_attrs(0x0000_0000 + (page * ONE_MB), DDR_ATTRS);
         temp[0x000 + (page as usize)] = section;
         page += 1;
     }
