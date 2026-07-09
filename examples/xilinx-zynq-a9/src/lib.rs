@@ -1,7 +1,6 @@
 #![no_std]
 
-#[cfg(arm_architecture="v7-a")]
-pub mod mmu; // Include the mmu
+pub mod mmu;
 
 static WANT_PANIC: portable_atomic::AtomicBool = portable_atomic::AtomicBool::new(false);
 
@@ -32,8 +31,7 @@ pub fn want_panic() {
 
 /// Init the hardware
 ///
-/// Includes enabling the MMU (if we have one)
-/// Supports  ARMv7-a only   #[cfg(arm_architecture = "v7-a")]
+/// Includes enabling the MMU.
 pub fn init() {
     mmu::set_mmu();
     mmu::enable_mmu_and_cache();

@@ -1,4 +1,4 @@
-//! # Build script for the Xilinx-Zynq-A9 !example.
+//! # Build script for the Xilinx-Zynq-A9 example.
 //!
 //! This script only executes when using `cargo` to build the project.
 

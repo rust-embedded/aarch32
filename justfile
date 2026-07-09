@@ -307,8 +307,9 @@ test-qemu-v7a-zynq:
 	FAIL=0
 	./tests.sh examples/xilinx-zynq-a9 armv7a-none-eabi {{verbose}} --release || FAIL=1
 	./tests.sh examples/xilinx-zynq-a9 armv7a-none-eabihf {{verbose}} --release || FAIL=1
-        ./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabi {{verbose}} --release || FAIL=1
-        if [ "${FAIL}" == "1" ]; then exit 1; fi
+	./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabi {{verbose}} --release || FAIL=1
+	./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabihf {{verbose}} --release || FAIL=1
+	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
 test-qemu-v7r:
 	#!/bin/bash
