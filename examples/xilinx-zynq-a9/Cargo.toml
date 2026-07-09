@@ -1,0 +1,34 @@
+[package]
+authors = [
+	"Sriram Raghunathan <sriram@hcoop.net>",
+]
+default-run = "hello"
+description = "Examples for Xilinx-Zynq-A9 device (Arm Cortex-A9)"
+edition = "2024"
+homepage = "https://github.com/rust-embedded/aarch32"
+license = "MIT OR Apache-2.0"
+name = "xilinx-zynq-a9"
+publish = false
+readme = "README.md"
+repository = "https://github.com/rust-embedded/aarch32.git"
+version = "0.0.0"
+
+[dependencies]
+aarch32-cpu = { path = "../../aarch32-cpu", features = ["critical-section-multi-core"] }
+aarch32-rt = { path = "../../aarch32-rt" }
+arbitrary-int = "2.1.1"
+arm-gic = "0.8.1"
+c-code = { version = "0.1.0", path = "../c-code" }
+critical-section = "1.2.0"
+heapless = "0.9.1"
+libm = "0.2.15"
+portable-atomic = { version = "1.11.1", features = ["critical-section"] }
+semihosting = { version = "0.1.18", features = ["stdio"] }
+
+[build-dependencies]
+arm-targets = {version = "0.4.0", path = "../../arm-targets"}
+
+[features]
+eabi-fpu = ["aarch32-rt/eabi-fpu"]
+fpu-d32 = ["aarch32-rt/fpu-d32"]
+svc-stack-interrupt = ["aarch32-rt/svc-stack-interrupt"]
