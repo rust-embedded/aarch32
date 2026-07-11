@@ -302,6 +302,8 @@ test-qemu-v7a-zynq:
 	./tests.sh examples/xilinx-zynq-a9 armv7a-none-eabihf {{verbose}} --release || FAIL=1
 	./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabi {{verbose}} --release || FAIL=1
 	./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabihf {{verbose}} --release || FAIL=1
+	RUSTFLAGS=-Ctarget-feature=+d32 ./tests.sh examples/xilinx-zynq-a9 armv7a-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
+	RUSTFLAGS=-Ctarget-feature=+d32 ./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
 test-qemu-v7r:
