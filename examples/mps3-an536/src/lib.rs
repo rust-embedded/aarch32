@@ -72,6 +72,7 @@ compile_error!("This example is only compatible to the ARMv8-R architecture");
 
 static WANT_PANIC: AtomicBool = AtomicBool::new(false);
 
+
 /// Track if we're already in the exit routine.
 ///
 /// Stops us doing infinite recursion if we panic whilst doing the stack reporting.
@@ -215,7 +216,7 @@ impl Board {
 /// # Safety
 ///
 /// Only call this function once.
-unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
+pub unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
     /// Offset from PERIPHBASE for GIC Distributor
     const GICD_BASE_OFFSET: usize = 0x0000_0000usize;
 
@@ -243,9 +244,48 @@ unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
     // SAFETY: The GICD and GICR base addresses point to valid GICv3 MMIO regions as
     // obtained from the hardware CBAR register. This function is only called once
     // (via Board::new()'s atomic guard), ensuring exclusive ownership of the GIC.
-    let mut gic = unsafe { arm_gic::gicv3::GicV3::new(gicd, gicr_base, 1, false) };
+    let mut gic = unsafe { arm_gic::gicv3::GicV3::new(gicd, gicr_base, 2, false) };
     semihosting::println!("Calling git.setup(0)");
     gic.setup(0);
     arm_gic::gicv3::GicCpuInterface::set_priority_mask(0x80);
     gic
+}
+
+const FPGA_LED: u32 = 0xE020_2000;
+
+/// Release core1 from spin loop
+pub fn start_core1() {
+    let fpga_led = FPGA_LED as *mut u32;
+    unsafe {
+        // Activate second core by writing to FPGA LEDs.
+        // We needed a shared register that wasn't in RAM, and this will do.
+        fpga_led.write_volatile(1);
+        // send an event to wake the other core out of WFE
+        core::arch::asm!("sev");
+    }
+}
+
+/// Park function for secondary cores
+///
+/// We sleep the cores with a `WFE` and check a register in the FPGA to see if
+/// it is time to boot.
+#[unsafe(naked)]
+#[unsafe(no_mangle)]
+#[instruction_set(arm::a32)]
+pub extern "C" fn _asm_secondary_core_park() {
+    core::arch::naked_asm!(
+        r#"
+        // LED GPIO register base address
+        ldr     r1, ={fpga_led}
+    1:
+        wfe
+        // Spin until register non-zero (i.e. an LED is switched on)
+        ldr     r2, [r1]  
+        cmp     r2, 0
+        beq     1b
+        // return to start-up
+        bx      lr
+    "#,
+    fpga_led = const FPGA_LED
+    );
 }

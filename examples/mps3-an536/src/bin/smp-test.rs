@@ -37,7 +37,7 @@ fn main() -> ! {
         aarch32_cpu::register::Mpidr::read()
     );
 
-    mps3_an536_smp::start_core1();
+    mps3_an536::start_core1();
 
     // wait some time for core 1 to start
     for counter in 0..=CORE0_WILL_WAIT {
@@ -47,7 +47,7 @@ fn main() -> ! {
         if counter == CORE0_WILL_WAIT {
             println!("CPU 1 is missing?!");
 
-            mps3_an536_smp::exit(0);
+            mps3_an536::exit(0);
         }
     }
 
@@ -88,14 +88,14 @@ fn main() -> ! {
         code = 1;
     }
 
-    mps3_an536_smp::exit(code);
+    mps3_an536::exit(code);
 }
 
 /// The entry-point to the Rust application.
 ///
-/// It is called by the start-up code below, on Core 1.
+/// It is called by the start-up code on Core 1.
 #[unsafe(no_mangle)]
-pub extern "C" fn kmain2() {
+pub extern "C" fn kmain_secondary() {
     println!(
         "I am core 1 - {:08x?}",
         aarch32_cpu::register::Mpidr::read()

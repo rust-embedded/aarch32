@@ -254,6 +254,9 @@ PROVIDE(_sys_stack_size = 16K);
 /* Default to one CPU core (i.e. one copy of each stack) */
 PROVIDE(_num_cores      = 1);
 
+/* Our default main function for any non-primary cores */
+PROVIDE(kmain_secondary = _default_kmain_secondary);
+
 /* Default stack alignment. You can over-align if you want to set up MPU regions for the stacks */
 PROVIDE(_stack_alignment = 8);
 
@@ -274,9 +277,9 @@ PROVIDE(_asm_svc_handler            = _asm_default_svc_handler);
 PROVIDE(_asm_hvc_handler            = _asm_default_hvc_handler);
 PROVIDE(_asm_prefetch_abort_handler = _asm_default_prefetch_abort_handler);
 PROVIDE(_asm_data_abort_handler     = _asm_default_data_abort_handler);
-/* TODO: Hyp handler goes here */
 PROVIDE(_asm_irq_handler            = _asm_default_irq_handler);
 PROVIDE(_asm_fiq_handler            = _asm_default_fiq_handler);
+PROVIDE(_asm_secondary_core_park    = _asm_default_secondary_core_park);
 
 /* Weak aliases for C default handlers */
 PROVIDE(_undefined_handler      = _default_handler);
@@ -284,7 +287,6 @@ PROVIDE(_svc_handler            = _default_handler);
 PROVIDE(_hvc_handler            = _default_handler);
 PROVIDE(_prefetch_abort_handler = _default_handler);
 PROVIDE(_data_abort_handler     = _default_handler);
-/* TODO: Hyp handler goes here */
 PROVIDE(_irq_handler            = _default_handler);
 /* NB: There is no default C-language FIQ handler */
 

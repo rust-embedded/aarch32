@@ -1,7 +1,15 @@
-//! Start-up code for CPUs that *might* boot into EL2 but that we want in EL1.
+//! Boot code forArmv7-A and Armv8-R
 
+#[cfg(any(
+    arm_architecture = "v7-a",
+    all(arm_architecture = "v8-r", not(feature = "el2-mode")),
+))]
 use aarch32_cpu::register::{cpsr::ProcessorMode, Cpsr, Hactlr};
 
+#[cfg(any(
+    arm_architecture = "v7-a",
+    all(arm_architecture = "v8-r", not(feature = "el2-mode")),
+))]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
@@ -13,13 +21,20 @@ core::arch::global_asm!(
     .global _default_start
     .type _default_start, %function
     _default_start:
+        // Read MPIDR into R0
+        mrc     p15, 0, r0, c0, c0, 5
+        // Core ID in bottom 8 bits
+        and     r0, r0, 0xFF
         // Are we in EL2? If not, skip the EL2 setup portion
-        mrs     r0, cpsr
-        and     r0, r0, 0x1F
-        cmp     r0, {cpsr_mode_hyp}
+        mrs     r1, cpsr
+        and     r1, r1, 0x1F
+        cmp     r1, {cpsr_mode_hyp}
         bne     1f
-        // Set stack pointer
-        ldr     sp, =_hyp_stack_high_end
+        // Set up the Hyp stack for this core
+        ldr	    sp, =_hyp_stack_high_end
+        ldr	    r1, =_hyp_stack_size
+        muls    r1, r1, r0
+        subs    sp, sp, r1
         // Set the HVBAR (for EL2) to _vector_table
         ldr     r1, =_vector_table
         mcr     p15, 4, r1, c12, c0, 0
@@ -37,49 +52,23 @@ core::arch::global_asm!(
         isb
         eret
     1:
-        // Set the VBAR (for EL1) to _vector_table. NB: This isn't required on
-        // Armv7-R because that only supports 'low' (default) or 'high'.
-        ldr     r0, =_vector_table
-        mcr     p15, 0, r0, c12, c0, 0
-        // Init .data and .bss
-        bl      _init_segments
-        // Set up stacks.
-        mov     r0, #0
-        bl      _stack_setup_preallocated
-        // Clear Thumb Exception bit
-        mrc     p15, 0, r0, c1, c0, 0
-        bic     r0, #0x40000000
-        mcr     p15, 0, r0, c1, c0, 0
-    "#,
-    #[cfg(any(target_abi = "eabihf", feature = "eabi-fpu"))]
-    r#"
-        // Allow VFP coprocessor access
-        mrc     p15, 0, r0, c1, c0, 2
-        orr     r0, r0, #0xF00000
-        mcr     p15, 0, r0, c1, c0, 2
-        // Enable VFP
-        mov     r0, #0x40000000
-        vmsr    fpexc, r0
-    "#,
-    r#"
-        // Zero all registers before calling kmain
-        mov     r0, 0
-        mov     r1, 0
-        mov     r2, 0
-        mov     r3, 0
-        mov     r4, 0
-        mov     r5, 0
-        mov     r6, 0
-        mov     r7, 0
-        mov     r8, 0
-        mov     r9, 0
-        mov     r10, 0
-        mov     r11, 0
-        mov     r12, 0
-        // Jump to application
-        bl      kmain
-        // In case the application returns, loop forever
-        b       .
+        // Set the VBAR (for EL1) to _vector_table.
+        ldr     r1, =_vector_table
+        mcr     p15, 0, r1, c12, c0, 0
+        // Check if core ID is zero
+        cmp     r0, 0
+        bne     2f
+        // Primary core (core 0) can do normal start-up
+        mov     r4, r0
+        bl      _asm_init_segments
+        mov     r0, r4
+        b       _asm_core_start
+    2:
+        // Secondary core needs to spin until some magic flag is set
+        mov     r4, r0
+        bl      _asm_secondary_core_park
+        mov     r0, r4
+        b       _asm_core_start
     .size _default_start, . - _default_start
     .popsection
     "#,
@@ -105,3 +94,12 @@ core::arch::global_asm!(
             .raw_value()
     }
 );
+
+#[unsafe(naked)]
+#[unsafe(no_mangle)]
+extern "C" fn _asm_default_secondary_core_park() {
+    core::arch::naked_asm!(
+        // just spin
+        "b       ."
+    )
+}
