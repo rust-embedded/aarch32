@@ -72,6 +72,8 @@ compile_error!("This example is only compatible to the ARMv8-R architecture");
 
 static WANT_PANIC: AtomicBool = AtomicBool::new(false);
 
+/// Set this if you've turned the MPU on. We won't walk the other core's stacks.
+pub static MPU_ENABLED: AtomicBool = AtomicBool::new(false);
 
 /// Track if we're already in the exit routine.
 ///
@@ -128,7 +130,12 @@ fn stack_dump() {
 
     unsafe {
         for stack in Stack::iter() {
-            for core in (0..Stack::num_cores()).rev() {
+            let bound = if MPU_ENABLED.load(Ordering::Relaxed) {
+                1
+            } else {
+                Stack::num_cores()
+            };
+            for core in (0..bound).rev() {
                 let core_range = stack.range(core).unwrap();
                 let (total, used) = stack_used_bytes(core_range.clone());
                 let percent = used * 100 / total;
