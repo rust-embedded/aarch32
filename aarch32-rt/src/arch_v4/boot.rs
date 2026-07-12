@@ -1,4 +1,4 @@
-//! Start-up code for CPUs that always boot into EL1
+//! Start-up code for ARMv4 - ARMv6 CPUs that always boot into EL1
 
 core::arch::global_asm!(
     r#"
