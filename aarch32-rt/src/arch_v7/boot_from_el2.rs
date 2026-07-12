@@ -1,4 +1,4 @@
-//! Boot code forArmv7-A and Armv8-R
+//! Boot code for Armv7-A and Armv8-R
 
 #[cfg(any(
     arm_architecture = "v7-a",
