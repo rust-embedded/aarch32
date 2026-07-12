@@ -1,8 +1,7 @@
 //! Start-up code for Armv8-R to stay in EL2.
 //!
-//! We boot into EL2, set up a HYP stack pointer, and run `kmain` in EL2.
-//!
-//! We do not support SMP at EL2 currently.
+//! We boot into EL2, set up a HYP stack pointer, and run `kmain` in EL2 on the
+//! primary core, and `kmain_secondary` in EL2 on any secondary cores.
 
 core::arch::global_asm!(
     r#"
