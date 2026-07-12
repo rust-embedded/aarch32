@@ -569,7 +569,7 @@
 //! * `_asm_default_irq_handler` - assembly language trampoline that calls
 //!   `_irq_handler`
 //! * `_asm_default_fiq_handler` - an FIQ handler that just spins
-//! * `_asm_default_core_park_handler` - spins secondary cores forever
+//! * `_asm_default_secondary_core_park` - spins secondary cores forever
 //! * `_default_handler` - a C compatible function that spins forever.
 //! * `_asm_init_segments` - initialises `.bss` and `.data` and zeroes the
 //!   stacks
