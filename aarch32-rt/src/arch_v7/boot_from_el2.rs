@@ -6,6 +6,16 @@
 ))]
 use aarch32_cpu::register::{cpsr::ProcessorMode, Cpsr, Hactlr};
 
+// # _default_start
+//
+// Reset function for ARMv7-A and ARMv8-R
+//
+// Cores will first set the HYP stack and then leave EL2 and enter EL1.
+// Core 0 will initialise global memory and call `_asm_core_start`. Other cores
+// call `_asm_secondary_core_park` and then `_asm_core_start`.
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 #[cfg(any(
     arm_architecture = "v7-a",
     all(arm_architecture = "v8-r", not(feature = "el2-mode")),
@@ -15,7 +25,6 @@ core::arch::global_asm!(
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
     .cpu cortex-r52
-
     .pushsection .text.default_start
     .arm
     .global _default_start

@@ -573,7 +573,7 @@
 //!   stacks
 //! * `_asm_core_start` - sets up stacks, enables FPU (if required), and jumps
 //!   to `kmain` or `kmain_secondary`. Takes the Core ID in `r0`.
-//! * `_stack_setup_preallocated` - initialises UND, SVC, ABT, IRQ, FIQ and SYS
+//! * `_asm_stack_setup_preallocated` - initialises UND, SVC, ABT, IRQ, FIQ and SYS
 //!   stacks from the `.stacks` section defined in link.x, based on
 //!   `_xxx_stack_size` values. Takes the Core ID in `r0`.
 //! * `_xxx_stack_high_end` and `_xxx_stack_low_end` where the former is the top
@@ -776,24 +776,23 @@ core::arch::global_asm!(
     "#
 );
 
-// Shared library routines for all architectures
+// # _asm_core_start
+//
+// The _asm_core_start function takes the core number in r0. It sets
+// up the stack pointers, the FPU (if required), and jumps to kmain.
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
-
-    // The _asm_core_start function takes the core number in r0. It sets
-    // up the stack pointers, the FPU (if required), and jumps to kmain.
     .pushsection .text._asm_core_start
-    .arm
     .global _asm_core_start
     .type _asm_core_start, %function
     _asm_core_start:
         // Keep our core number for later
         mov     r12, r0
         // Set up stacks (core number in r0)
-        bl      _stack_setup_preallocated
+        bl      _asm_stack_setup_preallocated
     "#,
     #[cfg(armv6_or_higher)]
     r#"
@@ -841,25 +840,35 @@ core::arch::global_asm!(
         b       .
     .size _asm_core_start, . - _asm_core_start
     .popsection
+    "#
+);
 
-    // Default main_secondary function just returns so we end up spinning
-    .pushsection .text._default_kmain_secondary
-    .global _default_kmain_secondary
-    .arm
-    .type _default_kmain_secondary, %function
-    _default_kmain_secondary:
-        bx      lr
-    .size _default_kmain_secondary, . - _default_kmain_secondary
-    .popsection
+/// Spins secondary cores.
+#[unsafe(no_mangle)]
+#[cfg(target_arch = "arm")]
+pub extern "C" fn _default_kmain_secondary() {
+    #[cfg(armv7_or_higher)]
+    loop {
+        aarch32_cpu::asm::wfe();
+    }
+    #[cfg(not(armv7_or_higher))]
+    loop {
+        core::hint::spin_loop();
+    }
+}
 
-    // Configure a stack for every mode. Leaves you in sys mode.
-    //
-    // Pass the core number in r0
-    .pushsection .text._stack_setup_preallocated
-    .global _stack_setup_preallocated
-    .arm
-    .type _stack_setup_preallocated, %function
-    _stack_setup_preallocated:
+// # _asm_stack_setup_preallocated
+//
+// Configure a stack for every mode. Leaves you in sys mode.
+//
+// Pass the core number in r0
+#[cfg(target_arch = "arm")]
+core::arch::global_asm!(
+    r#"
+    .pushsection .text._asm_stack_setup_preallocated
+    .global _asm_stack_setup_preallocated
+    .type _asm_stack_setup_preallocated, %function
+    _asm_stack_setup_preallocated:
         // Save LR from whatever mode we're currently in
         mov     r3, lr
         // (we might not be in the same mode when we return).
@@ -901,49 +910,7 @@ core::arch::global_asm!(
         subs    sp, r2, r1
         // return to caller
         bx      r3
-    .size _stack_setup_preallocated, . - _stack_setup_preallocated
-    .popsection
-
-    // Initialises stacks, .data and .bss
-    .pushsection .text._asm_init_segments
-    .arm
-    .global _asm_init_segments
-    .type _asm_init_segments, %function
-    _asm_init_segments:
-        // Zero .bss
-        ldr     r0, =__sbss
-        ldr     r1, =__ebss
-        mov     r2, 0
-    0:
-        cmp     r1, r0
-        beq     1f
-        stm     r0!, {{r2}}
-        b       0b
-    1:
-        // Zero the stacks
-        ldr     r0, =_stacks_low_end
-        ldr     r1, =_stacks_high_end
-        mov     r2, 0
-    0:
-        cmp     r1, r0
-        beq     1f
-        stm     r0!, {{r2}}
-        b       0b
-    1:
-        // Initialise .data
-        ldr     r0, =__sdata
-        ldr     r1, =__edata
-        ldr     r2, =__sidata
-    0:
-        cmp     r1, r0
-        beq     1f
-        ldm     r2!, {{r3}}
-        stm     r0!, {{r3}}
-        b       0b
-    1:
-    	// return to caller
-        bx      lr
-    .size _asm_init_segments, . - _asm_init_segments
+    .size _asm_stack_setup_preallocated, . - _asm_stack_setup_preallocated
     .popsection
     "#,
     und_mode = const {
@@ -990,18 +957,73 @@ core::arch::global_asm!(
     },
 );
 
+// # _asm_init_segments
+//
+// Initialises stacks, .data and .bss
+#[cfg(target_arch = "arm")]
+core::arch::global_asm!(
+    r#"
+    // Work around https://github.com/rust-lang/rust/issues/127269
+    .fpu vfp2
+
+    .pushsection .text._asm_init_segments
+    .global _asm_init_segments
+    .type _asm_init_segments, %function
+    _asm_init_segments:
+        // Zero .bss
+        ldr     r0, =__sbss
+        ldr     r1, =__ebss
+        mov     r2, 0
+    0:
+        cmp     r1, r0
+        beq     1f
+        stm     r0!, {{r2}}
+        b       0b
+    1:
+        // Zero the stacks
+        ldr     r0, =_stacks_low_end
+        ldr     r1, =_stacks_high_end
+        mov     r2, 0
+    0:
+        cmp     r1, r0
+        beq     1f
+        stm     r0!, {{r2}}
+        b       0b
+    1:
+        // Initialise .data
+        ldr     r0, =__sdata
+        ldr     r1, =__edata
+        ldr     r2, =__sidata
+    0:
+        cmp     r1, r0
+        beq     1f
+        ldm     r2!, {{r3}}
+        stm     r0!, {{r3}}
+        b       0b
+    1:
+    	// return to caller
+        bx      lr
+    .size _asm_init_segments, . - _asm_init_segments
+    .popsection
+    "#,
+);
+
+// # _asm_default_fiq_handler
+//
 // Default asm FIQ exception handler (it's just a spin-loop)
 //
 // We end up here if a FIQ fires and the weak 'PROVIDE' in the link.x
 // file hasn't been over-ridden.
 //
 // Cannot be a Rust/C function because it can only touch registers R8 to R12, SP and LR
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
     .pushsection .text._asm_default_fiq_handler
-
-    // Our default FIQ handler
+    .arm
     .global _asm_default_fiq_handler
     .type _asm_default_fiq_handler, %function
     _asm_default_fiq_handler:

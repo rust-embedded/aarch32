@@ -1,14 +1,18 @@
 //! Start-up code for Armv8-R to stay in EL2.
-//!
-//! We boot into EL2, set up a HYP stack pointer, and run `kmain` in EL2 on the
-//! primary core, and `kmain_secondary` in EL2 on any secondary cores.
 
+// # _default_start
+//
+// We boot into EL2, set up a HYP stack pointer, and run `kmain` in EL2 on the
+// primary core, and `kmain_secondary` in EL2 on any secondary cores.
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3
-
-    .section .text.default_start
+    .pushsection .text.default_start
+    .arm
     .global _default_start
     .type _default_start, %function
     _default_start:
@@ -76,6 +80,7 @@ core::arch::global_asm!(
         // In case the application returns, loop forever
         b       .
     .size _default_start, . - _default_start
+    .popsection
     "#,
     irq_fiq = const aarch32_cpu::register::Cpsr::new_with_raw_value(0).with_i(true).with_f(true).raw_value()
 );

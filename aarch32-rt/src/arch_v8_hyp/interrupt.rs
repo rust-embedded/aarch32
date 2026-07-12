@@ -1,16 +1,20 @@
 //! IRQ handler for Armv8-R at EL2
 
+// # _asm_default_irq_handler
+//
+// Called from the vector table when we have an interrupt.
+// Saves state and calls a C-compatible handler like
+// `extern "C" fn _irq_handler();`
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3
-
-    .section .text._asm_default_irq_handler
-
-    // Called from the vector table when we have an interrupt.
-    // Saves state and calls a C-compatible handler like
-    // `extern "C" fn _irq_handler();`
+    .pushsection .text._asm_default_irq_handler
+    .arm
     .global _asm_default_irq_handler
     .type _asm_default_irq_handler, %function
     _asm_default_irq_handler:
@@ -34,5 +38,6 @@ core::arch::global_asm!(
         pop     {{ r0-r3, r12, lr }}      // Pop preserved registers (1)
         eret                              // Return from the asm handler
     .size _asm_default_irq_handler, . - _asm_default_irq_handler
+    .popsection
     "#,
 );

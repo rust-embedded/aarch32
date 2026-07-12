@@ -1,21 +1,26 @@
 //! SVC handler for Armv8-R at EL2
 
+// # _asm_default_svc_handler
+//
+// Called from the vector table when we have an hypervisor call from Hyp
+// mode (which seems to end up in this SVC handler).
+//
+// Saves state and calls a C-compatible handler like `extern "C" fn
+// _hvc_handler(hsr: u32, frame: &Frame) -> u32;`
+//
+// NOTE: We call '_hvc_handler' rather than '_svc_handler', because we are
+// passing the Hypervisor Syndrome Register contents, rather trying to parse
+// the HVC instruction.
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3
 
-    // Called from the vector table when we have an hypervisor call from Hyp
-    // mode (which seems to end up in this SVC handler).
-    //
-    // Saves state and calls a C-compatible handler like `extern "C" fn
-    // _hvc_handler(hsr: u32, frame: &Frame) -> u32;`
-    //
-    // NOTE: We call '_hvc_handler' rather than '_svc_handler', because we are
-    // passing the Hypervisor Syndrome Register contents, rather trying to parse
-    // the HVC instruction.
-    .section .text._asm_default_svc_handler
+    .pushsection .text._asm_default_svc_handler
     .arm
     .global _asm_default_svc_handler
     .type _asm_default_svc_handler, %function
@@ -47,5 +52,6 @@ core::arch::global_asm!(
         pop     {{ r12, lr }}             // Pop R12 and LR from stack to undo (1)
         eret                              // Return from the asm handler
     .size _asm_default_svc_handler, . - _asm_default_svc_handler
+    .popsection
     "#,
 );

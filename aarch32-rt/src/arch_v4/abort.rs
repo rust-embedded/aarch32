@@ -1,13 +1,17 @@
 //! Data and Prefetch Abort handlers for Armv4 to Armv6
 
+// # _asm_default_data_abort_handler
+//
+// Called from the vector table when we have an undefined exception.
+// Saves state and calls a C-compatible handler like
+// `extern "C" fn _data_abort_handler(addr: usize);`
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
-
-    // Called from the vector table when we have an undefined exception.
-    // Saves state and calls a C-compatible handler like
-    // `extern "C" fn _data_abort_handler(addr: usize);`
     .pushsection .text._asm_default_data_abort_handler
     .arm
     .global _asm_default_data_abort_handler
@@ -40,14 +44,18 @@ core::arch::global_asm!(
     "#
 );
 
+// # _asm_default_prefetch_abort_handler
+//
+// Called from the vector table when we have a prefetch abort.
+// Saves state and calls a C-compatible handler like
+// `extern "C" fn _prefetch_abort_handler(addr: usize);`
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
-
-    // Called from the vector table when we have a prefetch abort.
-    // Saves state and calls a C-compatible handler like
-    // `extern "C" fn _prefetch_abort_handler(addr: usize);`
     .pushsection .text._asm_default_prefetch_abort_handler
     .arm
     .global _asm_default_prefetch_abort_handler

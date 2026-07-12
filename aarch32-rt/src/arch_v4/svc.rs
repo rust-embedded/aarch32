@@ -1,14 +1,18 @@
 //! SVC handler for Armv4 to Armv6
 
+// # _asm_default_svc_handler
+//
+// Called from the vector table when we have an software interrupt.
+// Saves state and calls a C-compatible handler like
+// `extern "C" fn _svc_handler(arg: u32, frame: &Frame) -> u32;`
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
-
-    // Called from the vector table when we have an software interrupt.
-    // Saves state and calls a C-compatible handler like
-    // `extern "C" fn _svc_handler(arg: u32, frame: &Frame) -> u32;`
     .pushsection .text._asm_default_svc_handler
     .arm
     .global _asm_default_svc_handler

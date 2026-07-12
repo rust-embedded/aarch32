@@ -1,8 +1,17 @@
 //! Boot code for Armv7-R
 
+// # _default_start
+//
+// Reset function for ARMv7-R
+//
+// Core 0 will initialise global memory and call `_asm_core_start`. Other cores
+// call `_asm_secondary_core_park` and then `_asm_core_start`.
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 core::arch::global_asm!(
     r#"
-    .pushsection .text.default_start
+    .pushsection .text._default_start
     .arm
     .global _default_start
     .type _default_start, %function
