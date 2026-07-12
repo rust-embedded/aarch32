@@ -571,9 +571,11 @@
 //! * `_default_handler` - a C compatible function that spins forever.
 //! * `_asm_init_segments` - initialises `.bss` and `.data` and zeroes the
 //!   stacks
+//! * `_asm_core_start` - sets up stacks, enables FPU (if required), and jumps
+//!   to `kmain` or `kmain_secondary`. Takes the Core ID in `r0`.
 //! * `_stack_setup_preallocated` - initialises UND, SVC, ABT, IRQ, FIQ and SYS
 //!   stacks from the `.stacks` section defined in link.x, based on
-//!   _xxx_stack_size values, and the core number given in `r0`
+//!   `_xxx_stack_size` values. Takes the Core ID in `r0`.
 //! * `_xxx_stack_high_end` and `_xxx_stack_low_end` where the former is the top
 //!   and the latter the bottom of the stack for each mode (`und`, `svc`, `abt`,
 //!   `irq`, `fiq`, `sys`)
