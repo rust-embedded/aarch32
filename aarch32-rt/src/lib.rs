@@ -530,19 +530,17 @@
 //! ```rust,ignore
 //! #[unsafe(naked)]
 //! #[unsafe(no_mangle)]
-//! #[unsafe(link_section = ".text.startup")]
-//! #[instruction_set(arm::a32)]
 //! pub unsafe extern "C" fn _asm_secondary_core_park() {
 //!     core::arch::naked_asm!(
 //!         r#"
 //!         // Some hardware register
-//!         ldr     r1, =0xE020_2000
+//!         ldr     r0, =0xE020_2000
 //!     1:
 //!         // Wait until Core 0 does a 'sev'
 //!         wfe
 //!         // Spin until register is non-zero.
-//!         ldr     r2, [r1]  
-//!         cmp     r2, 0
+//!         ldr     r1, [r0]  
+//!         cmp     r1, 0
 //!         beq     1b
 //!         // return to start-up
 //!         bx      lr

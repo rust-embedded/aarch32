@@ -278,17 +278,16 @@ pub fn start_core1() {
 /// it is time to boot.
 #[unsafe(naked)]
 #[unsafe(no_mangle)]
-#[instruction_set(arm::a32)]
 pub extern "C" fn _asm_secondary_core_park() {
     core::arch::naked_asm!(
         r#"
         // LED GPIO register base address
-        ldr     r1, ={fpga_led}
+        ldr     r0, ={fpga_led}
     1:
         wfe
         // Spin until register non-zero (i.e. an LED is switched on)
-        ldr     r2, [r1]  
-        cmp     r2, 0
+        ldr     r1, [r0]  
+        cmp     r1, 0
         beq     1b
         // return to start-up
         bx      lr
