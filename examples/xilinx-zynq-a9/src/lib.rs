@@ -31,10 +31,45 @@ pub fn want_panic() {
 
 /// Init the hardware
 ///
-/// Includes enabling the MMU.
+/// Includes enabling the MMU. Each core must call this for itself, because the
+/// MMU control registers (`TTBR0`, `SCTLR`) are per-core; they all point at the
+/// same shared L1 page table.
 pub fn init() {
     mmu::set_mmu();
     mmu::enable_mmu_and_cache();
+}
+
+static CORE1_RELEASE: portable_atomic::AtomicU32 = portable_atomic::AtomicU32::new(0);
+
+/// Release core1 from spin loop
+pub fn start_core1() {
+    CORE1_RELEASE.store(1, portable_atomic::Ordering::SeqCst);
+    unsafe { core::arch::asm!("sev") };
+}
+
+/// Park function for secondary cores
+///
+/// We sleep the cores with a `WFE` and check a register in the FPGA to see if
+/// it is time to boot.
+#[unsafe(naked)]
+#[unsafe(no_mangle)]
+pub extern "C" fn _asm_secondary_core_park() {
+    core::arch::naked_asm!(
+        r#"
+        // Address of the release flag
+        ldr     r0, ={release}
+    1:
+        // Wait until Core 0 does a 'sev'
+        wfe
+        // Spin until the flag is non-zero
+        ldr     r1, [r0]
+        cmp     r1, 0
+        beq     1b
+        // return to start-up
+        bx      lr
+    "#,
+        release = sym CORE1_RELEASE,
+    )
 }
 
 /// Exit from QEMU with code
@@ -84,4 +119,70 @@ fn stack_dump() {
             }
         }
     }
+}
+
+/// Represents the hardware we drive in our Zynq-7000 system.
+pub struct Board {
+    /// The Arm Generic Interrupt Controller (memory-mapped / GICv2 model)
+    pub gic: arm_gic::gicv2::GicV2<'static>,
+}
+
+impl Board {
+    /// Create a new board structure.
+    ///
+    /// Returns `Some(board)` the first time you call it, and `None` thereafter,
+    /// so you cannot have two copies of the [`Board`] structure.
+    pub fn new() -> Option<Board> {
+        static TAKEN: portable_atomic::AtomicBool = portable_atomic::AtomicBool::new(false);
+        if TAKEN.swap(true, portable_atomic::Ordering::SeqCst) {
+            // they already took the peripherals
+            return None;
+        }
+        Some(Board {
+            // SAFETY: This is the first and only call to `make_gic()`, as
+            // guaranteed by the atomic flag check above.
+            gic: unsafe { make_gic() },
+        })
+    }
+}
+
+/// The Cortex-A9 MPCore private peripheral base on the Zynq-7000.
+///
+/// This is fixed by the SoC (and matches the QEMU `xilinx-zynq-a9` machine). We
+/// use a constant rather than reading `CBAR`, because `CBAR` on the Cortex-A9
+/// uses a different encoding to the one `aarch32_cpu::register::ImpCbar` issues.
+const PERIPHBASE: usize = 0xF8F0_0000;
+
+/// Create the Arm GIC driver for the Cortex-A9 MPCore.
+///
+/// The Cortex-A9 uses the memory-mapped GIC (the GICv2 programming model). The
+/// Distributor sits at `PERIPHBASE + 0x1000` and the CPU interface at
+/// `PERIPHBASE + 0x100`. Both regions fall inside the device memory mapped by
+/// [`mmu`].
+///
+/// # Safety
+///
+/// Only call this function once.
+pub unsafe fn make_gic() -> arm_gic::gicv2::GicV2<'static> {
+    use arm_gic::gicv2::registers::{Gicc, Gicd};
+
+    /// Offset from PERIPHBASE for the GIC Distributor
+    const GICD_BASE_OFFSET: usize = 0x0000_1000;
+
+    /// Offset from PERIPHBASE for the GIC CPU interface
+    const GICC_BASE_OFFSET: usize = 0x0000_0100;
+
+    let gicd_base = (PERIPHBASE + GICD_BASE_OFFSET) as *mut Gicd;
+    let gicc_base = (PERIPHBASE + GICC_BASE_OFFSET) as *mut Gicc;
+    semihosting::println!(
+        "Creating GIC driver @ {:010p} / {:010p}",
+        gicd_base,
+        gicc_base
+    );
+    // SAFETY: `gicd_base` and `gicc_base` point at the GIC Distributor and CPU
+    // interface MMIO regions for this SoC, and this function is only called
+    // once, so the driver has exclusive ownership.
+    let mut gic = unsafe { arm_gic::gicv2::GicV2::new(gicd_base, gicc_base) };
+    gic.setup();
+    gic
 }

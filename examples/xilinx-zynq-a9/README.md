@@ -22,6 +22,17 @@ Zynq-7000, not the real thing.
 [`.cargo/config.toml`]: ./.cargo/config.toml
 [`rust-toolchain.toml`]: ./rust-toolchain.toml
 
+## Examples
+
+- `hello` - prints a message over semihosting and then panics
+- `gic` - sets up the memory-mapped GIC (the GICv2 programming model), sends a
+  Software Generated Interrupt to this core, and handles it
+- `smp` - boots the second core and checks that atomics and critical sections
+  work across both cores
+
+The Zynq-7000 is a dual-core device, so QEMU is run with `-smp 2`. The
+single-core examples simply leave the second core parked.
+
 ## Running
 
 Run these examples as follows:
@@ -29,7 +40,7 @@ Run these examples as follows:
 ```console
 $ cargo run --bin hello
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.80s
-     Running `qemu-system-arm -machine xilinx-zynq-a9 -cpu cortex-a9 -semihosting -nographic -audio none -kernel target/armv7a-none-eabihf/debug/hello`
+     Running `qemu-system-arm -machine xilinx-zynq-a9 -cpu cortex-a9 -semihosting -nographic -audio none -smp 2 -kernel target/armv7a-none-eabihf/debug/hello`
 Hello, this is semihosting! x = 1.000, y = 2.000
 PANIC: PanicInfo {
     message: I am an example panic,
@@ -41,6 +52,16 @@ PANIC: PanicInfo {
     can_unwind: true,
     force_no_backtrace: false,
 }
+```
+
+The `smp` example prints the following:
+
+```console
+$ cargo run --bin smp
+I am core 0 - Mpidr(80000000)
+I am core 1 - Mpidr(80000001)
+CAS test passed
+CS Mutex test passed
 ```
 
 ## Debugging
