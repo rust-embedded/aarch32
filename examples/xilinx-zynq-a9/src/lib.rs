@@ -1,13 +1,14 @@
 #![no_std]
 
+use core::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 pub mod mmu;
 
-static WANT_PANIC: portable_atomic::AtomicBool = portable_atomic::AtomicBool::new(false);
+static WANT_PANIC: AtomicBool = AtomicBool::new(false);
 
 /// Track if we're already in the exit routine.
 ///
 /// Stops us doing infinite recursion if we panic whilst doing the stack reporting.
-static IN_EXIT: portable_atomic::AtomicBool = portable_atomic::AtomicBool::new(false);
+static IN_EXIT: AtomicBool = AtomicBool::new(false);
 
 /// Called when the application raises an unrecoverable `panic!`.
 ///
@@ -17,7 +18,7 @@ static IN_EXIT: portable_atomic::AtomicBool = portable_atomic::AtomicBool::new(f
 #[cfg(target_os = "none")]
 fn panic(info: &core::panic::PanicInfo) -> ! {
     semihosting::println!("PANIC: {:#?}", info);
-    if WANT_PANIC.load(portable_atomic::Ordering::Relaxed) {
+    if WANT_PANIC.load(Ordering::Relaxed) {
         exit(0);
     } else {
         exit(1);
@@ -26,7 +27,7 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 
 /// Set the panic function as no longer returning a failure code via semihosting
 pub fn want_panic() {
-    WANT_PANIC.store(true, portable_atomic::Ordering::Relaxed);
+    WANT_PANIC.store(true, Ordering::Relaxed);
 }
 
 /// Init the hardware
@@ -39,11 +40,11 @@ pub fn init() {
     mmu::enable_mmu_and_cache();
 }
 
-static CORE1_RELEASE: portable_atomic::AtomicU32 = portable_atomic::AtomicU32::new(0);
+static CORE1_RELEASE: AtomicU32 = AtomicU32::new(0);
 
 /// Release core1 from spin loop
 pub fn start_core1() {
-    CORE1_RELEASE.store(1, portable_atomic::Ordering::SeqCst);
+    CORE1_RELEASE.store(1, Ordering::SeqCst);
     unsafe { core::arch::asm!("sev") };
 }
 
@@ -74,7 +75,7 @@ pub extern "C" fn _asm_secondary_core_park() {
 
 /// Exit from QEMU with code
 pub fn exit(code: i32) -> ! {
-    if !IN_EXIT.swap(true, portable_atomic::Ordering::Relaxed) {
+    if !IN_EXIT.swap(true, Ordering::Relaxed) {
         stack_dump();
     }
     semihosting::process::exit(code)
@@ -133,8 +134,8 @@ impl Board {
     /// Returns `Some(board)` the first time you call it, and `None` thereafter,
     /// so you cannot have two copies of the [`Board`] structure.
     pub fn new() -> Option<Board> {
-        static TAKEN: portable_atomic::AtomicBool = portable_atomic::AtomicBool::new(false);
-        if TAKEN.swap(true, portable_atomic::Ordering::SeqCst) {
+        static TAKEN: AtomicBool = AtomicBool::new(false);
+        if TAKEN.swap(true, Ordering::SeqCst) {
             // they already took the peripherals
             return None;
         }
