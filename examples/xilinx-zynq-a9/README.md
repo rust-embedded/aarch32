@@ -80,7 +80,7 @@ $ arm-none-eabi-gdb target/armv7a-none-eabihf/debug/hello
 ## Minimum Supported Rust Version (MSRV)
 
 These examples are guaranteed to compile on the version of Rust given in the
-[`rust-toolchain.toml`] file. These examples are not version controlled and we
+[`../../rust-toolchain.toml`] file. These examples are not version controlled and we
 may change the MSRV at any time.
 
 ## Licence
