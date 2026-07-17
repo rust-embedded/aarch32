@@ -262,13 +262,19 @@ const FPGA_LED: u32 = 0xE020_2000;
 
 /// Release core1 from spin loop
 pub fn start_core1() {
-    let fpga_led = FPGA_LED as *mut u32;
     unsafe {
-        // Activate second core by writing to FPGA LEDs.
-        // We needed a shared register that wasn't in RAM, and this will do.
-        fpga_led.write_volatile(1);
-        // send an event to wake the other core out of WFE
-        core::arch::asm!("sev");
+        core::arch::asm!(
+            // Activate second core by writing to FPGA LEDs.
+            // We needed a shared register that wasn't in RAM, and this will do.
+            //
+            // STL is an ARMv8 Store-Release, to ensure any loads/stores before
+            // this point are completed first
+            "stl     {value}, [{addr}]",
+            // send an event to wake the other core out of WFE
+            "sev",
+            value = in(reg) 1,
+            addr = in(reg) FPGA_LED
+        );
     }
 }
 
@@ -281,16 +287,13 @@ pub fn start_core1() {
 pub extern "C" fn _asm_secondary_core_park() {
     core::arch::naked_asm!(
         r#"
-        // LED GPIO register base address
-        ldr     r0, ={fpga_led}
+        ldr     r0, ={fpga_led}   // LED GPIO register base address
     1:
-        wfe
-        // Spin until register non-zero (i.e. an LED is switched on)
-        ldr     r1, [r0]  
-        cmp     r1, 0
-        beq     1b
-        // return to start-up
-        bx      lr
+        wfe                       // Wait for Event
+        lda     r1, [r0]          // Load-Acquire the value we wait on
+        cmp     r1, 0             // Is it zero?
+        beq     1b                // If so, loop and try again
+        bx      lr                // Else, return to start-up
     "#,
     fpga_led = const FPGA_LED
     );
