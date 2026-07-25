@@ -55,6 +55,7 @@ static MEM_ATTRS: [MemAttr; 8] = [
 #[entry]
 fn main() -> ! {
     let mut mpu = unsafe { El1Mpu::new() };
+    mps3_an536::MPU_ENABLED.store(true, core::sync::atomic::Ordering::Relaxed);
 
     mpu.set_attributes(&MEM_ATTRS);
 

@@ -1,32 +1,36 @@
 //! IRQ handler for for Armv7 and higher
 
+// # _asm_default_irq_handler
+//
+// Called from the vector table when we have an interrupt. Saves state and
+// calls a C-compatible handler like `extern "C" fn _irq_handler();` in
+// system mode (or SVC mode if the `svc-stack-interrupt` feature is
+// enabled).
+//
+// We call the C-compatible handler in a different mode because when when an
+// IRQ occurs, the PC is copied to LR_irq immediately. If the C code was
+// running in IRQ mode, then it will be using LR_irq for normal LR things
+// (because that's the LR register when you are in IRQ mode). Instantly
+// trashing the LR register of running code is bad. So, by switching to SYS
+// mode (or SVC mode) we ensure that LR_irq is always unused at the point an
+// IRQ occurs.
+//
+// Because this is ARMv7, we can save state (SPSR_irq and LR_irq) straight
+// to another mode's stack, meaning that we never actually push anything to
+// the IRQ stack. You can therefore run with an IRQ stack size of zero.
+//
+// See [ARM Cortex-R Series (Armv7-R) Programmer's Guide] for more details.
+//
+// [ARM Cortex-R Series (Armv7-R) Programmer's Guide]:
+//     https://developer.arm.com/documentation/den0042/0100/Exceptions-and-Interrupts/External-interrupt-requests/Nested-interrupt-handling
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3
-
-    // Called from the vector table when we have an interrupt. Saves state and
-    // calls a C-compatible handler like `extern "C" fn _irq_handler();` in
-    // system mode (or SVC mode if the `svc-stack-interrupt` feature is
-    // enabled).
-    //
-    // We call the C-compatible handler in a different mode because when when an
-    // IRQ occurs, the PC is copied to LR_irq immediately. If the C code was
-    // running in IRQ mode, then it will be using LR_irq for normal LR things
-    // (because that's the LR register when you are in IRQ mode). Instantly
-    // trashing the LR register of running code is bad. So, by switching to SYS
-    // mode (or SVC mode) we ensure that LR_irq is always unused at the point an
-    // IRQ occurs.
-    //
-    // Because this is ARMv7, we can save state (SPSR_irq and LR_irq) straight
-    // to another mode's stack, meaning that we never actually push anything to
-    // the IRQ stack. You can therefore run with an IRQ stack size of zero.
-    //
-    // See [ARM Cortex-R Series (Armv7-R) Programmer's Guide] for more details.
-    //
-    // [ARM Cortex-R Series (Armv7-R) Programmer's Guide]:
-    //     https://developer.arm.com/documentation/den0042/0100/Exceptions-and-Interrupts/External-interrupt-requests/Nested-interrupt-handling
     .pushsection .text._asm_default_irq_handler
     .arm
     .global _asm_default_irq_handler

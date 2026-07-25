@@ -72,6 +72,9 @@ compile_error!("This example is only compatible to the ARMv8-R architecture");
 
 static WANT_PANIC: AtomicBool = AtomicBool::new(false);
 
+/// Set this if you've turned the MPU on. We won't walk the other core's stacks.
+pub static MPU_ENABLED: AtomicBool = AtomicBool::new(false);
+
 /// Track if we're already in the exit routine.
 ///
 /// Stops us doing infinite recursion if we panic whilst doing the stack reporting.
@@ -127,7 +130,12 @@ fn stack_dump() {
 
     unsafe {
         for stack in Stack::iter() {
-            for core in (0..Stack::num_cores()).rev() {
+            let bound = if MPU_ENABLED.load(Ordering::Relaxed) {
+                1
+            } else {
+                Stack::num_cores()
+            };
+            for core in (0..bound).rev() {
                 let core_range = stack.range(core).unwrap();
                 let (total, used) = stack_used_bytes(core_range.clone());
                 let percent = used * 100 / total;
@@ -215,7 +223,7 @@ impl Board {
 /// # Safety
 ///
 /// Only call this function once.
-unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
+pub unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
     /// Offset from PERIPHBASE for GIC Distributor
     const GICD_BASE_OFFSET: usize = 0x0000_0000usize;
 
@@ -243,9 +251,50 @@ unsafe fn make_gic() -> arm_gic::gicv3::GicV3<'static> {
     // SAFETY: The GICD and GICR base addresses point to valid GICv3 MMIO regions as
     // obtained from the hardware CBAR register. This function is only called once
     // (via Board::new()'s atomic guard), ensuring exclusive ownership of the GIC.
-    let mut gic = unsafe { arm_gic::gicv3::GicV3::new(gicd, gicr_base, 1, false) };
+    let mut gic = unsafe { arm_gic::gicv3::GicV3::new(gicd, gicr_base, 2, false) };
     semihosting::println!("Calling git.setup(0)");
     gic.setup(0);
     arm_gic::gicv3::GicCpuInterface::set_priority_mask(0x80);
     gic
+}
+
+const FPGA_LED: u32 = 0xE020_2000;
+
+/// Release core1 from spin loop
+pub fn start_core1() {
+    unsafe {
+        core::arch::asm!(
+            // Activate second core by writing to FPGA LEDs.
+            // We needed a shared register that wasn't in RAM, and this will do.
+            //
+            // STL is an ARMv8 Store-Release, to ensure any loads/stores before
+            // this point are completed first
+            "stl     {value}, [{addr}]",
+            // send an event to wake the other core out of WFE
+            "sev",
+            value = in(reg) 1,
+            addr = in(reg) FPGA_LED
+        );
+    }
+}
+
+/// Park function for secondary cores
+///
+/// We sleep the cores with a `WFE` and check a register in the FPGA to see if
+/// it is time to boot.
+#[unsafe(naked)]
+#[unsafe(no_mangle)]
+pub extern "C" fn _asm_secondary_core_park() {
+    core::arch::naked_asm!(
+        r#"
+        ldr     r0, ={fpga_led}   // LED GPIO register base address
+    1:
+        wfe                       // Wait for Event
+        lda     r1, [r0]          // Load-Acquire the value we wait on
+        cmp     r1, 0             // Is it zero?
+        beq     1b                // If so, loop and try again
+        bx      lr                // Else, return to start-up
+    "#,
+    fpga_led = const FPGA_LED
+    );
 }

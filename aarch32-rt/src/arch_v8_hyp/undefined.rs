@@ -1,17 +1,22 @@
 //! Undefined handler for Armv8-R at EL2
 
+// # _asm_default_undefined_handler
+//
+// Called from the vector table when we have an undefined exception.
+// Saves state and calls a C-compatible handler like
+// `extern "C" fn _undefined_handler(addr: usize) -> usize;`
+// or
+// `extern "C" fn _undefined_handler(addr: usize) -> !;`
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3
-
-    // Called from the vector table when we have an undefined exception.
-    // Saves state and calls a C-compatible handler like
-    // `extern "C" fn _undefined_handler(addr: usize) -> usize;`
-    // or
-    // `extern "C" fn _undefined_handler(addr: usize) -> !;`
-    .section .text._asm_default_undefined_handler
+    .pushsection .text._asm_default_undefined_handler
+    .arm
     .global _asm_default_undefined_handler
     .type _asm_default_undefined_handler, %function
     _asm_default_undefined_handler:
@@ -35,5 +40,6 @@ core::arch::global_asm!(
         pop     {{ r0-r3, r12, lr }}      // Pop preserved registers (1)
         eret                              // Return from the asm handler
     .size _asm_default_undefined_handler, . - _asm_default_undefined_handler
+    .popsection
     "#,
 );

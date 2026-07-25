@@ -1,17 +1,18 @@
 //! HVC handler for Armv7 and higher
 
+// # _asm_default_hvc_handler
+//
+// Called from the vector table when we have an hypervisor call.
+// Saves state and calls a C-compatible handler like
+// `extern "C" fn _hvc_handler(hsr: u32, frame: &Frame) -> u32;`
 #[cfg(target_arch = "arm")]
 #[cfg(arm_architecture = "v8-r")]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3
-
     .pushsection .text._asm_default_hvc_handler
-
-    // Called from the vector table when we have an hypervisor call.
-    // Saves state and calls a C-compatible handler like
-    // `extern "C" fn _hvc_handler(hsr: u32, frame: &Frame) -> u32;`
+    .arm
     .global _asm_default_hvc_handler
     .type _asm_default_hvc_handler, %function
     _asm_default_hvc_handler:
@@ -37,15 +38,15 @@ core::arch::global_asm!(
     "#,
 );
 
+// # _asm_default_hvc_handler
+//
+// Never called but makes the linker happy
 #[cfg(target_arch = "arm")]
 #[cfg(not(arm_architecture = "v8-r"))]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
-
-
-    // Never called but makes the linker happy
     .pushsection .text._asm_default_hvc_handler
     .arm
     .global _asm_default_hvc_handler

@@ -44,3 +44,5 @@ PROVIDE(_sys_stack_size = 16K);
 PROVIDE(_stack_alignment = 64);
 PROVIDE(_inter_stack_padding = 64);
 PROVIDE(_region_alignment = 64K);
+
+PROVIDE(_num_cores = 2);

@@ -1,16 +1,21 @@
 //! Undefined handler for Armv7 and higher
 
+// # _asm_default_undefined_handler
+//
+// Called from the vector table when we have an undefined exception.
+// Saves state and calls a C-compatible handler like
+// `extern "C" fn _undefined_handler(addr: usize) -> usize;`
+// or
+// `extern "C" fn _undefined_handler(addr: usize) -> !;`
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp3
 
-    // Called from the vector table when we have an undefined exception.
-    // Saves state and calls a C-compatible handler like
-    // `extern "C" fn _undefined_handler(addr: usize) -> usize;`
-    // or
-    // `extern "C" fn _undefined_handler(addr: usize) -> !;`
     .pushsection .text._asm_default_undefined_handler
     .arm
     .global _asm_default_undefined_handler

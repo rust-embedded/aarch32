@@ -49,7 +49,7 @@
 //! ## Constants
 //!
 //! * `_num_cores` - the number of CPU core (and hence the number of copies of
-//!   each stack). Must be > 0.
+//!   each stack). Must be > 0. Defaults to 1.
 //! * `__sbss` - the start of zero-initialised data in RAM. Must be 4-byte
 //!   aligned.
 //! * `__ebss` - the end of zero-initialised data in RAM. Must be 4-byte
@@ -499,6 +499,56 @@
 //!   `_asm_default_fiq_handler` but you can override it. The provided default
 //!   just spins forever.
 //!
+//! ## SMP Support
+//!
+//! This library supports SMP operation on ARMv7-A, ARMv7-R and ARMv8-R.
+//!
+//! To enable SMP support, add `PROVIDE(_num_cores = N)` to your linker script
+//! (e.g. your `memory.x` file). This will cause space for 'N' copies of each
+//! stack to be reserved so that each core gets its own stack (see the section
+//! on 'Stacks', above).
+//!
+//! You must also write a function called `_asm_secondary_core_park` (which must
+//! be written in assembly, and not Rust, because it is executed before stacks
+//! and global memory are initialised). On start-up the bottom eight bits of
+//! MPIDR register are taken as the Core ID. On Core ID 0, normal start-up will
+//! occur. For non-zero Core IDs (so-called *secondary cores*), the cores call
+//! the `_asm_secondary_core_park` function, passing the core ID in `r0`. This
+//! function (which defaults to an infinite loop) should put the running core to
+//! sleep and cause it to wait for some sort of signal from Core 0. This allows
+//! Core 0 to complete the initialisation of global memory (`.data`, `.bss`,
+//! etc) before the secondary cores run (and those cores must not re-initialise
+//! global memory). After the cores have left the park routine and completed
+//! their local initialisation (i.e. set their stack pointers to their unique
+//! stacks), they execute the function `kmain_secondary` (recall that Core 0
+//! executes a function called `kmain`).
+//!
+//! In our example for the MPS3-AN536, we have the secondary core wait on a
+//! hardware register in one of the peripherals, because it has a known value at
+//! reset.
+//!
+//! ```rust,ignore
+//! #[unsafe(naked)]
+//! #[unsafe(no_mangle)]
+//! pub unsafe extern "C" fn _asm_secondary_core_park() {
+//!     core::arch::naked_asm!(
+//!         r#"
+//!         // Some hardware register
+//!         ldr     r0, =0xE020_2000
+//!     1:
+//!         // Wait until Core 0 does a 'sev'
+//!         wfe
+//!         // Spin until register is non-zero.
+//!         ldr     r1, [r0]  
+//!         cmp     r1, 0
+//!         beq     1b
+//!         // return to start-up
+//!         bx      lr
+//!     "#,
+//!     );
+//! }
+//! ```
+//!
 //! ## Outputs
 //!
 //! This library produces global symbols called:
@@ -517,11 +567,15 @@
 //! * `_asm_default_irq_handler` - assembly language trampoline that calls
 //!   `_irq_handler`
 //! * `_asm_default_fiq_handler` - an FIQ handler that just spins
+//! * `_asm_default_secondary_core_park` - spins secondary cores forever
 //! * `_default_handler` - a C compatible function that spins forever.
-//! * `_init_segments` - initialises `.bss` and `.data` and zeroes the stacks
-//! * `_stack_setup_preallocated` - initialises UND, SVC, ABT, IRQ, FIQ and SYS
+//! * `_asm_init_segments` - initialises `.bss` and `.data` and zeroes the
+//!   stacks
+//! * `_asm_core_start` - sets up stacks, enables FPU (if required), and jumps
+//!   to `kmain` or `kmain_secondary`. Takes the Core ID in `r0`.
+//! * `_asm_stack_setup_preallocated` - initialises UND, SVC, ABT, IRQ, FIQ and SYS
 //!   stacks from the `.stacks` section defined in link.x, based on
-//!   _xxx_stack_size values, and the core number given in `r0`
+//!   `_xxx_stack_size` values. Takes the Core ID in `r0`.
 //! * `_xxx_stack_high_end` and `_xxx_stack_low_end` where the former is the top
 //!   and the latter the bottom of the stack for each mode (`und`, `svc`, `abt`,
 //!   `irq`, `fiq`, `sys`)
@@ -722,21 +776,99 @@ core::arch::global_asm!(
     "#
 );
 
-// Shared library routines for all architectures
+// # _asm_core_start
+//
+// The _asm_core_start function takes the core number in r0. It sets
+// up the stack pointers, the FPU (if required), and jumps to kmain.
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
+    .pushsection .text._asm_core_start
+    .global _asm_core_start
+    .type _asm_core_start, %function
+    _asm_core_start:
+        // Keep our core number for later
+        mov     r12, r0
+        // Set up stacks (core number in r0)
+        bl      _asm_stack_setup_preallocated
+    "#,
+    #[cfg(armv6_or_higher)]
+    r#"
+        // Clear Thumb Exception bit
+        mrc     p15, 0, r0, c1, c0, 0
+        bic     r0, #0x40000000
+        mcr     p15, 0, r0, c1, c0, 0
+    "#,
+    #[cfg(any(target_abi = "eabihf", feature = "eabi-fpu"))]
+    r#"
+        // Allow VFP coprocessor access
+        mrc     p15, 0, r0, c1, c0, 2
+        orr     r0, r0, #0xF00000
+        mcr     p15, 0, r0, c1, c0, 2
+        // Enable VFP
+        mov     r0, #0x40000000
+        vmsr    fpexc, r0
+    "#,
+    r#"
+        // Zero all registers before calling kmain (except r0)
+        mov     r1, 0
+        mov     r2, 0
+        mov     r3, 0
+        mov     r4, 0
+        mov     r5, 0
+        mov     r6, 0
+        mov     r7, 0
+        mov     r8, 0
+        mov     r9, 0
+        mov     r10, 0
+        mov     r11, 0
+        // Check if this is the primary core
+        mov     r0, r12
+        mov     r12, 0
+        cmp     r0, 0
+        bne     1f
+        // Jump to application with primary core
+        bl      kmain
+        // In case the application returns, loop forever
+        b       .
+    1:
+        // Jump to application with secondary core
+        bl      kmain_secondary
+        // In case the application returns, loop forever
+        b       .
+    .size _asm_core_start, . - _asm_core_start
+    .popsection
+    "#
+);
 
-    // Configure a stack for every mode. Leaves you in sys mode.
-    //
-    // Pass the core number in r0
-    .pushsection .text._stack_setup_preallocated
-    .global _stack_setup_preallocated
-    .arm
-    .type _stack_setup_preallocated, %function
-    _stack_setup_preallocated:
+/// Spins secondary cores.
+#[unsafe(no_mangle)]
+#[cfg(target_arch = "arm")]
+pub extern "C" fn _default_kmain_secondary() {
+    #[cfg(armv7_or_higher)]
+    loop {
+        aarch32_cpu::asm::wfe();
+    }
+    #[cfg(not(armv7_or_higher))]
+    loop {
+        core::hint::spin_loop();
+    }
+}
+
+// # _asm_stack_setup_preallocated
+//
+// Configure a stack for every mode. Leaves you in sys mode.
+//
+// Pass the core number in r0
+#[cfg(target_arch = "arm")]
+core::arch::global_asm!(
+    r#"
+    .pushsection .text._asm_stack_setup_preallocated
+    .global _asm_stack_setup_preallocated
+    .type _asm_stack_setup_preallocated, %function
+    _asm_stack_setup_preallocated:
         // Save LR from whatever mode we're currently in
         mov     r3, lr
         // (we might not be in the same mode when we return).
@@ -778,49 +910,7 @@ core::arch::global_asm!(
         subs    sp, r2, r1
         // return to caller
         bx      r3
-    .size _stack_setup_preallocated, . - _stack_setup_preallocated
-    .popsection
-
-    // Initialises stacks, .data and .bss
-    .pushsection .text._init_segments
-    .arm
-    .global _init_segments
-    .type _init_segments, %function
-    _init_segments:
-        // Zero .bss
-        ldr     r0, =__sbss
-        ldr     r1, =__ebss
-        mov     r2, 0
-    0:
-        cmp     r1, r0
-        beq     1f
-        stm     r0!, {{r2}}
-        b       0b
-    1:
-        // Zero the stacks
-        ldr     r0, =_stacks_low_end
-        ldr     r1, =_stacks_high_end
-        mov     r2, 0
-    0:
-        cmp     r1, r0
-        beq     1f
-        stm     r0!, {{r2}}
-        b       0b
-    1:
-        // Initialise .data
-        ldr     r0, =__sdata
-        ldr     r1, =__edata
-        ldr     r2, =__sidata
-    0:
-        cmp     r1, r0
-        beq     1f
-        ldm     r2!, {{r3}}
-        stm     r0!, {{r3}}
-        b       0b
-    1:
-    	// return to caller
-        bx      lr
-    .size _init_segments, . - _init_segments
+    .size _asm_stack_setup_preallocated, . - _asm_stack_setup_preallocated
     .popsection
     "#,
     und_mode = const {
@@ -867,18 +957,73 @@ core::arch::global_asm!(
     },
 );
 
+// # _asm_init_segments
+//
+// Initialises stacks, .data and .bss
+#[cfg(target_arch = "arm")]
+core::arch::global_asm!(
+    r#"
+    // Work around https://github.com/rust-lang/rust/issues/127269
+    .fpu vfp2
+
+    .pushsection .text._asm_init_segments
+    .global _asm_init_segments
+    .type _asm_init_segments, %function
+    _asm_init_segments:
+        // Zero .bss
+        ldr     r0, =__sbss
+        ldr     r1, =__ebss
+        mov     r2, 0
+    0:
+        cmp     r1, r0
+        beq     1f
+        stm     r0!, {{r2}}
+        b       0b
+    1:
+        // Zero the stacks
+        ldr     r0, =_stacks_low_end
+        ldr     r1, =_stacks_high_end
+        mov     r2, 0
+    0:
+        cmp     r1, r0
+        beq     1f
+        stm     r0!, {{r2}}
+        b       0b
+    1:
+        // Initialise .data
+        ldr     r0, =__sdata
+        ldr     r1, =__edata
+        ldr     r2, =__sidata
+    0:
+        cmp     r1, r0
+        beq     1f
+        ldm     r2!, {{r3}}
+        stm     r0!, {{r3}}
+        b       0b
+    1:
+    	// return to caller
+        bx      lr
+    .size _asm_init_segments, . - _asm_init_segments
+    .popsection
+    "#,
+);
+
+// # _asm_default_fiq_handler
+//
 // Default asm FIQ exception handler (it's just a spin-loop)
 //
 // We end up here if a FIQ fires and the weak 'PROVIDE' in the link.x
 // file hasn't been over-ridden.
 //
 // Cannot be a Rust/C function because it can only touch registers R8 to R12, SP and LR
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
     .pushsection .text._asm_default_fiq_handler
-
-    // Our default FIQ handler
+    .arm
     .global _asm_default_fiq_handler
     .type _asm_default_fiq_handler, %function
     _asm_default_fiq_handler:

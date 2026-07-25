@@ -28,8 +28,6 @@ clean:
 	rm -rf examples/versatileab/target-d32
 	cd examples/mps3-an536 && cargo clean
 	rm -rf examples/mps3-an536/target-d32
-	cd examples/mps3-an536-smp && cargo clean
-	rm -rf examples/mps3-an536-smp/target-d32
 	cd examples/xilinx-zynq-a9 && cargo clean
 	rm -rf examples/xilinx-zynq-a9/target-d32
 
@@ -110,13 +108,11 @@ build-versatileab-tier2 target:
 # Builds the MPS3-AN536 examples, building core from source
 build-mps3-tier3 target:
 	cd examples/mps3-an536 && cargo build --target={{target}} -Zbuild-std=core {{verbose}}
-	cd examples/mps3-an536-smp && cargo build --target={{target}} -Zbuild-std=core {{verbose}}
 	cd examples/mps3-an536-el2 && cargo build --target={{target}} -Zbuild-std=core {{verbose}}
 
 # Builds the MPS3-AN536 examples, assuming core has been prebuilt
 build-mps3-tier2 target:
 	cd examples/mps3-an536 && cargo build --target={{target}} {{verbose}}
-	cd examples/mps3-an536-smp && cargo build --target={{target}} {{verbose}}
 	cd examples/mps3-an536-el2 && cargo build --target={{target}} {{verbose}}
 
 # Builds the Xilinx Zynq-A9 examples, assuming core has been prebuilt
@@ -174,7 +170,6 @@ fmt:
 	# The cross-compiled examples	cargo fmt
 	cd examples/versatileab && cargo fmt {{verbose}}
 	cd examples/mps3-an536 && cargo fmt {{verbose}}
-	cd examples/mps3-an536-smp && cargo fmt {{verbose}}
 	cd examples/mps3-an536-el2 && cargo fmt {{verbose}}
 	cd examples/xilinx-zynq-a9 && cargo fmt {{verbose}}
 
@@ -187,7 +182,6 @@ fmt-check:
 	# The cross-compiled examples	cargo fmt
 	cd examples/versatileab && cargo fmt --check {{verbose}}
 	cd examples/mps3-an536 && cargo fmt --check {{verbose}}
-	cd examples/mps3-an536-smp && cargo fmt --check {{verbose}}
 	cd examples/mps3-an536-el2 && cargo fmt --check {{verbose}}
 	cd examples/xilinx-zynq-a9 && cargo fmt --check {{verbose}}
 
@@ -224,7 +218,6 @@ clippy-arm-targets:
 clippy-examples:
 	cd examples/versatileab && cargo clippy --target=armv7r-none-eabi {{verbose}}
 	cd examples/mps3-an536 && cargo clippy --target=armv8r-none-eabihf {{verbose}}
-	cd examples/mps3-an536-smp && cargo clippy --target=armv8r-none-eabihf {{verbose}}
 	cd examples/mps3-an536-el2 && cargo clippy --target=armv8r-none-eabihf {{verbose}}
 	cd examples/xilinx-zynq-a9 && cargo clippy --target=armv7a-none-eabi {{verbose}}
 
@@ -256,7 +249,7 @@ test-cargo:
 	cd arm-targets && cargo test {{verbose}}
 
 # Run the integration tests in QEMU
-test-qemu: test-qemu-v4t test-qemu-v5te test-qemu-v6 test-qemu-v7a test-qemu-v7a-zynq test-qemu-v7r test-qemu-v8r test-qemu-v8r-smp test-qemu-v8r-el2
+test-qemu: test-qemu-v4t test-qemu-v5te test-qemu-v6 test-qemu-v7a test-qemu-v7a-zynq test-qemu-v7r test-qemu-v8r test-qemu-v8r-el2
 
 test-qemu-v4t:
 	#!/bin/bash
@@ -333,17 +326,6 @@ test-qemu-v8r:
 	./tests.sh examples/mps3-an536 thumbv8r-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
 	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536 armv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536 thumbv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
-	if [ "${FAIL}" == "1" ]; then exit 1; fi
-
-test-qemu-v8r-smp:
-	#!/bin/bash
-	FAIL=0
-	./tests.sh examples/mps3-an536-smp armv8r-none-eabihf {{verbose}} --release || FAIL=1
-	./tests.sh examples/mps3-an536-smp thumbv8r-none-eabihf {{verbose}} --release || FAIL=1
-	./tests.sh examples/mps3-an536-smp armv8r-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	./tests.sh examples/mps3-an536-smp thumbv8r-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536-smp armv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
-	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536-smp thumbv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
 test-qemu-v8r-el2:

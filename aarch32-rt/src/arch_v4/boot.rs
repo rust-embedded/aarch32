@@ -1,50 +1,27 @@
-//! Start-up code for CPUs that always boot into EL1
+//! Start-up code for ARMv4 - ARMv6 CPUs that always boot into EL1
 
+// # _default_start
+//
+// Reset function for ARMv4 to ARMv6
+//
+// Initialises global memory and sets up stacks. Only supports one CPU core.
+//
+// This function must produce A32 machine code, because it's called by the Vector Table
+// with a raw PC load and the Vector Table is always in A32 machine code.
 core::arch::global_asm!(
     r#"
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
-
     .pushsection .text.default_start
     .arm
     .global _default_start
     .type _default_start, %function
     _default_start:
-        // Init .data and .bss
-        bl      _init_segments
-        // Set up stacks.
+        // Init .data and .bss on primary core
+        bl      _asm_init_segments
+        // Do standard core init - only one core supported
         mov     r0, #0
-        bl      _stack_setup_preallocated
-    "#,
-    #[cfg(any(target_abi = "eabihf", feature = "eabi-fpu"))]
-    r#"
-        // Allow VFP coprocessor access
-        mrc     p15, 0, r0, c1, c0, 2
-        orr     r0, r0, #0xF00000
-        mcr     p15, 0, r0, c1, c0, 2
-        // Enable VFP
-        mov     r0, #0x40000000
-        vmsr    fpexc, r0
-    "#,
-    r#"
-        // Zero all registers before calling kmain
-        mov     r0, 0
-        mov     r1, 0
-        mov     r2, 0
-        mov     r3, 0
-        mov     r4, 0
-        mov     r5, 0
-        mov     r6, 0
-        mov     r7, 0
-        mov     r8, 0
-        mov     r9, 0
-        mov     r10, 0
-        mov     r11, 0
-        mov     r12, 0
-        // Jump to application
-        bl      kmain
-        // In case the application returns, loop forever
-        b       .
+        b       _asm_core_start
     .size _default_start, . - _default_start
     .popsection
     "#

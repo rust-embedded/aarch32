@@ -231,7 +231,6 @@ jobs:
           - test-qemu-v7r
           - test-qemu-v7a
           - test-qemu-v8r
-          - test-qemu-v8r-smp
           - test-qemu-v8r-el2
     steps:
       - name: Checkout

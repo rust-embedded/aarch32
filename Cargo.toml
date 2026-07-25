@@ -3,7 +3,6 @@ exclude = [
   "arm-targets",
   "examples/versatileab",
   "examples/mps3-an536",
-  "examples/mps3-an536-smp",
   "examples/mps3-an536-el2",
   "examples/c-code",
   "examples/xilinx-zynq-a9",
