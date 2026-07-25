@@ -230,6 +230,7 @@ jobs:
           - test-qemu-v6
           - test-qemu-v7r
           - test-qemu-v7a
+          - test-qemu-v7a-zynq
           - test-qemu-v8r
           - test-qemu-v8r-el2
     steps:
