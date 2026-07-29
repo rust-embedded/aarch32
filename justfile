@@ -248,91 +248,67 @@ test-cargo:
 	# The host-compiled helper library
 	cd arm-targets && cargo test {{verbose}}
 
-# Run the integration tests in QEMU
-test-qemu: test-qemu-v4t test-qemu-v5te test-qemu-v6 test-qemu-v7a test-qemu-v7a-zynq test-qemu-v7r test-qemu-v8r test-qemu-v8r-el2
+# qemu-based snapshot tests for all examples. The qemu-tests crate
+# auto-discovers examples and their bins, so new bins are covered without
+# editing the harness. Bootstrap/refresh with: QEMU_UPDATE=always just test-qemu
+test-qemu: test-qemu-versatileab test-qemu-mps3 test-qemu-el2 test-qemu-zynq
 
-test-qemu-v4t:
+test-qemu-versatileab:
 	#!/bin/bash
+	set -u
 	FAIL=0
-	./tests.sh examples/versatileab armv4t-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab thumbv4t-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab armv4t-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	./tests.sh examples/versatileab thumbv4t-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	run() { QEMU_TARGET="$1" QEMU_FLAGS="$2" QEMU_EXAMPLES=versatileab cargo test -p qemu-tests --test tests -- --ignored --exact test_examples || FAIL=1; }
+	# tier3: build core from source (nightly)
+	for t in armv4t-none-eabi thumbv4t-none-eabi armv5te-none-eabi thumbv5te-none-eabi armv6-none-eabi armv6-none-eabihf thumbv6-none-eabi; do
+		run "$t" "--release -Zbuild-std=core"
+		run "$t" "--release -Zbuild-std=core --features=svc-stack-interrupt"
+	done
+	# tier2: stable
+	for t in armv7r-none-eabi thumbv7r-none-eabi armv7r-none-eabihf thumbv7r-none-eabihf armv7a-none-eabi thumbv7a-none-eabi armv7a-none-eabihf thumbv7a-none-eabihf; do
+		run "$t" "--release"
+		run "$t" "--release --features=svc-stack-interrupt"
+	done
+	# fpu-d32 variants (compare against the same plain-hf snapshots)
+	QEMU_RUSTFLAGS=-Ctarget-feature=+d32 run armv7a-none-eabihf   "--release --features=fpu-d32 --target-dir=target-d32"
+	QEMU_RUSTFLAGS=-Ctarget-feature=+d32 run thumbv7a-none-eabihf "--release --features=fpu-d32 --target-dir=target-d32"
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
-test-qemu-v5te:
+test-qemu-mps3:
 	#!/bin/bash
+	set -u
 	FAIL=0
-	./tests.sh examples/versatileab armv5te-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab thumbv5te-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab armv5te-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	./tests.sh examples/versatileab thumbv5te-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	run() { QEMU_TARGET="$1" QEMU_FLAGS="$2" QEMU_EXAMPLES=mps3-an536 cargo test -p qemu-tests --test tests -- --ignored --exact test_examples || FAIL=1; }
+	# tier2: stable
+	for t in armv8r-none-eabihf thumbv8r-none-eabihf; do
+		run "$t" "--release"
+		run "$t" "--release --features=svc-stack-interrupt"
+	done
+	# fpu-d32 variants (compare against the same plain-hf snapshots)
+	QEMU_RUSTFLAGS=-Ctarget-cpu=cortex-r52 run armv8r-none-eabihf   "--release --features=fpu-d32 --target-dir=target-d32"
+	QEMU_RUSTFLAGS=-Ctarget-cpu=cortex-r52 run thumbv8r-none-eabihf "--release --features=fpu-d32 --target-dir=target-d32"
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
-test-qemu-v6:
+test-qemu-el2:
 	#!/bin/bash
+	set -u
 	FAIL=0
-	./tests.sh examples/versatileab armv6-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab armv6-none-eabihf -Zbuild-std=core {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab thumbv6-none-eabi -Zbuild-std=core {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab armv6-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	./tests.sh examples/versatileab armv6-none-eabihf -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	./tests.sh examples/versatileab thumbv6-none-eabi -Zbuild-std=core {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
+	run() { QEMU_TARGET="$1" QEMU_FLAGS="$2" QEMU_EXAMPLES=mps3-an536-el2 cargo test -p qemu-tests --test tests -- --ignored --exact test_examples || FAIL=1; }
+	# tier2: stable
+	for t in armv8r-none-eabihf thumbv8r-none-eabihf; do
+		run "$t" "--release"
+	done
+	# fpu-d32 variants (compare against the same plain-hf snapshots)
+	QEMU_RUSTFLAGS=-Ctarget-cpu=cortex-r52 run armv8r-none-eabihf   "--release --features=fpu-d32 --target-dir=target-d32"
+	QEMU_RUSTFLAGS=-Ctarget-cpu=cortex-r52 run thumbv8r-none-eabihf "--release --features=fpu-d32 --target-dir=target-d32"
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
 
-test-qemu-v7a:
+test-qemu-zynq:
 	#!/bin/bash
+	set -u
 	FAIL=0
-	./tests.sh examples/versatileab armv7a-none-eabi {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab thumbv7a-none-eabi {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab armv7a-none-eabihf {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab thumbv7a-none-eabihf {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab armv7a-none-eabi {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	./tests.sh examples/versatileab thumbv7a-none-eabi {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	./tests.sh examples/versatileab armv7a-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	./tests.sh examples/versatileab thumbv7a-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	RUSTFLAGS=-Ctarget-feature=+d32 ./tests.sh examples/versatileab armv7a-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
-	RUSTFLAGS=-Ctarget-feature=+d32 ./tests.sh examples/versatileab thumbv7a-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
-	if [ "${FAIL}" == "1" ]; then exit 1; fi
-
-test-qemu-v7a-zynq:
-	#!/bin/bash
-	FAIL=0
-	./tests.sh examples/xilinx-zynq-a9 armv7a-none-eabi {{verbose}} --release || FAIL=1
-	./tests.sh examples/xilinx-zynq-a9 armv7a-none-eabihf {{verbose}} --release || FAIL=1
-	./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabi {{verbose}} --release || FAIL=1
-	./tests.sh examples/xilinx-zynq-a9 thumbv7a-none-eabihf {{verbose}} --release || FAIL=1
-	if [ "${FAIL}" == "1" ]; then exit 1; fi
-
-test-qemu-v7r:
-	#!/bin/bash
-	FAIL=0
-	./tests.sh examples/versatileab armv7r-none-eabi {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab thumbv7r-none-eabi {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab armv7r-none-eabihf {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab thumbv7r-none-eabihf {{verbose}} --release || FAIL=1
-	./tests.sh examples/versatileab armv7r-none-eabi {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	./tests.sh examples/versatileab thumbv7r-none-eabi {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	./tests.sh examples/versatileab armv7r-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	./tests.sh examples/versatileab thumbv7r-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	if [ "${FAIL}" == "1" ]; then exit 1; fi
-
-test-qemu-v8r:
-	#!/bin/bash
-	FAIL=0
-	./tests.sh examples/mps3-an536 armv8r-none-eabihf {{verbose}} --release || FAIL=1
-	./tests.sh examples/mps3-an536 thumbv8r-none-eabihf {{verbose}} --release || FAIL=1
-	./tests.sh examples/mps3-an536 armv8r-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	./tests.sh examples/mps3-an536 thumbv8r-none-eabihf {{verbose}} --features=svc-stack-interrupt --release || FAIL=1
-	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536 armv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
-	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536 thumbv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
-	if [ "${FAIL}" == "1" ]; then exit 1; fi
-
-test-qemu-v8r-el2:
-	#!/bin/bash
-	FAIL=0
-	./tests.sh examples/mps3-an536-el2 armv8r-none-eabihf {{verbose}} --release || FAIL=1
-	./tests.sh examples/mps3-an536-el2 thumbv8r-none-eabihf {{verbose}} --release || FAIL=1
-	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536-el2 armv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
-	RUSTFLAGS=-Ctarget-cpu=cortex-r52 ./tests.sh examples/mps3-an536-el2 thumbv8r-none-eabihf --features=fpu-d32 --target-dir=target-d32 {{verbose}} --release || FAIL=1
+	run() { QEMU_TARGET="$1" QEMU_FLAGS="$2" QEMU_EXAMPLES=xilinx-zynq-a9 cargo test -p qemu-tests --test tests -- --ignored --exact test_examples || FAIL=1; }
+	# tier2: stable
+	for t in armv7a-none-eabi armv7a-none-eabihf thumbv7a-none-eabi thumbv7a-none-eabihf; do
+		run "$t" "--release"
+	done
 	if [ "${FAIL}" == "1" ]; then exit 1; fi
