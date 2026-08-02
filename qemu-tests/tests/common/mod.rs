@@ -13,9 +13,13 @@ pub(crate) mod TestUtils {
     pub fn discover_examples() -> Vec<String> {
         let mut names: Vec<String> = std::fs::read_dir(test_dir("examples"))
             .expect("cannot read examples/")
-            .filter_map(|e| e.ok())
+            .map(|e| e.expect("cannot read examples/ entry"))
             .filter(|e| e.path().join("Cargo.toml").is_file())
-            .filter_map(|e| e.file_name().into_string().ok())
+            .map(|e| {
+                e.file_name()
+                    .into_string()
+                    .unwrap_or_else(|bad| panic!("non-UTF-8 example dir name: {bad:?}"))
+            })
             .collect();
         names.sort();
         names
