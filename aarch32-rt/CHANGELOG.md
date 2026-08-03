@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [aarch32-rt v0.5.0]
+
+### Added
+
+- Improved SMP support - you now only have to supply a
+  `_asm_secondary_core_park` function to park/release any secondary cores (such
+  cores enter a WFE loop by default)
+- New `fn _asm_stack_setup_preallocated(core_id: u32)` function exported
+- New `fn _asm_init_segments()` which initialises the `.data` and `.bss` segments
+- New `fn _asm_core_start()` which does some core set-up (enable FPU, wipe
+  registers, etc) then calls `kmain` or `kmain_secondary`
+- New internal (but exported) `_default_kmain_secondary` symbol
+- New internal (but exported) `_asm_default_secondary_core_park` symbol
+
+### Removed
+
+- Internal (but exported) `_stack_setup_preallocated` function
+- Internal (but exported) `_init_segments` function
+
 ## [aarch32-rt v0.4.0]
 
 ### Added
@@ -86,7 +105,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.4.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.5.0...HEAD
+[aarch32-rt v0.5.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.4.0...aarch32-rt-v0.5.0
 [aarch32-rt v0.4.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.3.0...aarch32-rt-v0.4.0
 [aarch32-rt v0.3.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.2.0...aarch32-rt-v0.3.0
 [aarch32-rt v0.2.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.1.0...aarch32-rt-v0.2.0
