@@ -11,6 +11,6 @@ members = [
   "aarch32-cpu",
   "aarch32-rt",
   "aarch32-rt-macros",
-  "qemu-tests",
+  "aarch32-tests",
 ]
 resolver = "2"

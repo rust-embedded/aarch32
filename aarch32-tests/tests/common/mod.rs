@@ -1,8 +1,8 @@
-pub(crate) mod TestUtils {
+pub(crate) mod test_utils {
     use std::path::{Path, PathBuf};
     use std::process::Command;
 
-    /// `qemu-tests/` -> repo root -> `<name>` (e.g. "examples/versatileab").
+    /// `aarch32-tests/` -> repo root -> `<name>` (e.g. "examples/versatileab").
     pub fn test_dir(name: &str) -> PathBuf {
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .parent()
@@ -25,12 +25,23 @@ pub(crate) mod TestUtils {
         names
     }
 
-    pub fn supports_target(dir: &Path, target: &str) -> bool {
-        let needle = format!("[target.{target}]");
-        [".cargo/config.toml", ".cargo/config"]
+    pub fn discover_targets(dir: &Path) -> Vec<String> {
+        let text = [".cargo/config.toml", ".cargo/config"]
             .iter()
-            .filter_map(|name| std::fs::read_to_string(dir.join(name)).ok())
-            .any(|text| text.contains(&needle))
+            .find_map(|name| std::fs::read_to_string(dir.join(name)).ok())
+            .unwrap_or_default();
+
+        let mut targets: Vec<String> = text
+            .lines()
+            .filter_map(|line| line.trim().strip_prefix("[target."))
+            .filter_map(|rest| rest.strip_suffix(']'))
+            // Skip cfg() predicates like [target.'cfg(...)']; keep plain triples.
+            .filter(|triple| !triple.starts_with('\'') && !triple.starts_with('"'))
+            .map(String::from)
+            .collect();
+        targets.sort();
+        targets.dedup();
+        targets
     }
 
     pub fn discover_bins(dir: &Path) -> Vec<String> {
@@ -64,7 +75,6 @@ pub(crate) mod TestUtils {
         bins
     }
 
-    /// Build + run one bin in QEMU via the crate's cargo runner, return stdout.
     pub fn run_bin(dir: &Path, bin: &str, target: &str, flags: &[String]) -> String {
         let mut cmd = Command::new("cargo");
         cmd.current_dir(dir)
@@ -73,9 +83,6 @@ pub(crate) mod TestUtils {
             .args(flags)
             .args(["--bin", bin]);
 
-        // Forward QEMU_RUSTFLAGS to this cross build only (as RUSTFLAGS). Setting
-        // RUSTFLAGS on the outer `cargo test` would compile the host test crate
-        // with an ARM target-cpu and fail; here it hits only the --target build.
         if let Ok(rustflags) = std::env::var("QEMU_RUSTFLAGS") {
             cmd.env("RUSTFLAGS", rustflags);
         }
