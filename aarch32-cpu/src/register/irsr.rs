@@ -5,7 +5,7 @@ use crate::register::{SysReg, SysRegRead, SysRegWrite};
 pub use super::drsr::RegionSize;
 
 /// IRSR (*Instruction Region Size and Enable Register*)
-#[bitbybit::bitfield(u32, debug, defmt_fields(feature = "defmt"))]
+#[bitbybit::bitfield(u32, default = 0, debug, defmt_fields(feature = "defmt"))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Irsr {
     /// Sub-region bitmask

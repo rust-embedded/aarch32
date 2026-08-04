@@ -5,7 +5,7 @@ use arbitrary_int::u3;
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
 
 /// IRACR (*Instruction Region Access Control Register*)
-#[bitbybit::bitfield(u32, debug, defmt_bitfields(feature = "defmt"))]
+#[bitbybit::bitfield(u32, default = 0, debug, defmt_bitfields(feature = "defmt"))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Iracr {
     /// Execute Never
