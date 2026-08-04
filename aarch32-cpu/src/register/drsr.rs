@@ -94,7 +94,7 @@ impl RegionSize {
 }
 
 /// DRSR (*Data Region Size and Enable Register*)
-#[bitbybit::bitfield(u32, debug, defmt_fields(feature = "defmt"))]
+#[bitbybit::bitfield(u32, default = 0, debug, defmt_fields(feature = "defmt"))]
 pub struct Drsr {
     /// Sub-region bitmask
     ///
