@@ -7,8 +7,9 @@
 v := "0"
 verbose := if v == "1" { "--verbose" } else { "" }
 
-# The aarch32-tests harness invocation shared by every test-qemu recipe
-qemu_test := "cargo test -p aarch32-tests --test tests -- --ignored --exact test_examples"
+# The aarch32-tests harness invocation shared by every test-qemu recipe. Each
+# recipe appends a name filter; the build matrix lives in the harness itself.
+qemu_test := "cargo test -p aarch32-tests --test tests --"
 
 # Our default target. It does everything that you might want to do pre-checkin.
 check: build-all build-all-examples doc-all fmt-check clippy-all test
@@ -244,58 +245,53 @@ clippy-tier2 target:
 # Run all the tests
 test: test-cargo test-qemu
 
-# Run the unit tests with cargo
+# Run the unit tests with cargo. Excludes aarch32-tests, whose tests drive QEMU
+# (run those via `just test-qemu`).
 test-cargo:
 	# The cross-compiled workspace
-	cargo test {{verbose}}
+	cargo test --workspace --exclude aarch32-tests {{verbose}}
 	# The host-compiled helper library
 	cd arm-targets && cargo test {{verbose}}
 
-# qemu-based snapshot tests, grouped by architecture so a developer can run just
-# the arch they are working on, e.g. `just test-qemu-v7a`. Each recipe drives the
-# aarch32-tests harness (which auto-discovers the example's bins) over that arch's
-# targets, restricting the discovered set with QEMU_TARGETS. The recipe names and
-# grouping mirror the test-qemu matrix in .github/workflows/build.yml.
-# Bootstrap/refresh snapshots with: INSTA_UPDATE=always just test-qemu
-test-qemu: test-qemu-v4t test-qemu-v5te test-qemu-v6 test-qemu-v7r test-qemu-v7a test-qemu-v7a-zynq test-qemu-v8r test-qemu-v8r-el2
+# qemu-based snapshot tests. The whole build matrix (targets, tiers, and the
+# svc/fpu-d32 variants) lives in the aarch32-tests harness, which lists one test
+# per target. `just test-qemu` runs them all; the per-arch recipes are just name
+# filters so a developer can run only the arch they are working on, e.g.
+# `just test-qemu-v7a`. The recipe names mirror the matrix in
+# .github/workflows/build.yml. Bootstrap/refresh snapshots with INSTA_UPDATE=always.
+test-qemu:
+	{{qemu_test}}
 
-# Armv4T (Versatile AB), building core from source
+# Armv4T (Versatile AB)
 test-qemu-v4t:
-	AARCH32_EXAMPLES=versatileab AARCH32_TARGETS=armv4t-none-eabi,thumbv4t-none-eabi AARCH32_FLAGS="--release -Zbuild-std=core" {{qemu_test}}
-	AARCH32_EXAMPLES=versatileab AARCH32_TARGETS=armv4t-none-eabi,thumbv4t-none-eabi AARCH32_FLAGS="--release -Zbuild-std=core --features=svc-stack-interrupt" {{qemu_test}}
+	{{qemu_test}} v4t
 
-# Armv5TE (Versatile AB), building core from source
+# Armv5TE (Versatile AB)
 test-qemu-v5te:
-	AARCH32_EXAMPLES=versatileab AARCH32_TARGETS=armv5te-none-eabi,thumbv5te-none-eabi AARCH32_FLAGS="--release -Zbuild-std=core" {{qemu_test}}
-	AARCH32_EXAMPLES=versatileab AARCH32_TARGETS=armv5te-none-eabi,thumbv5te-none-eabi AARCH32_FLAGS="--release -Zbuild-std=core --features=svc-stack-interrupt" {{qemu_test}}
+	{{qemu_test}} v5te
 
-# Armv6 (Versatile AB), building core from source
+# Armv6 (Versatile AB)
 test-qemu-v6:
-	AARCH32_EXAMPLES=versatileab AARCH32_TARGETS=armv6-none-eabi,armv6-none-eabihf,thumbv6-none-eabi AARCH32_FLAGS="--release -Zbuild-std=core" {{qemu_test}}
-	AARCH32_EXAMPLES=versatileab AARCH32_TARGETS=armv6-none-eabi,armv6-none-eabihf,thumbv6-none-eabi AARCH32_FLAGS="--release -Zbuild-std=core --features=svc-stack-interrupt" {{qemu_test}}
+	{{qemu_test}} v6
 
-# Armv7-R (Versatile AB), prebuilt core
+# Armv7-R (Versatile AB)
 test-qemu-v7r:
-	AARCH32_EXAMPLES=versatileab AARCH32_TARGETS=armv7r-none-eabi,thumbv7r-none-eabi,armv7r-none-eabihf,thumbv7r-none-eabihf AARCH32_FLAGS="--release" {{qemu_test}}
-	AARCH32_EXAMPLES=versatileab AARCH32_TARGETS=armv7r-none-eabi,thumbv7r-none-eabi,armv7r-none-eabihf,thumbv7r-none-eabihf AARCH32_FLAGS="--release --features=svc-stack-interrupt" {{qemu_test}}
+	{{qemu_test}} v7r
 
-# Armv7-A (Versatile AB), prebuilt core, plus fpu-d32 on hf targets
+# Armv7-A (Versatile AB), incl. fpu-d32 on hf targets. Two filters because the
+# name must be scoped to versatileab (zynq is also v7a), which splits arm/thumb.
 test-qemu-v7a:
-	AARCH32_EXAMPLES=versatileab AARCH32_TARGETS=armv7a-none-eabi,thumbv7a-none-eabi,armv7a-none-eabihf,thumbv7a-none-eabihf AARCH32_FLAGS="--release" {{qemu_test}}
-	AARCH32_EXAMPLES=versatileab AARCH32_TARGETS=armv7a-none-eabi,thumbv7a-none-eabi,armv7a-none-eabihf,thumbv7a-none-eabihf AARCH32_FLAGS="--release --features=svc-stack-interrupt" {{qemu_test}}
-	AARCH32_EXAMPLES=versatileab AARCH32_TARGETS=armv7a-none-eabihf,thumbv7a-none-eabihf AARCH32_RUSTFLAGS=-Ctarget-feature=+d32 AARCH32_FLAGS="--release --features=fpu-d32 --target-dir=target-d32" {{qemu_test}}
+	{{qemu_test}} versatileab/armv7a
+	{{qemu_test}} versatileab/thumbv7a
 
-# Armv7-A (Xilinx Zynq-A9), prebuilt core
+# Armv7-A (Xilinx Zynq-A9)
 test-qemu-v7a-zynq:
-	AARCH32_EXAMPLES=xilinx-zynq-a9 AARCH32_TARGETS=armv7a-none-eabi,thumbv7a-none-eabi,armv7a-none-eabihf,thumbv7a-none-eabihf AARCH32_FLAGS="--release" {{qemu_test}}
+	{{qemu_test}} zynq
 
-# Armv8-R (MPS3-AN536), prebuilt core, plus fpu-d32
+# Armv8-R (MPS3-AN536), incl. fpu-d32
 test-qemu-v8r:
-	AARCH32_EXAMPLES=mps3-an536 AARCH32_TARGETS=armv8r-none-eabihf,thumbv8r-none-eabihf AARCH32_FLAGS="--release" {{qemu_test}}
-	AARCH32_EXAMPLES=mps3-an536 AARCH32_TARGETS=armv8r-none-eabihf,thumbv8r-none-eabihf AARCH32_FLAGS="--release --features=svc-stack-interrupt" {{qemu_test}}
-	AARCH32_EXAMPLES=mps3-an536 AARCH32_TARGETS=armv8r-none-eabihf,thumbv8r-none-eabihf AARCH32_RUSTFLAGS=-Ctarget-cpu=cortex-r52 AARCH32_FLAGS="--release --features=fpu-d32 --target-dir=target-d32" {{qemu_test}}
+	{{qemu_test}} mps3-an536/
 
-# Armv8-R EL2 (MPS3-AN536), prebuilt core, plus fpu-d32
+# Armv8-R EL2 (MPS3-AN536), incl. fpu-d32
 test-qemu-v8r-el2:
-	AARCH32_EXAMPLES=mps3-an536-el2 AARCH32_TARGETS=armv8r-none-eabihf,thumbv8r-none-eabihf AARCH32_FLAGS="--release" {{qemu_test}}
-	AARCH32_EXAMPLES=mps3-an536-el2 AARCH32_TARGETS=armv8r-none-eabihf,thumbv8r-none-eabihf AARCH32_RUSTFLAGS=-Ctarget-cpu=cortex-r52 AARCH32_FLAGS="--release --features=fpu-d32 --target-dir=target-d32" {{qemu_test}}
+	{{qemu_test}} el2
