@@ -1,0 +1,21 @@
+---
+source: qemu-tests/tests/tests.rs
+expression: stdout
+---
+Found PERIPHBASE 0xf0000000
+Creating GIC driver @ 0xf0000000 / 0xf0100000
+Calling git.setup(0)
+Configure low-prio SGI...
+Configure high-prio SGI...
+gic.enable_interrupt()
+Enabling interrupts...
+Send lo-prio SGI
+> IRQ
+- IRQ Handling SGI 3
+- IRQ got SGI 3, sending hi-prio SGI 4
+> IRQ
+- IRQ Handling SGI 4
+< IRQ
+- IRQ finished sending hi-prio!
+< IRQ
+IRQ test completed OK

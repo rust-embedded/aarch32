@@ -1,0 +1,16 @@
+---
+source: qemu-tests/tests/tests.rs
+expression: stdout
+---
+Hello, this is an data abort exception example
+data abort occurred
+DFSR (Fault Status Register): Dfsr { wnr: false, domain: 0, status: Ok(AlignmentFault) }
+caught fault on COUNTER
+caught unaligned_from_t32
+Doing it again
+data abort occurred
+DFSR (Fault Status Register): Dfsr { wnr: false, domain: 0, status: Ok(AlignmentFault) }
+caught fault on COUNTER
+caught unaligned_from_t32
+Skipping instruction
+Recovered from fault OK!

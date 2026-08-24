@@ -1,6 +1,0 @@
-I am core Mpidr(80000000)
-Creating GIC driver @ 0xf8f01000 / 0xf8f00100
-Configure SGI SGI 3 as Group0...
-Send SGI to self
-- got interrupt SGI 3
-SGI handled
