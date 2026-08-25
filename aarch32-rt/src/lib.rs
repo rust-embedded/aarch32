@@ -539,7 +539,7 @@
 //!         // Wait until Core 0 does a 'sev'
 //!         wfe
 //!         // Spin until register is non-zero.
-//!         ldr     r1, [r0]  
+//!         ldr     r1, [r0]
 //!         cmp     r1, 0
 //!         beq     1b
 //!         // return to start-up
