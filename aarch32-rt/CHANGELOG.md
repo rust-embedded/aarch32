@@ -11,20 +11,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Improved SMP support - you now only have to supply a
-  `_asm_secondary_core_park` function to park/release any secondary cores (such
-  cores enter a WFE loop by default)
-- New `fn _asm_stack_setup_preallocated(core_id: u32)` function exported
-- New `fn _asm_init_segments()` which initialises the `.data` and `.bss` segments
-- New `fn _asm_core_start()` which does some core set-up (enable FPU, wipe
-  registers, etc) then calls `kmain` or `kmain_secondary`
-- New internal (but exported) `_default_kmain_secondary` symbol
-- New internal (but exported) `_asm_default_secondary_core_park` symbol
+- Improved SMP support on ARMv7-A, ARMv7-R and ARMv8-R:
+  - you now only have to supply a `_asm_secondary_core_park` function to
+    park/release any secondary cores (such cores enter a WFE loop by default)
+- New exported symbol `_asm_core_start`
+- New exported symbol `_default_kmain_secondary`
+- New exported symbol `_asm_default_secondary_core_park`
 
-### Removed
+### Changed
 
-- Internal (but exported) `_stack_setup_preallocated` function
-- Internal (but exported) `_init_segments` function
+- Renamed exported symbol `_stack_setup_preallocated` to `_asm_stack_setup_preallocated`
+- Renamed exported symbol `_init_segments` to `_asm_init_segments`
 
 ## [aarch32-rt v0.4.0]
 
