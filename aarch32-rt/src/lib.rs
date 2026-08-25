@@ -844,6 +844,10 @@ core::arch::global_asm!(
 );
 
 /// Spins secondary cores.
+///
+/// This function is exported so the linker can use it as a default
+/// implementation of `kmain_secondary`, but it's considered an internal API
+/// that we don't expect you to call.
 #[unsafe(no_mangle)]
 #[cfg(target_arch = "arm")]
 pub extern "C" fn _default_kmain_secondary() {
@@ -859,7 +863,9 @@ pub extern "C" fn _default_kmain_secondary() {
 
 // # _asm_stack_setup_preallocated
 //
-// Configure a stack for every mode. Leaves you in sys mode.
+// Configure a stack for every mode using linker provided constants.
+//
+// Leaves you in SYS mode at the end.
 //
 // Pass the core number in r0
 #[cfg(target_arch = "arm")]
