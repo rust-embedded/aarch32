@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced .filler padding section with fixed offset for stack placement in link.x
+
 ## [aarch32-rt v0.4.0]
 
 ### Added
