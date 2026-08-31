@@ -18,6 +18,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_svc_handler
     .type _asm_default_svc_handler, %function
+    .p2align 2
     _asm_default_svc_handler:
         srsfd   sp!, #{svc_mode}          // Store return state to the SVC stack (1)
         push    {{ r12, lr }}             // Push preserved registers R12 and LR (2)

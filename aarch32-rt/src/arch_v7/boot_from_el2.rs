@@ -29,6 +29,7 @@ core::arch::global_asm!(
     .arm
     .global _default_start
     .type _default_start, %function
+    .p2align 2
     _default_start:
         // Read MPIDR into R0
         mrc     p15, 0, r0, c0, c0, 5
