@@ -46,3 +46,17 @@ PROVIDE(_inter_stack_padding = 64);
 PROVIDE(_region_alignment = 64K);
 
 PROVIDE(_num_cores = 2);
+
+EXTERN(_unexpected_undefined_exception_handler);
+EXTERN(_unexpected_svc_exception_handler);
+EXTERN(_unexpected_hvc_exception_handler);
+EXTERN(_unexpected_prefetch_abort_exception_handler);
+EXTERN(_unexpected_data_abort_exception_handler);
+EXTERN(_unexpected_irq_exception_handler);
+
+PROVIDE(_undefined_handler      = _unexpected_undefined_exception_handler);
+PROVIDE(_svc_handler            = _unexpected_svc_exception_handler);
+PROVIDE(_hvc_handler            = _unexpected_hvc_exception_handler);
+PROVIDE(_prefetch_abort_handler = _unexpected_prefetch_abort_exception_handler);
+PROVIDE(_data_abort_handler     = _unexpected_data_abort_exception_handler);
+PROVIDE(_irq_handler            = _unexpected_irq_exception_handler);
