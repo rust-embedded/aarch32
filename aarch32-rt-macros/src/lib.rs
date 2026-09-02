@@ -60,6 +60,7 @@ pub fn entry(args: TokenStream, input: TokenStream) -> TokenStream {
         && f.sig.generics.params.is_empty()
         && f.sig.generics.where_clause.is_none()
         && f.sig.variadic.is_none()
+        && f.sig.asyncness.is_none()
         && match f.sig.output {
             ReturnType::Default => false,
             ReturnType::Type(_, ref ty) => matches!(**ty, Type::Never(_)),
