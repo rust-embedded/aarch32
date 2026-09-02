@@ -39,6 +39,7 @@ jobs:
         run: |
           rustup install 1.93
           rustup target add ${{ matrix.target }} --toolchain=1.93
+          rustup component add clippy --toolchain=1.93
       - name: Run build
         run: |
           RUSTUP_TOOLCHAIN=1.93 just build-tier2 ${{ matrix.target }}
@@ -65,6 +66,7 @@ jobs:
         run: |
           rustup install stable
           rustup target add ${{ matrix.target }} --toolchain=stable
+          rustup component add clippy --toolchain=stable
       - name: Run build
         run: |
           RUSTUP_TOOLCHAIN=stable just build-tier2 ${{ matrix.target }}
