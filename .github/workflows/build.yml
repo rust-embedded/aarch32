@@ -26,6 +26,7 @@ jobs:
   # Build the workspace for a target architecture using the MSRV
   build-tier2-msrv:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     needs: setup
     strategy:
       matrix:
@@ -53,6 +54,7 @@ jobs:
   # Build the workspace for a target architecture using latest stable
   build-tier2-stable:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     needs: setup
     strategy:
       matrix:
@@ -80,6 +82,7 @@ jobs:
   # Build the workspace for all tier2 target architectures using rust-toolchain.toml
   build-tier2-nightly:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     needs: setup
     strategy:
       matrix:
@@ -102,6 +105,7 @@ jobs:
   # Build the workspace for all tier3 target architectures using rust-toolchain.toml
   build-tier3-nightly:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     needs: setup
     strategy:
       matrix:
@@ -124,6 +128,7 @@ jobs:
   # Build the workspace for all tier3 non atomic target architectures using rust-toolchain.toml
   build-tier3-no-atomics:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     needs: setup
     strategy:
       matrix:
@@ -146,6 +151,7 @@ jobs:
   # Build the host-only stuff on stable and MSRV
   build-arm-targets:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     needs: setup
     strategy:
       matrix:
@@ -177,6 +183,7 @@ jobs:
   # Gather all the above build jobs together for the purposes of getting an overall pass-fail
   build-all:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     needs:
       - build-tier2-msrv
       - build-tier2-stable
@@ -190,6 +197,7 @@ jobs:
   # Format the workspace
   fmt-check:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     needs: setup
     steps:
       - name: Checkout
@@ -203,6 +211,7 @@ jobs:
   # Run clippy on the examples
   clippy-examples:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     needs: setup
     steps:
       - name: Checkout
@@ -220,6 +229,7 @@ jobs:
   # Run the unit tests
   test-cargo:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     needs: setup
     steps:
       - name: Checkout
@@ -233,6 +243,7 @@ jobs:
   # Run some programs in QEMU 9
   test-qemu:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     needs: setup
     strategy:
       matrix:
