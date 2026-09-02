@@ -306,91 +306,52 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
     };
 
     let func_name = f.sig.ident.clone();
-    let block = f.block.clone();
     let (ref cfgs, ref attrs) = extract_cfgs(f.attrs.clone());
 
     let handler = match exception {
+        // Faulting exceptions that optionally take an address argument
+        //
+        // e.g.
         // extern "C" fn _undefined_handler(addr: usize) -> !;
         // unsafe extern "C" fn _undefined_handler(addr: usize) -> usize;
-        Exception::Undefined => {
-            let tramp_ident = Ident::new("__aarch32_rt_undefined_handler", Span::call_site());
-            if returns_never {
-                quote!(
-                    #(#cfgs)*
-                    #(#attrs)*
-                    #[doc(hidden)]
-                    #[export_name = "_undefined_handler"]
-                    pub unsafe extern "C" fn #tramp_ident(addr: usize) -> ! {
-                        #block
-                    }
+        Exception::Undefined | Exception::DataAbort | Exception::PrefetchAbort => {
+            let fn_output = f.sig.output.clone();
+            let (tramp_ident, export_name) = match exception {
+                Exception::Undefined => (
+                    Ident::new("__aarch32_rt_undefined_handler", Span::call_site()),
+                    "_undefined_handler",
+                ),
+                Exception::DataAbort => (
+                    Ident::new("__aarch32_rt_data_abort_handler", Span::call_site()),
+                    "_data_abort_handler",
+                ),
+                Exception::PrefetchAbort => (
+                    Ident::new("__aarch32_rt_prefetch_abort_handler", Span::call_site()),
+                    "_prefetch_abort_handler",
+                ),
+                _ => unreachable!(),
+            };
 
+            let call_site = if f.sig.inputs.is_empty() {
+                quote!(
+                    #func_name()
                 )
             } else {
                 quote!(
-                    #(#cfgs)*
-                    #(#attrs)*
-                    #[doc(hidden)]
-                    #[export_name = "_undefined_handler"]
-                    pub unsafe extern "C" fn #tramp_ident(addr: usize) -> usize {
-                        #block
-                    }
+                    #func_name(_addr)
+                )
+            };
 
-                )
-            }
-        }
-        // extern "C" fn _prefetch_abort_handler(addr: usize) -> !;
-        // unsafe extern "C" fn _prefetch_abort_handler(addr: usize) -> usize;
-        Exception::PrefetchAbort => {
-            let tramp_ident = Ident::new("__aarch32_rt_prefetch_abort_handler", Span::call_site());
-            if returns_never {
-                quote!(
-                    #(#cfgs)*
-                    #(#attrs)*
-                    #[doc(hidden)]
-                    #[export_name = "_prefetch_abort_handler"]
-                    pub unsafe extern "C" fn #tramp_ident(addr: usize) -> ! {
-                        #block
-                    }
-                )
-            } else {
-                quote!(
-                    #(#cfgs)*
-                    #(#attrs)*
-                    #[doc(hidden)]
-                    #[export_name = "_prefetch_abort_handler"]
-                    pub unsafe extern "C" fn #tramp_ident(addr: usize) -> usize {
-                        #block
-                    }
-
-                )
-            }
-        }
-        // extern "C" fn _data_abort_handler(addr: usize) -> !;
-        // unsafe extern "C" fn _data_abort_handler(addr: usize) -> usize;
-        Exception::DataAbort => {
-            let tramp_ident = Ident::new("__aarch32_rt_data_abort_handler", Span::call_site());
-            if returns_never {
-                quote!(
-                    #(#cfgs)*
-                    #(#attrs)*
-                    #[doc(hidden)]
-                    #[export_name = "_data_abort_handler"]
-                    pub unsafe extern "C" fn #tramp_ident(addr: usize) -> ! {
-                        #block
-                    }
-
-                )
-            } else {
-                quote!(
-                    #(#cfgs)*
-                    #(#attrs)*
-                    #[doc(hidden)]
-                    #[export_name = "_data_abort_handler"]
-                    pub unsafe extern "C" fn #tramp_ident(addr: usize) -> usize {
-                        #block
-                    }
-                )
-            }
+            quote!(
+                #(#cfgs)*
+                #(#attrs)*
+                #[doc(hidden)]
+                #[export_name = #export_name]
+                pub unsafe extern "C" fn #tramp_ident(_addr: usize) #fn_output {
+                    #f
+                    #call_site
+                }
+            )
         }
         // extern "C" fn _svc_handler(arg: u32, args: &Frame) -> u32
         Exception::SupervisorCall => {
@@ -425,13 +386,24 @@ fn handle_vector(args: TokenStream, input: TokenStream, kind: VectorKind) -> Tok
         // extern "C" fn _irq_handler(addr: usize);
         Exception::Irq => {
             let tramp_ident = Ident::new("__aarch32_rt_irq_handler", Span::call_site());
+            let call_site = if f.sig.inputs.is_empty() {
+                quote!(
+                    #func_name()
+                )
+            } else {
+                quote!(
+                    #func_name(_addr)
+                )
+            };
+
             quote!(
                 #(#cfgs)*
                 #(#attrs)*
                 #[doc(hidden)]
                 #[export_name = "_irq_handler"]
                 pub unsafe extern "C" fn #tramp_ident() {
-                    #block
+                    #f
+                    #call_site
                 }
             )
         }
