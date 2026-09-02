@@ -30,10 +30,6 @@ jobs:
     strategy:
       matrix:
         target: ${{ fromJSON(needs.setup.outputs.msrv-targets) }}
-        action:
-          - build
-          - clippy
-          - doc
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -43,9 +39,15 @@ jobs:
         run: |
           rustup install 1.93
           rustup target add ${{ matrix.target }} --toolchain=1.93
-      - name: Run just
+      - name: Run build
         run: |
-          RUSTUP_TOOLCHAIN=1.93 just ${{ matrix.action }}-tier2 ${{ matrix.target }}
+          RUSTUP_TOOLCHAIN=1.93 just build-tier2 ${{ matrix.target }}
+      - name: Run clippy
+        run: |
+          RUSTUP_TOOLCHAIN=1.93 just clippy-tier2 ${{ matrix.target }}
+      - name: Run doc
+        run: |
+          RUSTUP_TOOLCHAIN=1.93 just doc-tier2 ${{ matrix.target }}
 
   # Build the workspace for a target architecture using latest stable
   build-tier2-stable:
@@ -54,10 +56,6 @@ jobs:
     strategy:
       matrix:
         target: ${{ fromJSON(needs.setup.outputs.stable-targets) }}
-        action:
-          - build
-          - clippy
-          - doc
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -67,9 +65,15 @@ jobs:
         run: |
           rustup install stable
           rustup target add ${{ matrix.target }} --toolchain=stable
-      - name: Run just
+      - name: Run build
         run: |
-          RUSTUP_TOOLCHAIN=stable just ${{ matrix.action }}-tier2 ${{ matrix.target }}
+          RUSTUP_TOOLCHAIN=stable just build-tier2 ${{ matrix.target }}
+      - name: Run clippy
+        run: |
+          RUSTUP_TOOLCHAIN=stable just clippy-tier2 ${{ matrix.target }}
+      - name: Run doc
+        run: |
+          RUSTUP_TOOLCHAIN=stable just doc-tier2 ${{ matrix.target }}
 
   # Build the workspace for all tier2 target architectures using rust-toolchain.toml
   build-tier2-nightly:
@@ -78,18 +82,20 @@ jobs:
     strategy:
       matrix:
         target: ${{ fromJSON(needs.setup.outputs.nightly-tier2-targets) }}
-        action:
-          - build
-          - clippy
-          - doc
     steps:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Install Just
         uses: taiki-e/install-action@just
-      - name: Run just
+      - name: Run build
         run: |
-          just ${{ matrix.action }}-tier2 ${{ matrix.target }}
+          just build-tier2 ${{ matrix.target }}
+      - name: Run clippy
+        run: |
+          just clippy-tier2 ${{ matrix.target }}
+      - name: Run doc
+        run: |
+          just doc-tier2 ${{ matrix.target }}
 
   # Build the workspace for all tier3 target architectures using rust-toolchain.toml
   build-tier3-nightly:
@@ -98,18 +104,20 @@ jobs:
     strategy:
       matrix:
         target: ${{ fromJSON(needs.setup.outputs.nightly-tier3-targets) }}
-        action:
-          - build
-          - clippy
-          - doc
     steps:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Install Just
         uses: taiki-e/install-action@just
-      - name: Run just
+      - name: Run build
         run: |
-          just ${{ matrix.action }}-tier3 ${{ matrix.target }}
+          just build-tier3 ${{ matrix.target }}
+      - name: Run clippy
+        run: |
+          just clippy-tier3 ${{ matrix.target }}
+      - name: Run doc
+        run: |
+          just doc-tier3 ${{ matrix.target }}
 
   # Build the workspace for all tier3 non atomic target architectures using rust-toolchain.toml
   build-tier3-no-atomics:
@@ -118,18 +126,20 @@ jobs:
     strategy:
       matrix:
         target: ${{ fromJSON(needs.setup.outputs.nightly-tier3-noatomic-targets) }}
-        action:
-          - build
-          - clippy
-          - doc
     steps:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Install Just
         uses: taiki-e/install-action@just
-      - name: Run just
+      - name: Run build
         run: |
-          just ${{ matrix.action }}-tier3-no-atomics ${{ matrix.target }}
+          just build-tier3-no-atomics ${{ matrix.target }}
+      - name: Run clippy
+        run: |
+          just clippy-tier3-no-atomics ${{ matrix.target }}
+      - name: Run doc
+        run: |
+          just doc-tier3-no-atomics ${{ matrix.target }}
 
   # Build the host-only stuff on stable and MSRV
   build-arm-targets:
