@@ -137,25 +137,26 @@ fn main() {
     for group in MATRIX {
         for &target in group.targets {
             for variant in group.variants {
-                let mut name = format!("{}/{}", group.example, target);
-                if !variant.label.is_empty() {
-                    name.push_str(&format!(" [{}]", variant.label));
-                }
-
                 let example = group.example;
-                let target = target.to_string();
                 let rustflags = group.rustflags;
-                let flags: Vec<&'static str> = group
-                    .flags
-                    .iter()
-                    .chain(variant.extra_flags)
-                    .copied()
-                    .collect();
-
-                tests.push(Trial::test(name, move || {
-                    run_target(example, &target, &flags, rustflags);
-                    Ok(())
-                }));
+                let dir = test_utils::test_dir(&format!("examples/{example}"));
+                for bin in test_utils::discover_bins(&dir) {
+                    let target = target.to_string();
+                    let flags: Vec<&'static str> = group
+                        .flags
+                        .iter()
+                        .chain(variant.extra_flags)
+                        .copied()
+                        .collect();
+                    let mut name = format!("{}/{}/{}", group.example, target, bin);
+                    if !variant.label.is_empty() {
+                        name.push_str(&format!(" [{}]", variant.label));
+                    }
+                    tests.push(Trial::test(name, move || {
+                        run_target_bin(example, &bin, &target, &flags, rustflags);
+                        Ok(())
+                    }));
+                }
             }
         }
     }
@@ -163,7 +164,7 @@ fn main() {
     libtest_mimic::run(&args, tests).exit();
 }
 
-fn run_target(example: &str, target: &str, flags: &[&str], rustflags: Option<&str>) {
+fn run_target_bin(example: &str, bin: &str, target: &str, flags: &[&str], rustflags: Option<&str>) {
     let dir = test_utils::test_dir(&format!("examples/{example}"));
 
     // Per-example folder: snapshots/<example>/<bin>-<target>.snap
@@ -174,8 +175,6 @@ fn run_target(example: &str, target: &str, flags: &[&str], rustflags: Option<&st
     settings.set_prepend_module_to_snapshot(false);
     let _guard = settings.bind_to_scope();
 
-    for bin in test_utils::discover_bins(&dir) {
-        let stdout = test_utils::run_bin(&dir, &bin, target, flags, rustflags);
-        insta::assert_snapshot!(format!("{bin}-{target}"), stdout);
-    }
+    let stdout = test_utils::run_bin(&dir, &bin, target, flags, rustflags);
+    insta::assert_snapshot!(format!("{bin}-{target}"), stdout);
 }
