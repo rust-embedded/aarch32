@@ -24,6 +24,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_svc_handler
     .type _asm_default_svc_handler, %function
+    .p2align 2
     _asm_default_svc_handler:
         push    {{ r12, lr }}             // Push R12 and LR (1)
         mrs     lr, elr_hyp               // Grab ELR (2)

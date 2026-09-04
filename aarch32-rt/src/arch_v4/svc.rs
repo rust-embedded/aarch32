@@ -17,6 +17,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_svc_handler
     .type _asm_default_svc_handler, %function
+    .p2align 2
     _asm_default_svc_handler:
         stmfd   sp!, {{ r12, lr }}        // Save LR and R12 (1)
         mrs     r12, spsr                 // Grab SPSR (2)
