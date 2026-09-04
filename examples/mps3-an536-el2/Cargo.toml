@@ -10,7 +10,6 @@ homepage = "https://github.com/rust-embedded/aarch32"
 license = "MIT OR Apache-2.0"
 name = "mps3-an536-el2"
 publish = false
-readme = "README.md"
 repository = "https://github.com/rust-embedded/aarch32.git"
 version = "0.0.0"
 
@@ -19,8 +18,6 @@ aarch32-cpu = { path = "../../aarch32-cpu", features = ["critical-section-multi-
 aarch32-rt = { path = "../../aarch32-rt", features = ["el2-mode"] }
 arm-gic = "0.8.1"
 critical-section = "1.2.0"
-heapless = "0.9.1"
-libm = "0.2.15"
 semihosting = { version = "0.1.18", features = ["stdio"] }
 
 [build-dependencies]
