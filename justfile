@@ -238,9 +238,9 @@ clippy-tier3 target:
 
 # Checks all the cross-compiled workspace passes the clippy lints
 clippy-tier2 target:
-    cargo build --target {{target}} {{verbose}}
-    cargo build --target {{target}} --features "serde, defmt, critical-section-multi-core, check-asm" {{verbose}}
-    cargo build --target {{target}} --features "serde, defmt, critical-section-single-core, check-asm" {{verbose}}
+    cargo clippy --target {{target}} {{verbose}}
+    cargo clippy --target {{target}} --features "serde, defmt, critical-section-multi-core, check-asm" {{verbose}}
+    cargo clippy --target {{target}} --features "serde, defmt, critical-section-single-core, check-asm" {{verbose}}
 
 # Run all the tests
 test: test-cargo test-qemu

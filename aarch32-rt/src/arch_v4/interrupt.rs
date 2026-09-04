@@ -33,6 +33,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_irq_handler
     .type _asm_default_irq_handler, %function
+    .p2align 2
     _asm_default_irq_handler:
         sub     lr, lr, 4                 // Make sure we jump back to the right place
         stmfd   sp!, {{ lr }}             // Save adjusted LR to IRQ stack (1)

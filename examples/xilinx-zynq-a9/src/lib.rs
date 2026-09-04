@@ -187,3 +187,39 @@ pub unsafe fn make_gic() -> arm_gic::gicv2::GicV2<'static> {
     gic.setup();
     gic
 }
+
+#[unsafe(no_mangle)]
+pub extern "C" fn _unexpected_undefined_exception_handler() -> ! {
+    semihosting::eprintln!("In _unexpected_undefined_exception_handler!");
+    semihosting::process::exit(1);
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn _unexpected_svc_exception_handler() -> ! {
+    semihosting::eprintln!("In _unexpected_svc_exception_handler!");
+    semihosting::process::exit(1);
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn _unexpected_hvc_exception_handler() -> ! {
+    semihosting::eprintln!("In _unexpected_hvc_exception_handler!");
+    semihosting::process::exit(1);
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn _unexpected_prefetch_abort_exception_handler() -> ! {
+    semihosting::eprintln!("In _unexpected_prefetch_abort_exception_handler!");
+    semihosting::process::exit(1);
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn _unexpected_data_abort_exception_handler() -> ! {
+    semihosting::eprintln!("In _unexpected_data_abort_exception_handler!");
+    semihosting::process::exit(1);
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn _unexpected_irq_exception_handler() -> ! {
+    semihosting::eprintln!("In _unexpected_irq_exception_handler!");
+    semihosting::process::exit(1);
+}

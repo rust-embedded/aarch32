@@ -19,6 +19,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_undefined_handler
     .type _asm_default_undefined_handler, %function
+    .p2align 2
     _asm_default_undefined_handler:
         push    {{ r12 }}                 // Push preserved register R12 (1)
         mrs     r12, spsr                 // Grab SPSR (2)
