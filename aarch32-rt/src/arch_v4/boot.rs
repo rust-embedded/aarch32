@@ -16,6 +16,7 @@ core::arch::global_asm!(
     .arm
     .global _default_start
     .type _default_start, %function
+    .p2align 2
     _default_start:
         // Init .data and .bss on primary core
         bl      _asm_init_segments

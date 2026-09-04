@@ -16,6 +16,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_data_abort_handler
     .type _asm_default_data_abort_handler, %function
+    .p2align 2
     _asm_default_data_abort_handler:
         push    {{ r0-r3, r12, lr }}      // Push preserved registers (1)
         mrs     r0, spsr_hyp              // Grab SPSR (2)
@@ -57,6 +58,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_prefetch_abort_handler
     .type _asm_default_prefetch_abort_handler, %function
+    .p2align 2
     _asm_default_prefetch_abort_handler:
         push    {{ r0-r3, r12, lr }}      // Push preserved registers (1)
         mrs     r0, spsr_hyp              // Grab SPSR (2)

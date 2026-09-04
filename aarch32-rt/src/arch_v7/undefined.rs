@@ -20,6 +20,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_undefined_handler
     .type _asm_default_undefined_handler, %function
+    .p2align 2
     _asm_default_undefined_handler:
         srsfd   sp!, #{und_mode}          // Store return state to the UND stack (1)
         push    {{ r12 }}                 // Push preserved register R12 (2)

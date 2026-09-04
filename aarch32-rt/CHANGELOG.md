@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Replaced `.filler` padding section with fixed offset for stack placement in link.x
 - Renamed exported symbol `_stack_setup_preallocated` to `_asm_stack_setup_preallocated`
 - Renamed exported symbol `_init_segments` to `_asm_init_segments`
 

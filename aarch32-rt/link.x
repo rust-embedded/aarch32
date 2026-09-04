@@ -156,24 +156,18 @@ SECTIONS {
 
     /* # Stack Padding
      *
-     * A padding region to push the stacks to the top of the STACKS region.
-     * If `_pack_stacks == 0`, this is forced to be zero size, putting the
-     * stacks at the bottom of the STACK region.
+     * Compute where `.stacks` should start: at the top of the STACKS region,
+     * unless `_pack_stacks == 1`, in which case right where we already are.
      */
-    .filler (NOLOAD) : {
-        /* Move the .stacks section to the end of the STACKS memory region */
-        _next_region = ORIGIN(STACKS) + LENGTH(STACKS);
-        _start_moved_stacks = _next_region - SIZEOF(.stacks);
-        _start_stacks = _pack_stacks ? . : _start_moved_stacks;
-        FILL(0x00)
-        . = _start_stacks;
-    } > STACKS
+    _next_region = ORIGIN(STACKS) + LENGTH(STACKS);
+    _start_moved_stacks = _next_region - SIZEOF(.stacks);
+    _start_stacks = _pack_stacks ? . : _start_moved_stacks;
 
     /* # Stacks
      *
      * Space for all seven stacks.
      */
-    .stacks (NOLOAD) : ALIGN(_stack_alignment)
+    .stacks _start_stacks (NOLOAD) : ALIGN(_stack_alignment)
     {
         . = ALIGN(_stack_alignment);
 

@@ -15,6 +15,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_hvc_handler
     .type _asm_default_hvc_handler, %function
+    .p2align 2
     _asm_default_hvc_handler:
         push    {{ r12, lr }}             // Push preserved registers R12 and LR (1)
         push    {{ r0-r5 }}               // Push HVC frame to stack (2)
@@ -51,6 +52,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_hvc_handler
     .type _asm_default_hvc_handler, %function
+    .p2align 2
     _asm_default_hvc_handler:
         b       .
     .size _asm_default_hvc_handler, . - _asm_default_hvc_handler
