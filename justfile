@@ -9,7 +9,7 @@ verbose := if v == "1" { "--verbose" } else { "" }
 
 # The aarch32-tests harness invocation shared by every test-qemu recipe. Each
 # recipe appends a name filter; the build matrix lives in the harness itself.
-qemu_test := "cargo test -p aarch32-tests --test tests --"
+qemu_test := "cargo test -p aarch32-tests --test tests -- --test-threads=1"
 
 # Our default target. It does everything that you might want to do pre-checkin.
 check: build-all build-all-examples doc-all fmt-check clippy-all test
