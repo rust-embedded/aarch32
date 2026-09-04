@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [aarch32-rt v0.5.0]
+
+### Added
+
+- Improved SMP support on ARMv7-A, ARMv7-R and ARMv8-R:
+  - you now only have to supply a `_asm_secondary_core_park` function to
+    park/release any secondary cores (such cores enter a WFE loop by default)
+- New exported symbol `_asm_core_start`
+- New exported symbol `_default_kmain_secondary`
+- New exported symbol `_asm_default_secondary_core_park`
+
+### Changed
+
+- Replaced `.filler` padding section with fixed offset for stack placement in link.x
+- Renamed exported symbol `_stack_setup_preallocated` to `_asm_stack_setup_preallocated`
+- Renamed exported symbol `_init_segments` to `_asm_init_segments`
+
 ## [aarch32-rt v0.4.0]
 
 ### Added
@@ -86,7 +103,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Initial release
 
-[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.4.0...HEAD
+[Unreleased]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.5.0...HEAD
+[aarch32-rt v0.5.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.4.0...aarch32-rt-v0.5.0
 [aarch32-rt v0.4.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.3.0...aarch32-rt-v0.4.0
 [aarch32-rt v0.3.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.2.0...aarch32-rt-v0.3.0
 [aarch32-rt v0.2.0]: https://github.com/rust-embedded/aarch32/compare/aarch32-rt-v0.1.0...aarch32-rt-v0.2.0

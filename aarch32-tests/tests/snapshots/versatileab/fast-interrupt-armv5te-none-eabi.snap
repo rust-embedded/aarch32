@@ -1,0 +1,7 @@
+---
+source: qemu-tests/tests/tests.rs
+expression: stdout
+---
+Setting up interrupts...
+Firing interrupt...
+Got interrupted :)

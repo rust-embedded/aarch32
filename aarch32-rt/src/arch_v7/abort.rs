@@ -16,6 +16,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_data_abort_handler
     .type _asm_default_data_abort_handler, %function
+    .p2align 2
     _asm_default_data_abort_handler:
         sub     lr, lr, #8                // Make sure we jump back to the right place
         srsfd   sp!, #{abt_mode}          // Store return state to ABT stack (1)
@@ -59,6 +60,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_prefetch_abort_handler
     .type _asm_default_prefetch_abort_handler, %function
+    .p2align 2
     _asm_default_prefetch_abort_handler:
         sub     lr, lr, #4                // Make sure we jump back to the right place
         srsfd   sp!, #{abt_mode}          // Store return state to ABT stack (1)

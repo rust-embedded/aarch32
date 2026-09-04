@@ -539,7 +539,7 @@
 //!         // Wait until Core 0 does a 'sev'
 //!         wfe
 //!         // Spin until register is non-zero.
-//!         ldr     r1, [r0]  
+//!         ldr     r1, [r0]
 //!         cmp     r1, 0
 //!         beq     1b
 //!         // return to start-up
@@ -761,6 +761,7 @@ core::arch::global_asm!(
     .arm
     .global _vector_table
     .type _vector_table, %function
+    .p2align 2
     .align 5
     _vector_table:
         ldr     pc, =_start
@@ -786,8 +787,10 @@ core::arch::global_asm!(
     // Work around https://github.com/rust-lang/rust/issues/127269
     .fpu vfp2
     .pushsection .text._asm_core_start
+    .arm
     .global _asm_core_start
     .type _asm_core_start, %function
+    .p2align 2
     _asm_core_start:
         // Keep our core number for later
         mov     r12, r0
@@ -844,6 +847,10 @@ core::arch::global_asm!(
 );
 
 /// Spins secondary cores.
+///
+/// This function is exported so the linker can use it as a default
+/// implementation of `kmain_secondary`, but it's considered an internal API
+/// that we don't expect you to call.
 #[unsafe(no_mangle)]
 #[cfg(target_arch = "arm")]
 pub extern "C" fn _default_kmain_secondary() {
@@ -859,15 +866,19 @@ pub extern "C" fn _default_kmain_secondary() {
 
 // # _asm_stack_setup_preallocated
 //
-// Configure a stack for every mode. Leaves you in sys mode.
+// Configure a stack for every mode using linker provided constants.
+//
+// Leaves you in SYS mode at the end.
 //
 // Pass the core number in r0
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
     .pushsection .text._asm_stack_setup_preallocated
+    .arm
     .global _asm_stack_setup_preallocated
     .type _asm_stack_setup_preallocated, %function
+    .p2align 2
     _asm_stack_setup_preallocated:
         // Save LR from whatever mode we're currently in
         mov     r3, lr
@@ -967,8 +978,10 @@ core::arch::global_asm!(
     .fpu vfp2
 
     .pushsection .text._asm_init_segments
+    .arm
     .global _asm_init_segments
     .type _asm_init_segments, %function
+    .p2align 2
     _asm_init_segments:
         // Zero .bss
         ldr     r0, =__sbss
@@ -1026,6 +1039,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_fiq_handler
     .type _asm_default_fiq_handler, %function
+    .p2align 2
     _asm_default_fiq_handler:
         b       _asm_default_fiq_handler
     .size    _asm_default_fiq_handler, . - _asm_default_fiq_handler

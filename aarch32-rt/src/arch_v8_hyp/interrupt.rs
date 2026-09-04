@@ -17,6 +17,7 @@ core::arch::global_asm!(
     .arm
     .global _asm_default_irq_handler
     .type _asm_default_irq_handler, %function
+    .p2align 2
     _asm_default_irq_handler:
         push    {{ r0-r3, r12, lr }}      // Push preserved registers (1)
         mrs     r0, elr_hyp               // Grab ELR (2)
