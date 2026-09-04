@@ -6,6 +6,10 @@
 #![deny(clippy::unnecessary_safety_comment)]
 #![deny(clippy::unnecessary_safety_doc)]
 
+// Only used by the mmu module, but we don't want cargo to complain
+// about an unused dependency
+use thiserror as _;
+
 pub mod cache;
 pub mod interrupt;
 pub mod register;

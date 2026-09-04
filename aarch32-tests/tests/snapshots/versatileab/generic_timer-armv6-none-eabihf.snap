@@ -1,5 +1,0 @@
----
-source: qemu-tests/tests/tests.rs
-expression: stdout
----
-Skipping timer test, not Armv7-A

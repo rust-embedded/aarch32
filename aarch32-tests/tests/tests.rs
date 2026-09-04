@@ -128,6 +128,18 @@ const MATRIX: &[Group] = &[
         rustflags: None,
         variants: &[PLAIN],
     },
+    Group {
+        example: "xilinx-zynq-a9",
+        targets: &[
+            "armv7a-none-eabi",
+            "thumbv7a-none-eabi",
+            "armv7a-none-eabihf",
+            "thumbv7a-none-eabihf",
+        ],
+        flags: &["--release", "--features=fpu-d32", "--target-dir=target-d32"],
+        rustflags: Some("-Ctarget-cpu=cortex-a9"),
+        variants: &[FPU],
+    },
 ];
 
 fn main() {
