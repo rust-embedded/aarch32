@@ -281,8 +281,7 @@ test-qemu-v7r:
 # Armv7-A (Versatile AB), incl. fpu-d32 on hf targets. Two filters because the
 # name must be scoped to versatileab (zynq is also v7a), which splits arm/thumb.
 test-qemu-v7a:
-	{{qemu_test}} versatileab/armv7a
-	{{qemu_test}} versatileab/thumbv7a
+	{{qemu_test}} versatileab-v7a
 
 # Armv7-A (Xilinx Zynq-A9)
 test-qemu-v7a-zynq:
