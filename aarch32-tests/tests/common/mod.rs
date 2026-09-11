@@ -41,13 +41,17 @@ pub(crate) mod test_utils {
         bins
     }
 
-    pub fn run_bin(
+    pub fn run_bin<S1, S2>(
         dir: &Path,
         bin: &str,
         target: &str,
-        flags: &[&str],
-        rustflags: Option<&str>,
-    ) -> String {
+        flags: impl IntoIterator<Item = S1>,
+        rustflags: impl IntoIterator<Item = S2>,
+    ) -> String
+    where
+        S1: AsRef<std::ffi::OsStr>,
+        S2: AsRef<str>,
+    {
         let mut cmd = Command::new("cargo");
         cmd.current_dir(dir)
             .arg("run")
@@ -55,10 +59,19 @@ pub(crate) mod test_utils {
             .args(flags)
             .args(["--bin", bin]);
 
+        let mut rustflags_str = String::new();
+        for rustflag in rustflags {
+            rustflags_str.push_str(rustflag.as_ref());
+            rustflags_str.push_str(" ");
+        }
         // Some variants (e.g. fpu-d32) need a target-feature/-cpu; pass it only to
         // this cross build, never to the host test binary.
-        if let Some(rustflags) = rustflags {
-            cmd.env("RUSTFLAGS", rustflags);
+        if !rustflags_str.is_empty() {
+            cmd.env("RUSTFLAGS", rustflags_str);
+        }
+
+        if std::env::var("TEST_VERBOSE").is_ok() {
+            eprintln!("\nRunning {:?}", cmd);
         }
 
         let output = cmd.output().expect("failed to execute cargo run");

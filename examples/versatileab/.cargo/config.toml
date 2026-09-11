@@ -5,14 +5,12 @@ runner = "qemu-system-arm -machine versatileab -cpu cortex-r5f -semihosting -nog
 runner = "qemu-system-arm -machine versatileab -cpu cortex-r5f -semihosting -nographic -audio none -kernel"
 
 [target.armv7r-none-eabi]
-# change '-mcpu=cortex-r5' to '-mcpu=cortex-r5f' if you use eabi-fpu feature, otherwise
-# qemu-system-arm will lock up
-runner = "qemu-system-arm -machine versatileab -cpu cortex-r5 -semihosting -nographic -audio none -kernel"
+# We test FPU support even on EABI targets
+runner = "qemu-system-arm -machine versatileab -cpu cortex-r5f -semihosting -nographic -audio none -kernel"
 
 [target.thumbv7r-none-eabi]
-# change '-mcpu=cortex-r5' to '-mcpu=cortex-r5f' if you use eabi-fpu feature, otherwise
-# qemu-system-arm will lock up
-runner = "qemu-system-arm -machine versatileab -cpu cortex-r5 -semihosting -nographic -audio none -kernel"
+# We test FPU support even on EABI targets
+runner = "qemu-system-arm -machine versatileab -cpu cortex-r5f -semihosting -nographic -audio none -kernel"
 
 [target.armv7a-none-eabihf]
 runner = "qemu-system-arm -machine versatileab -cpu cortex-a15 -semihosting -nographic -audio none -kernel"
