@@ -9,7 +9,7 @@ verbose := if v == "1" { "--verbose" } else { "" }
 
 # The aarch32-tests harness invocation shared by every test-qemu recipe. Each
 # recipe appends a name filter; the build matrix lives in the harness itself.
-qemu_test := "cargo test -p aarch32-tests --test tests --"
+qemu_test := "cargo test -p aarch32-tests --test tests --  --test-threads=1"
 
 # Our default target. It does everything that you might want to do pre-checkin.
 check: build-all build-all-examples doc-all fmt-check clippy-all test
@@ -278,20 +278,18 @@ test-qemu-v6:
 test-qemu-v7r:
 	{{qemu_test}} v7r
 
-# Armv7-A (Versatile AB), incl. fpu-d32 on hf targets. Two filters because the
-# name must be scoped to versatileab (zynq is also v7a), which splits arm/thumb.
+# Armv7-A (Versatile AB)
 test-qemu-v7a:
-	{{qemu_test}} versatileab/armv7a
-	{{qemu_test}} versatileab/thumbv7a
+	{{qemu_test}} versatileab-v7a
 
 # Armv7-A (Xilinx Zynq-A9)
 test-qemu-v7a-zynq:
 	{{qemu_test}} zynq
 
-# Armv8-R (MPS3-AN536), incl. fpu-d32
+# Armv8-R (MPS3-AN536)
 test-qemu-v8r:
 	{{qemu_test}} mps3-an536/
 
-# Armv8-R EL2 (MPS3-AN536), incl. fpu-d32
+# Armv8-R EL2 (MPS3-AN536)
 test-qemu-v8r-el2:
 	{{qemu_test}} el2

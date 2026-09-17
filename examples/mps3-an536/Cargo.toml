@@ -10,7 +10,6 @@ homepage = "https://github.com/rust-embedded/aarch32"
 license = "MIT OR Apache-2.0"
 name = "mps3-an536"
 publish = false
-readme = "README.md"
 repository = "https://github.com/rust-embedded/aarch32.git"
 version = "0.0.0"
 
