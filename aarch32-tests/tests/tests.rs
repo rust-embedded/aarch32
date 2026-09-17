@@ -122,6 +122,20 @@ const R52_CPU: Variant = Variant {
     ],
 };
 
+/// Build for a Cortex-A9 with 32 DP registers and NEON
+const A9_CPU: Variant = Variant {
+    label: "a9-cpu",
+    flags: &[
+        // Tell the aarch32-rt assembly to stack the high FPU registers,
+        // and that we have an FPU even on EABI targets
+        "--features=fpu-d32,eabi-fpu",
+    ],
+    rustflags: &[
+        // Optimise for Cortex-A9 (which also enables usage of all 32 DP registers and NEON)
+        "-Ctarget-cpu=cortex-a9",
+    ],
+};
+
 /// A group of programs to build and test
 struct Group {
     name: &'static str,
@@ -192,7 +206,7 @@ const MATRIX: &[Group] = &[
             "thumbv7a-none-eabihf",
         ],
         flags: &["--release"],
-        variants: &[PLAIN],
+        variants: &[PLAIN, D32_FEAT, A9_CPU],
     },
 ];
 
