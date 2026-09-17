@@ -278,8 +278,7 @@ test-qemu-v6:
 test-qemu-v7r:
 	{{qemu_test}} v7r
 
-# Armv7-A (Versatile AB), incl. fpu-d32 on hf targets. Two filters because the
-# name must be scoped to versatileab (zynq is also v7a), which splits arm/thumb.
+# Armv7-A (Versatile AB)
 test-qemu-v7a:
 	{{qemu_test}} versatileab-v7a
 
@@ -287,10 +286,10 @@ test-qemu-v7a:
 test-qemu-v7a-zynq:
 	{{qemu_test}} zynq
 
-# Armv8-R (MPS3-AN536), incl. fpu-d32
+# Armv8-R (MPS3-AN536)
 test-qemu-v8r:
 	{{qemu_test}} mps3-an536/
 
-# Armv8-R EL2 (MPS3-AN536), incl. fpu-d32
+# Armv8-R EL2 (MPS3-AN536)
 test-qemu-v8r-el2:
 	{{qemu_test}} el2
