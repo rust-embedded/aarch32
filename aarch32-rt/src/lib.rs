@@ -1007,6 +1007,9 @@ core::arch::global_asm!(
         ldr     r0, =__sdata
         ldr     r1, =__edata
         ldr     r2, =__sidata
+        // Skip copy if loaded into RAM
+        cmp     r0, r2
+        beq     1f
     0:
         cmp     r1, r0
         beq     1f
