@@ -1,10 +1,10 @@
-name: Nightly Canary Build
-
 on:
   pull_request:
   merge_group:
   schedule:
     - cron: '45 7 * * *' # 07:45 UTC every day of the week
+
+name: Canary
 
 env:
   CARGO_TERM_COLORS: always    # We want colors in our CI output
