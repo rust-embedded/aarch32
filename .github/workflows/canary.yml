@@ -43,6 +43,7 @@ jobs:
           - test-qemu-v7a-zynq
           - test-qemu-v8r
           - test-qemu-v8r-el2
+          - test-qemu-fictional
     timeout-minutes: 10
     needs: setup
     runs-on: ubuntu-24.04
