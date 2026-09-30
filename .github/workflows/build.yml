@@ -7,7 +7,7 @@ name: Build
 jobs:
   # Define Rust versions dynamically. Test stable and MSRV.
   setup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       msrv-targets: ${{ steps.set-matrix.outputs.msrv_targets }}
       stable-targets: ${{ steps.set-matrix.outputs.stable_targets }}
