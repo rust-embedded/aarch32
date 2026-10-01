@@ -7,7 +7,7 @@ name: Build
 jobs:
   # Define Rust versions dynamically. Test stable and MSRV.
   setup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       msrv-targets: ${{ steps.set-matrix.outputs.msrv_targets }}
       stable-targets: ${{ steps.set-matrix.outputs.stable_targets }}
@@ -219,9 +219,10 @@ jobs:
       - name: Install Just
         uses: taiki-e/install-action@just
       - name: Install GCC and libclang1
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi libclang1
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: gcc-arm-none-eabi libclang1
+          version: gcc-libclang-v1
       - name: Run just
         run: |
           just clippy-examples
@@ -262,9 +263,10 @@ jobs:
       - name: Install Just
         uses: taiki-e/install-action@just
       - name: Install Dependencies
-        run: |
-          sudo apt-get -y update
-          sudo apt-get -y install libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
+          version: qemu-gcc-libclang-v1
       - name: Install custom QEMU into /opt
         run: |
           curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
