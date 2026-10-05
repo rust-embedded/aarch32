@@ -1,0 +1,99 @@
+on:
+  pull_request:
+  merge_group:
+  schedule:
+    - cron: '45 7 * * *' # 07:45 UTC every day of the week
+
+name: Canary
+
+env:
+  CARGO_TERM_COLORS: always    # We want colors in our CI output
+  CARGO_INCREMENTAL: 0         # Don't waste time writing out incremental build files
+  CARGO_PROFILE_TEST_DEBUG: 0  # Same with debug info
+
+jobs:
+  # Define Rust versions dynamically. Test stable and MSRV.
+  setup:
+    runs-on: ubuntu-24.04
+    outputs:
+      msrv-targets: ${{ steps.set-matrix.outputs.msrv_targets }}
+      stable-targets: ${{ steps.set-matrix.outputs.stable_targets }}
+      nightly-tier2-targets: ${{ steps.set-matrix.outputs.nightly_tier2_targets }}
+      nightly-tier3-targets: ${{ steps.set-matrix.outputs.nightly_tier3_targets }}
+      nightly-tier3-noatomic-targets: ${{ steps.set-matrix.outputs.nightly_tier3_noatomic_targets }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - id: set-matrix
+        run: |
+          just github_info >> "$GITHUB_OUTPUT"
+
+  test-qemu:
+    strategy:
+      fail-fast: false
+      matrix:
+        recipe:
+          - test-qemu-v4t
+          - test-qemu-v5te
+          - test-qemu-v6
+          - test-qemu-v7r
+          - test-qemu-v7a
+          - test-qemu-v7a-zynq
+          - test-qemu-v8r
+          - test-qemu-v8r-el2
+          - test-qemu-fictional
+    timeout-minutes: 10
+    needs: setup
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install Just
+        uses: taiki-e/install-action@just
+      - name: Install Dependencies
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: libpixman-1-0 libfdt1 libglib2.0-0t64 gcc-arm-none-eabi libclang1
+          version: qemu-gcc-libclang-v1
+      - name: Install custom QEMU into /opt
+        run: |
+          curl -sSL https://github.com/jonathanpallant/qemu9-for-ubuntu-2404/releases/download/qemu-9.2.3%2Bbuild0/qemu-9.2.3-ubuntu-24.04.tar.gz | sudo tar xvzf - -C /
+      - name: Patch rust-toolchain.toml to use latest nightly
+        run: |
+          sed -i.bak 's/channel =.*/channel = "nightly"/' rust-toolchain.toml
+      - name: Which rustc is it?
+        run: |
+          rustc --version
+      - name: Run tests in QEMU
+        run: |
+          export PATH=/opt/qemu/bin:$PATH
+          just ${{ matrix.recipe }}
+
+  # Gather all the above jobs together for the purposes of getting an overall pass-fail
+  all:
+    runs-on: ubuntu-24.04
+    if: always()
+    # not gating on clippy-all
+    needs:
+      - test-qemu
+    timeout-minutes: 2
+    steps:
+      - name: Ensure all required jobs succeed
+        run: |
+          echo "Our needs:"
+          echo '${{ toJSON(needs) }}'
+          echo "Checking..."
+          echo '${{ toJSON(needs) }}' | jq -e 'to_entries | all(.value.result == "success")'
+      - uses: imjohnbo/issue-bot@v3
+        if: |
+          failure()
+          && github.event_name == 'schedule'
+        with:
+          title: CI Failure
+          labels: ci
+          assignees: "jonathanpallant"
+          body: |
+            Scheduled CI run failed. Details:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
