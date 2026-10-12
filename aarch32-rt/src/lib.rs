@@ -761,8 +761,7 @@ core::arch::global_asm!(
     .arm
     .global _vector_table
     .type _vector_table, %function
-    .p2align 2
-    .align 5
+    .p2align 5
     _vector_table:
         ldr     pc, =_start
         ldr     pc, =_asm_undefined_handler
@@ -772,7 +771,7 @@ core::arch::global_asm!(
         ldr     pc, =_asm_hvc_handler
         ldr     pc, =_asm_irq_handler
         ldr     pc, =_asm_fiq_handler
-    .size _vector_table, . - _vector_table
+        .size _vector_table, . - _vector_table
     .popsection
     "#
 );
@@ -792,6 +791,10 @@ core::arch::global_asm!(
     .type _asm_core_start, %function
     .p2align 2
     _asm_core_start:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
+        .cfi_undefined lr
         // Keep our core number for later
         mov     r12, r0
         // Set up stacks (core number in r0)
@@ -841,7 +844,10 @@ core::arch::global_asm!(
         bl      kmain_secondary
         // In case the application returns, loop forever
         b       .
-    .size _asm_core_start, . - _asm_core_start
+        .size _asm_core_start, . - _asm_core_start
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#
 );
@@ -880,48 +886,55 @@ core::arch::global_asm!(
     .type _asm_stack_setup_preallocated, %function
     .p2align 2
     _asm_stack_setup_preallocated:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
         // Save LR from whatever mode we're currently in
         mov     r3, lr
+        .cfi_register lr, r3
         // (we might not be in the same mode when we return).
         // Set stack pointer and mask interrupts for UND mode (Mode 0x1B)
         msr     cpsr_c, {und_mode}
-        ldr	    r2, =_und_stack_high_end
-        ldr	    r1, =_und_stack_size
+        ldr     r2, =_und_stack_high_end
+        ldr     r1, =_und_stack_size
         muls    r1, r1, r0
         subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for SVC mode (Mode 0x13)
         msr     cpsr_c, {svc_mode}
-        ldr	    r2, =_svc_stack_high_end
-        ldr	    r1, =_svc_stack_size
+        ldr     r2, =_svc_stack_high_end
+        ldr     r1, =_svc_stack_size
         muls    r1, r1, r0
         subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for ABT mode (Mode 0x17)
         msr     cpsr_c, {abt_mode}
-        ldr	    r2, =_abt_stack_high_end
-        ldr	    r1, =_abt_stack_size
+        ldr     r2, =_abt_stack_high_end
+        ldr     r1, =_abt_stack_size
         muls    r1, r1, r0
         subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for IRQ mode (Mode 0x12)
         msr     cpsr_c, {irq_mode}
-        ldr	    r2, =_irq_stack_high_end
-        ldr	    r1, =_irq_stack_size
+        ldr     r2, =_irq_stack_high_end
+        ldr     r1, =_irq_stack_size
         muls    r1, r1, r0
         subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for FIQ mode (Mode 0x11)
         msr     cpsr_c, {fiq_mode}
-        ldr	    r2, =_fiq_stack_high_end
-        ldr	    r1, =_fiq_stack_size
+        ldr     r2, =_fiq_stack_high_end
+        ldr     r1, =_fiq_stack_size
         muls    r1, r1, r0
         subs    sp, r2, r1
         // Set stack pointer (right after) and mask interrupts for System mode (Mode 0x1F)
         msr     cpsr_c, {sys_mode}
-        ldr	    r2, =_sys_stack_high_end
-        ldr	    r1, =_sys_stack_size
+        ldr     r2, =_sys_stack_high_end
+        ldr     r1, =_sys_stack_size
         muls    r1, r1, r0
         subs    sp, r2, r1
         // return to caller
         bx      r3
-    .size _asm_stack_setup_preallocated, . - _asm_stack_setup_preallocated
+        .size _asm_stack_setup_preallocated, . - _asm_stack_setup_preallocated
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#,
     und_mode = const {
@@ -983,6 +996,9 @@ core::arch::global_asm!(
     .type _asm_init_segments, %function
     .p2align 2
     _asm_init_segments:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
         // Zero .bss
         ldr     r0, =__sbss
         ldr     r1, =__ebss
@@ -1014,9 +1030,12 @@ core::arch::global_asm!(
         stm     r0!, {{r3}}
         b       0b
     1:
-    	// return to caller
+        // return to caller
         bx      lr
-    .size _asm_init_segments, . - _asm_init_segments
+        .size _asm_init_segments, . - _asm_init_segments
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#,
 );
@@ -1041,8 +1060,14 @@ core::arch::global_asm!(
     .type _asm_default_fiq_handler, %function
     .p2align 2
     _asm_default_fiq_handler:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
         b       _asm_default_fiq_handler
-    .size    _asm_default_fiq_handler, . - _asm_default_fiq_handler
+        .size    _asm_default_fiq_handler, . - _asm_default_fiq_handler
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#,
 );

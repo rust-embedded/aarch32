@@ -14,8 +14,14 @@ core::arch::global_asm!(
     .type _asm_default_hvc_handler, %function
     .p2align 2
     _asm_default_hvc_handler:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
         b       .
-    .size _asm_default_hvc_handler, . - _asm_default_hvc_handler
+        .size _asm_default_hvc_handler, . - _asm_default_hvc_handler
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#,
 );

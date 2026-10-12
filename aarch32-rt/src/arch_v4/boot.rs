@@ -18,12 +18,18 @@ core::arch::global_asm!(
     .type _default_start, %function
     .p2align 2
     _default_start:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
         // Init .data and .bss on primary core
         bl      _asm_init_segments
         // Do standard core init - only one core supported
         mov     r0, #0
         b       _asm_core_start
-    .size _default_start, . - _default_start
+        .size _default_start, . - _default_start
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#
 );

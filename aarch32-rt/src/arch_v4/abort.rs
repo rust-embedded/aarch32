@@ -18,6 +18,9 @@ core::arch::global_asm!(
     .type _asm_default_data_abort_handler, %function
     .p2align 2
     _asm_default_data_abort_handler:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
         sub     lr, lr, #8                // Make sure we jump back to the right place
         push    {{ r12 }}                 // Push preserved register R12 (1)
         mrs     r12, spsr                 // Grab SPSR (2)
@@ -40,7 +43,10 @@ core::arch::global_asm!(
         msr     spsr, r12                 // Restore SPSR using R12 to undo (2)
         pop     {{ r12 }}                 // Pop R12 to undo (1)
         movs    pc, lr                    // Return from exception
-    .size _asm_default_data_abort_handler, . - _asm_default_data_abort_handler
+        .size _asm_default_data_abort_handler, . - _asm_default_data_abort_handler
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#
 );
@@ -63,6 +69,9 @@ core::arch::global_asm!(
     .type _asm_default_prefetch_abort_handler, %function
     .p2align 2
     _asm_default_prefetch_abort_handler:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
         sub     lr, lr, #4                // Make sure we jump back to the right place
         push    {{ r12 }}                 // Push preserved register R12 (1)
         mrs     r12, spsr                 // Grab SPSR (2)
@@ -85,7 +94,10 @@ core::arch::global_asm!(
         msr     spsr, r12                 // Restore SPSR using R12 to undo (2)
         pop     {{ r12 }}                 // Pop R12 to undo (1)
         movs    pc, lr                    // Return from exception
-    .size _asm_default_prefetch_abort_handler, . - _asm_default_prefetch_abort_handler
+        .size _asm_default_prefetch_abort_handler, . - _asm_default_prefetch_abort_handler
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#,
 );

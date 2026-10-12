@@ -21,6 +21,9 @@ core::arch::global_asm!(
     .type _asm_default_undefined_handler, %function
     .p2align 2
     _asm_default_undefined_handler:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
         push    {{ r12 }}                 // Push preserved register R12 (1)
         mrs     r12, spsr                 // Grab SPSR (2)
         push    {{ r12 }}                 // Push SPSR value (3)
@@ -46,7 +49,10 @@ core::arch::global_asm!(
         msr     spsr, r12                 // Restore SPSR using LR to undo (2)
         pop     {{ r12 }}                 // Pop R12 to undo (1)
         movs    pc, lr                    // Return from exception (movs => restore SPSR to CPSR)
-    .size _asm_default_undefined_handler, . - _asm_default_undefined_handler
+        .size _asm_default_undefined_handler, . - _asm_default_undefined_handler
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#,
     t_bit = const { crate::Cpsr::new_with_raw_value(0).with_t(true).raw_value() },
