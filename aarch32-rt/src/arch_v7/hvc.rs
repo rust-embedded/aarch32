@@ -17,6 +17,9 @@ core::arch::global_asm!(
     .type _asm_default_hvc_handler, %function
     .p2align 2
     _asm_default_hvc_handler:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
         push    {{ r12, lr }}             // Push preserved registers R12 and LR (1)
         push    {{ r0-r5 }}               // Push HVC frame to stack (2)
         mov     r12, sp                   // R12 = pointer to Frame
@@ -34,7 +37,10 @@ core::arch::global_asm!(
         mov     r0, r12                   // Replace return value
         pop     {{ r12, lr }}             // Pop R12 and LR from stack to undo (1)
         eret                              // Return from the asm handler
-    .size _asm_default_hvc_handler, . - _asm_default_hvc_handler
+        .size _asm_default_hvc_handler, . - _asm_default_hvc_handler
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#,
 );

@@ -19,6 +19,9 @@ core::arch::global_asm!(
     .type _asm_default_svc_handler, %function
     .p2align 2
     _asm_default_svc_handler:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
         stmfd   sp!, {{ r12, lr }}        // Save LR and R12 (1)
         mrs     r12, spsr                 // Grab SPSR (2)
         push    {{ r12 }}                 // Push SPSR value (3)
@@ -50,7 +53,10 @@ core::arch::global_asm!(
         pop     {{ r12 }}                 // Grab saved SPSR to undo (3)
         msr     spsr, r12                 // Restore SPSR using R12 to undo (2)
         ldmfd   sp!, {{ r12, pc }}^       // Restore R12 and return from exception (^ => restore SPSR to CPSR) to undo (1)
-    .size _asm_default_svc_handler, . - _asm_default_svc_handler
+        .size _asm_default_svc_handler, . - _asm_default_svc_handler
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#,
     t_bit = const { crate::Cpsr::new_with_raw_value(0).with_t(true).raw_value() },

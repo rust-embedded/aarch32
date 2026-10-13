@@ -17,6 +17,10 @@ core::arch::global_asm!(
     .type _default_start, %function
     .p2align 2
     _default_start:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
+        .cfi_undefined lr
         // Read MPIDR into R0
         mrc     p15, 0, r0, c0, c0, 5
         // Check if core ID (bottom 8 bits) is zero
@@ -33,7 +37,10 @@ core::arch::global_asm!(
         bl      _asm_secondary_core_park
         mov     r0, r4
         b       _asm_core_start
-    .size _default_start, . - _default_start
+        .size _default_start, . - _default_start
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#
 );

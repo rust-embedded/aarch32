@@ -24,6 +24,14 @@ use crate::{Cpsr, ProcessorMode};
 //
 // This function must produce A32 machine code, because it's called by the Vector Table
 // with a raw PC load and the Vector Table is always in A32 machine code.
+//
+// # Debugging
+//
+// This routine changes modes several times - we enter in IRQ mode, it changes
+// to 'HANDLER_MODE' (which is defined as either SVC or SYS), and then it
+// changes back to IRQ mode. This confuses the GDB backtrace printer greatly.
+// The CFI directives should give you a correct backtrace whilst in IRQ mode,
+// but it will be garbage while in 'HANDLER_MODE'.
 #[cfg(target_arch = "arm")]
 core::arch::global_asm!(
     r#"
@@ -35,10 +43,16 @@ core::arch::global_asm!(
     .type _asm_default_irq_handler, %function
     .p2align 2
     _asm_default_irq_handler:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
         sub     lr, lr, 4                 // Make sure we jump back to the right place
         stmfd   sp!, {{ lr }}             // Save adjusted LR to IRQ stack (1)
+        .cfi_def_cfa sp, 4                // CFA is at [SP_irq + 4]
+        .cfi_offset lr, -4                // saved LR is at [CFA - 4]
         mrs     lr, spsr                  // Grab SPSR (2)
         push    {{ lr }}                  // Push SPSR value (3)
+        .cfi_adjust_cfa_offset 4          // Account for last push
         msr     cpsr_c, {handler_mode}    // Switch to handler mode (4)
         push    {{ lr }}                  // Push LR of handler mode before using it for stack alignment (5)
         and     lr, sp, 7                 // Align SP down to eight byte boundary using LR
@@ -56,9 +70,13 @@ core::arch::global_asm!(
         pop     {{ lr }}                  // Pop the actual link register of handler mode to undo (5)
         msr     cpsr_c, {irq_mode}        // Switch back to IRQ mode (with IRQ masked) to undo (4)
         pop     {{ lr }}                  // Grab saved SPSR to undo (3)
+        .cfi_adjust_cfa_offset -4         // Account for last pop
         msr     spsr, lr                  // Restore SPSR using LR to undo (2)
         ldmfd   sp!, {{ pc }}^            // Return from exception to undo (1) (^ => restore SPSR to CPSR)
-    .size _asm_default_irq_handler, . - _asm_default_irq_handler
+        .size _asm_default_irq_handler, . - _asm_default_irq_handler
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#,
     handler_mode = const HANDLER_MODE,

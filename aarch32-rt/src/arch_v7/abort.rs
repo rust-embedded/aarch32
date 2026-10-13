@@ -18,6 +18,9 @@ core::arch::global_asm!(
     .type _asm_default_data_abort_handler, %function
     .p2align 2
     _asm_default_data_abort_handler:
+        .fnstart
+        .cfi_sections .debug_frame
+        .cfi_startproc
         sub     lr, lr, #8                // Make sure we jump back to the right place
         srsfd   sp!, #{abt_mode}          // Store return state to ABT stack (1)
         push    {{ r12 }}                 // Push preserved register R12 (2)
@@ -38,7 +41,10 @@ core::arch::global_asm!(
         pop     {{ r12 }}                 // Pop R12 to undo (2)
         str     lr, [sp]                  // Overwrite the saved LR with the one from the C handler
         rfefd   sp!                       // Return from exception to undo (1)
-    .size _asm_default_data_abort_handler, . - _asm_default_data_abort_handler
+        .size _asm_default_data_abort_handler, . - _asm_default_data_abort_handler
+        .cfi_endproc
+        .cantunwind
+        .fnend
     .popsection
     "#,
     abt_mode = const crate::ProcessorMode::Abt as u8,
