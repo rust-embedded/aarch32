@@ -49,26 +49,26 @@ pub fn isb() {
 /// Emit an NOP instruction
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn nop() {
-    unsafe { core::arch::asm!("nop", options(nomem, nostack, preserves_flags)) }
+    unsafe { core::arch::asm!("nop", options(nostack, preserves_flags)) }
 }
 
 /// Emit an WFI instruction
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn wfi() {
-    unsafe { core::arch::asm!("wfi", options(nomem, nostack, preserves_flags)) }
+    unsafe { core::arch::asm!("wfi", options(nostack, preserves_flags)) }
 }
 
 /// Emit an WFE instruction
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn wfe() {
-    unsafe { core::arch::asm!("wfe", options(nomem, nostack, preserves_flags)) }
+    unsafe { core::arch::asm!("wfe", options(nostack, preserves_flags)) }
 }
 
 /// Emit an SEV instruction
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn sev() {
     unsafe {
-        core::arch::asm!("sev", options(nomem, nostack, preserves_flags));
+        core::arch::asm!("sev", options(nostack, preserves_flags));
     }
 }
 
@@ -76,7 +76,7 @@ pub fn sev() {
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn irq_disable() {
     unsafe {
-        core::arch::asm!("cpsid i", options(nomem, nostack, preserves_flags));
+        core::arch::asm!("cpsid i", options(nostack, preserves_flags));
     }
 }
 
@@ -88,7 +88,7 @@ pub fn irq_disable() {
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub unsafe fn irq_enable() {
     unsafe {
-        core::arch::asm!("cpsie i", options(nomem, nostack, preserves_flags));
+        core::arch::asm!("cpsie i", options(nostack, preserves_flags));
     }
 }
 
@@ -96,7 +96,7 @@ pub unsafe fn irq_enable() {
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn fiq_disable() {
     unsafe {
-        core::arch::asm!("cpsid f", options(nomem, nostack, preserves_flags));
+        core::arch::asm!("cpsid f", options(nostack, preserves_flags));
     }
 }
 
@@ -106,7 +106,7 @@ pub fn fiq_disable() {
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn fiq_enable() {
     unsafe {
-        core::arch::asm!("cpsie f", options(nomem, nostack, preserves_flags));
+        core::arch::asm!("cpsie f", options(nostack, preserves_flags));
     }
 }
 
@@ -117,7 +117,7 @@ pub fn fiq_enable() {
 pub fn core_id() -> u32 {
     let r: u32;
     unsafe {
-        core::arch::asm!("MRC p15, 0, {}, c0, c0, 5", out(reg) r, options(nomem, nostack, preserves_flags));
+        core::arch::asm!("MRC p15, 0, {}, c0, c0, 5", out(reg) r, options(nostack, preserves_flags));
     }
     r & 0x00FF_FFFF
 }
