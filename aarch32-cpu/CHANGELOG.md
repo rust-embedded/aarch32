@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Added `Dfsr::sd` and `Dfsr::wnr` for Armv7-R
+
+### Changed
+
+- Fixed the Armv7-R `DfsrStatus` and `IfsrStatus` encodings
+
 ## [aarch32-cpu v0.4.0]
 
 ### Changed
