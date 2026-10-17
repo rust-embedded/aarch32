@@ -150,26 +150,30 @@ pub enum IfsrStatus {
 }
 
 /// Fault status register enumeration for IFSR
+///
+/// See the PMSAv7 IFSR encodings in the Arm Architecture Reference Manual (DDI 0406C, B5.5.4).
 #[bitbybit::bitenum(u5, exhaustive = false)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, PartialEq, Eq)]
 #[cfg(arm_architecture = "v7-r")]
 pub enum IfsrStatus {
+    /// Background fault (MPU)
+    Background = 0b00000,
     /// PC Alignment Fault
-    Alignment = 1,
+    Alignment = 0b00001,
     /// Debug Exception
-    DebugEvent = 2,
+    DebugEvent = 0b00010,
     /// Synchronous External abort
-    SyncExtAbort = 8,
-    /// Permission fault, level 1
-    PermissionFaultFirstLevel = 13,
-    /// Asynchronous External abort
-    AsyncExtAbort = 21,
+    SyncExtAbort = 0b01000,
+    /// Permission fault (MPU)
+    PermissionFaultFirstLevel = 0b01101,
+    /// IMPLEMENTATION DEFINED fault (Lockdown fault)
+    Lockdown = 0b10100,
     /// Synchronous parity or ECC error
-    SyncParityEccError = 25,
-    /// asynchronous parity or ECC error
-    AsyncParityEccError = 24,
+    SyncParityEccError = 0b11001,
+    /// IMPLEMENTATION DEFINED fault (Coprocessor abort)
+    CoprocessorAbort = 0b11010,
 }
 
 /// Fault status register enumeration for IFSR

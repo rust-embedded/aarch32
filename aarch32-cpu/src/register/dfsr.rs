@@ -36,6 +36,12 @@ pub struct Dfsr {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg(arm_architecture = "v7-r")]
 pub struct Dfsr {
+    /// AXI Decode or Slave error, on an external abort
+    #[bit(12, rw)]
+    sd: bool,
+    /// Write not Read
+    #[bit(11, rw)]
+    wnr: bool,
     /// Status bitfield.
     #[bits([0..=3, 10], rw)]
     status: Option<DfsrStatus>,
@@ -161,6 +167,8 @@ pub enum DfsrStatus {
 }
 
 /// Fault status register enumeration for DFSR
+///
+/// See the PMSAv7 DFSR encodings in the Arm Architecture Reference Manual (DDI 0406C, B5.5.4).
 #[bitbybit::bitenum(u5, exhaustive = false)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -168,22 +176,26 @@ pub enum DfsrStatus {
 #[derive(Debug, PartialEq, Eq)]
 #[repr(u8)]
 pub enum DfsrStatus {
+    /// Background fault (MPU)
+    Background = 0b00000,
     /// Alignment fault
-    AlignmentFault = 1,
-    /// Debug exception
-    Debug = 2,
-    /// Translation fault
-    Translation = 4,
-    /// Permission fault
-    Permission = 12,
-    /// Synchronous external abort, other than synchronous parity or ECC error
-    SError = 16,
-    /// SError interrupt
-    SErrorInterrupt = 17,
+    AlignmentFault = 0b00001,
+    /// Watchpoint debug event
+    Debug = 0b00010,
+    /// Synchronous external abort
+    SyncExtAbort = 0b01000,
+    /// Permission fault (MPU)
+    Permission = 0b01101,
+    /// IMPLEMENTATION DEFINED fault (Lockdown fault)
+    Lockdown = 0b10100,
+    /// Asynchronous external abort
+    AsyncExtAbort = 0b10110,
+    /// Asynchronous parity or ECC error on memory access
+    SErrorParityEccError = 0b11000,
     /// Synchronous parity or ECC error on memory access
-    SyncParErrorOnMemAccess = 24,
-    /// SError parity or ECC error on memory access
-    SErrorParityEccError = 25,
+    SyncParErrorOnMemAccess = 0b11001,
+    /// IMPLEMENTATION DEFINED fault (Coprocessor abort)
+    CoprocessorAbort = 0b11010,
 }
 
 /// Fault status register enumeration for DFSR
