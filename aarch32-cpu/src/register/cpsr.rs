@@ -80,7 +80,7 @@ impl Cpsr {
 
         #[cfg(target_arch = "arm")]
         unsafe {
-            core::arch::asm!("mrs {}, CPSR", out(reg) r, options(nomem, nostack, preserves_flags));
+            core::arch::asm!("mrs {}, CPSR", out(reg) r, options(nostack, preserves_flags));
         }
         #[cfg(not(target_arch = "arm"))]
         {
