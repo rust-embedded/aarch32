@@ -263,7 +263,7 @@ pub trait SysRegRead: SysReg {
                 crn = const Self::CRN,
                 crm = const Self::CRM,
                 op2 = const Self::OP2,
-                options(nomem, nostack, preserves_flags)
+                options(nostack, preserves_flags)
             );
         }
         #[cfg(not(target_arch = "arm"))]
@@ -295,7 +295,7 @@ pub trait SysRegWrite: SysReg {
                 crn = const Self::CRN,
                 crm = const Self::CRM,
                 op2 = const Self::OP2,
-                options(nomem, nostack, preserves_flags)
+                options(nostack, preserves_flags)
             );
         }
     }
@@ -331,7 +331,7 @@ pub trait SysRegRead64: SysReg64 {
                 rt = out(reg) r_lo,
                 rt2 = out(reg) r_hi,
                 crm = const Self::CRM,
-                options(nomem, nostack, preserves_flags)
+                options(nostack, preserves_flags)
             );
         }
         #[cfg(not(target_arch = "arm"))]
@@ -364,7 +364,7 @@ pub trait SysRegWrite64: SysReg64 {
                 rt = in(reg) r_lo,
                 rt2 = in(reg) r_hi,
                 crm = const Self::CRM,
-                options(nomem, nostack, preserves_flags)
+                options(nostack, preserves_flags)
             );
         }
     }

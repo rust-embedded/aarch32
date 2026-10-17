@@ -3,7 +3,7 @@
 /// Emit an NOP instruction
 #[cfg_attr(not(feature = "check-asm"), inline)]
 pub fn nop() {
-    unsafe { core::arch::asm!("nop", options(nomem, nostack, preserves_flags)) }
+    unsafe { core::arch::asm!("nop", options(nostack, preserves_flags)) }
 }
 
 /// Mask IRQ
@@ -23,7 +23,7 @@ pub fn irq_disable() {
                 .with_i(true)
                 .raw_value()
         },
-        options(nomem, nostack, preserves_flags));
+        options(nostack, preserves_flags));
     };
 }
 
@@ -48,7 +48,7 @@ pub unsafe fn irq_enable() {
                 .with_i(true)
                 .raw_value()
         },
-        options(nomem, nostack, preserves_flags));
+        options(nostack, preserves_flags));
     };
 }
 
@@ -69,7 +69,7 @@ pub fn fiq_disable() {
                 .with_f(true)
                 .raw_value()
         },
-        options(nomem, nostack, preserves_flags));
+        options(nostack, preserves_flags));
     };
 }
 
@@ -92,7 +92,7 @@ pub fn fiq_enable() {
                 .with_f(true)
                 .raw_value()
         },
-        options(nomem, nostack, preserves_flags));
+        options(nostack, preserves_flags));
     };
 }
 
@@ -105,7 +105,7 @@ pub fn fiq_enable() {
 pub fn core_id() -> u32 {
     let r: u32;
     unsafe {
-        core::arch::asm!("MRC p15, 0, {}, c0, c0, 5", out(reg) r, options(nomem, nostack, preserves_flags));
+        core::arch::asm!("MRC p15, 0, {}, c0, c0, 5", out(reg) r, options(nostack, preserves_flags));
     }
     r & 0x00FF_FFFF
 }
