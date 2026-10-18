@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Fixed the Armv7-R `DfsrStatus` and `IfsrStatus` encodings
+- Removed `Ifsr::domain` for Armv7-R and renamed `IfsrStatus::PermissionFaultFirstLevel` to
+  `Permission` to match `DfsrStatus`
 
 ## [aarch32-cpu v0.4.0]
 

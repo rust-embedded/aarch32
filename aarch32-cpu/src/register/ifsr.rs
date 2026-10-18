@@ -1,6 +1,6 @@
 //! Code for managing IFSR (*Instruction Fault Status Register*)
 
-#[allow(unused)]
+#[cfg(any(arm_architecture = "v5te", arm_architecture = "v6"))]
 use arbitrary_int::u4;
 
 use crate::register::{SysReg, SysRegRead, SysRegWrite};
@@ -39,9 +39,6 @@ pub struct Ifsr {
     /// AXI Decode or Slave
     #[bit(12, r)]
     sd: bool,
-    /// Which domain was being accessed
-    #[bits(4..=7, rw)]
-    domain: u4,
     /// Status bitfield.
     #[bits([0..=3, 10], rw)]
     status: Option<IfsrStatus>,
@@ -167,7 +164,7 @@ pub enum IfsrStatus {
     /// Synchronous External abort
     SyncExtAbort = 0b01000,
     /// Permission fault (MPU)
-    PermissionFaultFirstLevel = 0b01101,
+    Permission = 0b01101,
     /// IMPLEMENTATION DEFINED fault (Lockdown fault)
     Lockdown = 0b10100,
     /// Synchronous parity or ECC error
