@@ -10,12 +10,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added `Dfsr::sd` and `Dfsr::wnr` for Armv7-R
+- Added `Sctlr::ve`
 
 ### Changed
 
 - Fixed the Armv7-R `DfsrStatus` and `IfsrStatus` encodings
 - Removed `Ifsr::domain` for Armv7-R
-  `Permission` to match `DfsrStatus`
+- Fixed `interrupt::free` restoring the IRQ state inverted
 
 ## [aarch32-cpu v0.4.0]
 

@@ -18,6 +18,9 @@ pub struct Sctlr {
     /// The bitmask for the Exception Endianness bit
     #[bits(25..=25, rw)]
     ee: bool,
+    /// The bitmask for the Interrupt Vectors Enable bit
+    #[bits(24..=24, rw)]
+    ve: bool,
     /// The bitmask for the U bit
     #[bits(22..=22, rw)]
     u: bool,
@@ -106,11 +109,12 @@ impl core::fmt::Debug for Sctlr {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
-            "SCTLR {{ IE={} TE={} NMFI={} EE={} U={} FI={} DZ={} BR={} RR={} V={} I={} Z={} SW={} C={} A={} M={} }}",
+            "SCTLR {{ IE={} TE={} NMFI={} EE={} VE={} U={} FI={} DZ={} BR={} RR={} V={} I={} Z={} SW={} C={} A={} M={} }}",
             self.ie() as u8,
             self.te() as u8,
             self.nmfi() as u8,
             self.ee() as u8,
+            self.ve() as u8,
             self.u() as u8,
             self.fi() as u8,
             self.dz() as u8,
@@ -130,6 +134,6 @@ impl core::fmt::Debug for Sctlr {
 #[cfg(feature = "defmt")]
 impl defmt::Format for Sctlr {
     fn format(&self, f: defmt::Formatter) {
-        defmt::write!(f, "SCTLR {{ IE={0=31..32} TE={0=30..31} NMFI={0=27..28} EE={0=25..26} U={0=22..23} FI={0=21..22} DZ={0=18..19} BR={0=17..18} RR={0=14..15} V={0=13..14} I={0=12..13} Z={0=11..12} SW={0=10..11} C={0=2..3} A={0=1..2} M={0=0..1} }}", self.raw_value())
+        defmt::write!(f, "SCTLR {{ IE={0=31..32} TE={0=30..31} NMFI={0=27..28} EE={0=25..26} VE={0=24..25} U={0=22..23} FI={0=21..22} DZ={0=18..19} BR={0=17..18} RR={0=14..15} V={0=13..14} I={0=12..13} Z={0=11..12} SW={0=10..11} C={0=2..3} A={0=1..2} M={0=0..1} }}", self.raw_value())
     }
 }

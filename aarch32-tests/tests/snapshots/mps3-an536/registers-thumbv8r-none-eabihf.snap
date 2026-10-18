@@ -71,5 +71,5 @@ Region 12: Prbar { base: 03000000, shareability: OuterShareable, access_perms: R
 Region 13: Prbar { base: 03400000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
 Region 14: Prbar { base: 03800000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
 Region 15: Prbar { base: 03c00000, shareability: OuterShareable, access_perms: ReadWrite, nx: true     }
-SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=1 RR=0 V=0 I=0 Z=1 SW=0 C=0 A=0 M=0 } before setting C, I and Z
-SCTLR { IE=0 TE=0 NMFI=0 EE=0 U=1 FI=0 DZ=1 BR=1 RR=0 V=0 I=1 Z=1 SW=0 C=1 A=0 M=0 } after
+SCTLR { IE=0 TE=0 NMFI=0 EE=0 VE=0 U=1 FI=0 DZ=1 BR=1 RR=0 V=0 I=0 Z=1 SW=0 C=0 A=0 M=0 } before setting C, I and Z
+SCTLR { IE=0 TE=0 NMFI=0 EE=0 VE=0 U=1 FI=0 DZ=1 BR=1 RR=0 V=0 I=1 Z=1 SW=0 C=1 A=0 M=0 } after
