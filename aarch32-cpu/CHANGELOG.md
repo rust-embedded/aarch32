@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added `Dfsr::sd` and `Dfsr::wnr` for Armv7-R
+- Added `Sctlr::ve`
 
 ### Changed
 
