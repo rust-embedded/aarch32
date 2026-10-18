@@ -43,7 +43,7 @@ where
     let cpsr = crate::register::Cpsr::read();
     disable();
     let result = f();
-    if cpsr.i() {
+    if !cpsr.i() {
         // Safety: We're only turning them back on if they were on previously
         unsafe {
             enable();

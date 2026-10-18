@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Fixed the Armv7-R `DfsrStatus` and `IfsrStatus` encodings
+- Fixed `interrupt::free` restoring the IRQ state inverted
 
 ## [aarch32-cpu v0.4.0]
 
