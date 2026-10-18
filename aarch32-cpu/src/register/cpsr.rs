@@ -54,10 +54,10 @@ pub struct Cpsr {
     /// Asynchronous Aborts
     #[bits(8..=8, rw)]
     a: bool,
-    /// Interrupts Enabled
+    /// IRQ mask, set when IRQs are disabled
     #[bits(7..=7, rw)]
     i: bool,
-    /// Fast Interrupts Enabled
+    /// FIQ mask, set when FIQs are disabled
     #[bits(6..=6, rw)]
     f: bool,
     /// Thumb state
