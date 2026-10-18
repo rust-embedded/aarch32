@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed the Armv7-R `DfsrStatus` and `IfsrStatus` encodings
 - Removed `Ifsr::domain` for Armv7-R
 - Fixed `interrupt::free` restoring the IRQ state inverted
+- Removed `nomem` attribute from the `asm!` intrinsics to stop them being re-ordered around memory accesses
 
 ## [aarch32-cpu v0.4.0]
 
